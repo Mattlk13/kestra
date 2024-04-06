@@ -35,6 +35,11 @@ public class Executor {
     private ExecutionResumed joinedExecutionResumed;
 
     /**
+     * The sequence id should be incremented each time the execution is persisted after mutation.
+     */
+    private long seqId = 0L;
+
+    /**
      * List of {@link ExecutionKilled} to be propagated part of the execution.
      */
     private List<ExecutionKilled> executionKilled;
@@ -42,6 +47,12 @@ public class Executor {
     public Executor(Execution execution, Long offset) {
         this.execution = execution;
         this.offset = offset;
+    }
+
+    public Executor(Execution execution, Long offset, long seqId) {
+        this.execution = execution;
+        this.offset = offset;
+        this.seqId = seqId;
     }
 
     public Executor(WorkerTaskResult workerTaskResult) {
@@ -147,7 +158,18 @@ public class Executor {
     public Executor serialize() {
         return new Executor(
             this.execution,
-            this.offset
+            this.offset,
+            this.seqId
         );
+    }
+
+    /**
+     * Increments and returns the execution sequence id.
+     *
+     * @return the sequence id.
+     */
+    public long incrementAndGetSeqId() {
+        this.seqId++;
+        return seqId;
     }
 }
