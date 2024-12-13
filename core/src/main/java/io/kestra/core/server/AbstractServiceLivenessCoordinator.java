@@ -9,6 +9,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 
@@ -35,6 +36,8 @@ public abstract class AbstractServiceLivenessCoordinator extends AbstractService
 
     protected final ServiceLivenessStore store;
 
+    protected final ServiceRegistry serviceRegistry;
+
     // mutable for testing purpose
     protected String serverId = ServerInstance.INSTANCE_ID;
 
@@ -46,8 +49,10 @@ public abstract class AbstractServiceLivenessCoordinator extends AbstractService
      */
     @Inject
     public AbstractServiceLivenessCoordinator(final ServiceLivenessStore store,
+                                              final ServiceRegistry serviceRegistry,
                                               final ServerConfig serverConfig) {
         super(TASK_NAME, serverConfig);
+        this.serviceRegistry = serviceRegistry;
         this.store = store;
     }
 
@@ -56,6 +61,15 @@ public abstract class AbstractServiceLivenessCoordinator extends AbstractService
      **/
     @Override
     protected void onSchedule(Instant now) throws Exception {
+        if (Optional.ofNullable(serviceRegistry.get(Service.ServiceType.EXECUTOR))
+            .filter(service -> service.instance().is(RUNNING))
+            .isEmpty()) {
+            log.debug(
+                "The liveness coordinator task was temporarily disabled. Executor is not yet in the RUNNING state."
+            );
+            return;
+        }
+
         // Update all RUNNING but non-responding services to DISCONNECTED.
         handleAllNonRespondingServices(now);
 
