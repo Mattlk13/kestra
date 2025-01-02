@@ -105,7 +105,7 @@ public abstract class AbstractJdbcFlowRepository extends AbstractJdbcRepository 
                 Flow deserialize = MAPPER.convertValue(map, Flow.class);
 
                 // raise exception for invalid flow, ex: Templates disabled
-                deserialize.allTasksWithChilds();
+                deserialize.allTasks().forEach((task) -> {});
 
                 return deserialize;
             } catch (DeserializationException | IOException | IllegalArgumentException | FlowProcessingException e) {

@@ -24,6 +24,7 @@ import io.kestra.core.runners.RunContextLogger;
 import io.kestra.core.serializers.JacksonMapper;
 import io.kestra.core.serializers.YamlParser;
 import io.kestra.core.utils.MapUtils;
+import io.kestra.plugin.core.flow.EmbeddedSubflow;
 import io.kestra.plugin.core.flow.Template;
 import io.micronaut.core.annotation.Nullable;
 import jakarta.annotation.PostConstruct;
@@ -381,11 +382,16 @@ public class PluginDefaultService {
             .build();
 
         if (tenant != null) {
-            // This is a hack to set the tenant in template tasks.
-            // When using the Template task, we need the tenant to fetch the Template from the database.
+            // This is a hack to set the tenant in Template and EmbeddedSubflow tasks.
+            // When using the Template or EmbeddedSubflow task, we need the tenant to fetch the them from the database.
             // However, as the task is executed on the Executor we cannot retrieve it from the tenant service and have no other options.
             // So we save it at flow creation/updating time.
-            full.allTasksWithChilds().stream().filter(task -> task instanceof Template).forEach(task -> ((Template) task).setTenantId(tenant));
+            full.allTasksWithChilds().stream()
+                .filter(task -> task instanceof Template)
+                .forEach(task -> ((Template) task).setTenantId(tenant));
+            full.allTasksWithChilds().stream()
+                .filter(task -> task instanceof EmbeddedSubflow)
+                .forEach(task -> ((EmbeddedSubflow) task).setTenantId(tenant));
         }
 
         return full;

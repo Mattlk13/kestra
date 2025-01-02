@@ -140,28 +140,11 @@ public final class ExecutableUtils {
                 }
             }
 
+            String tenantId = currentExecution.getTenantId();
             String subflowNamespace = runContext.render(currentTask.subflowId().namespace());
             String subflowId = runContext.render(currentTask.subflowId().flowId());
             Optional<Integer> subflowRevision = currentTask.subflowId().revision();
-
-            FlowInterface flow = flowExecutorInterface.findByIdFromTask(
-                    currentExecution.getTenantId(),
-                    subflowNamespace,
-                    subflowId,
-                    subflowRevision,
-                    currentExecution.getTenantId(),
-                    currentFlow.getNamespace(),
-                    currentFlow.getId()
-                )
-                .orElseThrow(() -> new IllegalStateException("Unable to find flow '" + subflowNamespace + "'.'" + subflowId + "' with revision '" + subflowRevision.orElse(0) + "'"));
-
-            if (flow.isDisabled()) {
-                throw new IllegalStateException("Cannot execute a flow which is disabled");
-            }
-
-            if (flow instanceof FlowWithException fwe) {
-                throw new IllegalStateException("Cannot execute an invalid flow: " + fwe.getException());
-            }
+            FlowInterface flow = getSubflow(tenantId, subflowNamespace, subflowId, subflowRevision, flowExecutorInterface, currentFlow);
 
             List<Label> newLabels = inheritLabels ? new ArrayList<>(filterLabels(currentExecution.getLabels(), flow)) : new ArrayList<>(systemLabels(currentExecution));
             if (labels != null) {
@@ -221,6 +204,35 @@ public final class ExecutableUtils {
         return labels.stream()
             .filter(label -> flow.getLabels().stream().noneMatch(flowLabel -> flowLabel.key().equals(label.key())))
             .toList();
+    }
+
+    public static FlowInterface getSubflow(String tenantId,
+                           String subflowNamespace,
+                           String subflowId,
+                           Optional<Integer> subflowRevision,
+                           FlowExecutorInterface flowExecutorInterface,
+                                  FlowInterface currentFlow) {
+
+        FlowInterface flow = flowExecutorInterface.findByIdFromTask(
+                tenantId,
+                subflowNamespace,
+                subflowId,
+                subflowRevision,
+                tenantId,
+                currentFlow.getNamespace(),
+                currentFlow.getId()
+            )
+            .orElseThrow(() -> new IllegalStateException("Unable to find flow '" + subflowNamespace + "'.'" + subflowId + "' with revision '" + subflowRevision.orElse(0) + "'"));
+
+        if (flow.isDisabled()) {
+            throw new IllegalStateException("Cannot execute a flow which is disabled");
+        }
+
+        if (flow instanceof FlowWithException fwe) {
+            throw new IllegalStateException("Cannot execute an invalid flow: " + fwe.getException());
+        }
+
+        return flow;
     }
 
     private static List<Label> systemLabels(Execution execution) {
