@@ -977,7 +977,6 @@ $properties: v-bind('props.propertiesWidth + "px"');
 .filters-select {
     & .el-select-dropdown {
         width: auto !important;
-        max-width: 300px;
 
         &:has(.el-select-dropdown__empty) {
             width: auto !important;
@@ -992,6 +991,10 @@ $properties: v-bind('props.propertiesWidth + "px"');
     & .el-date-editor.el-input__wrapper {
         background-color: initial;
         box-shadow: none;
+    }
+
+    & .el-select-dropdown__item {
+        padding-right: 20px;
     }
 
     & .el-select-dropdown__item .material-design-icon {
