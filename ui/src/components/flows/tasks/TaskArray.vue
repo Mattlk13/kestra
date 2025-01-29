@@ -3,7 +3,7 @@
         v-for="(item, index) in values"
         :key="'array-' + index"
         :gutter="10"
-        class="w-100"
+        class="w-100 mb-2"
     >
         <el-col :span="22">
             <component
