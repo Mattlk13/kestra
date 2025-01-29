@@ -11,6 +11,10 @@ on:
         options:
           - "true"
           - "false"
+      release-tag:
+        description: 'Kestra Release Tag'
+        required: false
+        type: string
       plugin-version:
         description: 'Plugin version'
         required: false
@@ -57,10 +61,19 @@ jobs:
       - name: Set image name
         id: vars
         run: |
-          TAG=${GITHUB_REF#refs/*/}
-          echo "tag=${TAG}" >> $GITHUB_OUTPUT
-          echo "plugins=${{ matrix.image.plugins }}" >> $GITHUB_OUTPUT
-
+          if [[ "${{ inputs.release-tag }}" == "" ]]; then
+            TAG=${{ inputs.release-tag }}
+            echo "tag=${TAG}" >> $GITHUB_OUTPUT
+          else 
+            TAG=${GITHUB_REF#refs/*/}
+            echo "tag=${TAG}" >> $GITHUB_OUTPUT
+          fi 
+         
+          if [[ "${{ env.PLUGIN_VERSION }}" == *"-SNAPSHOT" ]]; then
+            echo "plugins=--repositories=https://s01.oss.sonatype.org/content/repositories/snapshots $PLUGINS" >> $GITHUB_OUTPUT;
+          else
+            echo "plugins=${{ matrix.image.plugins }}" >> $GITHUB_OUTPUT
+          fi
       # Download release
       - name: Download release
         uses: robinraju/release-downloader@v1.11
