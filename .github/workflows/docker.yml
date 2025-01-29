@@ -42,7 +42,6 @@ jobs:
     name: Publish Docker
     needs: [ plugins ]
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v')
     strategy:
       matrix:
         image:
