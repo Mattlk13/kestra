@@ -189,7 +189,8 @@
                         containerClass: "demo-container",
                         props: {
                             tab: "edit",
-                        }
+                        },
+                        locked: true
                     },
                     {
                         name: "variables",
@@ -198,7 +199,8 @@
                         containerClass: "demo-container",
                         props: {
                             tab: "variables",
-                        }
+                        },
+                        locked: true
                     },
                     {
                         name: "plugin-defaults",
@@ -207,7 +209,8 @@
                         containerClass: "demo-container",
                         props: {
                             tab: "plugin-defaults",
-                        }
+                        },
+                        locked: true
                     },
                     {
                         name: "secrets",
@@ -216,7 +219,8 @@
                         containerClass: "demo-container",
                         props: {
                             tab: "secrets",
-                        }
+                        },
+                        locked: true
                     },
                     {
                         name: "audit-logs",
@@ -225,7 +229,8 @@
                         containerClass: "demo-container",
                         props: {
                             tab: "audit-logs",
-                        }
+                        },
+                        locked: true
                     }
                 ])
 

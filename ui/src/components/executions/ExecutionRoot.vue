@@ -159,6 +159,7 @@
                     {
                         name: "auditlogs",
                         title: title("auditlogs"),
+                        maximized: true,
                         locked: true
                     }
                 ];

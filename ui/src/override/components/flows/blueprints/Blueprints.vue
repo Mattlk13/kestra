@@ -106,7 +106,8 @@
                     {
                         name: "custom",
                         title: this.$t("blueprints.custom"),
-                        query: this.$route.query
+                        query: this.$route.query,
+                        locked: true
                     }
                 ]
             },

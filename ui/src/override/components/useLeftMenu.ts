@@ -68,6 +68,9 @@ export function useLeftMenu() {
                 icon: {
                     element: shallowRef(FormatListGroupPlus),
                     class: "menu-icon"
+                },
+                attributes: {
+                    locked: true
                 }
             },
             {
@@ -170,6 +173,9 @@ export function useLeftMenu() {
                             element: shallowRef(AccountOutline),
                             class: "menu-icon"
                         },
+                        attributes: {
+                            locked: true
+                        }
                     },
                     {
                         href: {name: "admin/auditlogs/list"},
@@ -178,6 +184,9 @@ export function useLeftMenu() {
                         icon: {
                             element: shallowRef(ShieldCheckOutline),
                             class: "menu-icon"
+                        },
+                        attributes: {
+                            locked: true
                         }
                     },
                     {
@@ -196,6 +205,9 @@ export function useLeftMenu() {
                         icon: {
                             element: shallowRef(ServerOutline),
                             class: "menu-icon"
+                        },
+                        attributes: {
+                            locked: true
                         }
                     },
                     {
@@ -205,6 +217,9 @@ export function useLeftMenu() {
                         icon: {
                             element: shallowRef(ShieldLockOutline),
                             class: "menu-icon"
+                        },
+                        attributes: {
+                            locked: true
                         }
                     },
                     {

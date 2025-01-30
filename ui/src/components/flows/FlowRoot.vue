@@ -272,7 +272,8 @@
                     containerClass: "demo-container",
                     props:{
                         embed: true
-                    }
+                    },
+                    locked: true
                 });
 
                 return tabs;
