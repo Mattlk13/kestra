@@ -86,7 +86,9 @@
             }
         },
         mounted(){
-            if(!this.$route?.params?.tab) this.$router.push({name: "blueprints", params: {tab: "community"}})
+            if(!this.embed && !this.$route?.params?.tab) {
+                this.$router.push({name: "blueprints", params: {tab: "community", kind: this.kind}})
+            }
         },
         computed: {
             routeInfo() {
