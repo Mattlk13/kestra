@@ -10,7 +10,6 @@
         v-else
         :is="lastBreadcumb.component.type"
         v-bind="lastBreadcumb.component.props"
-        v-on="lastBreadcumb.component.listeners"
         :model-value="lastBreadcumb.component.props.modelValue"
         @update:model-value="validateTask"
     />
