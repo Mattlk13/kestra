@@ -18,7 +18,7 @@ on:
 jobs:
   release:
     name: Release plugins
-    runs-on: kestra-private-standard
+    runs-on: ubuntu-latest
     steps:
       # Checkout
       - uses: actions/checkout@v4
