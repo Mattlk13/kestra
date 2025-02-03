@@ -115,7 +115,7 @@
                     class="rounded-0"
                 />
             </KestraIcon>
-            <Save :disabled="!currentFilters.length" :prefix="ITEMS_PREFIX" :current-filters />
+            <Save :disabled="!currentFilters.length" :prefix="ITEMS_PREFIX" :current="currentFilters" />
         </el-button-group>
 
         <el-button-group
