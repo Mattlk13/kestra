@@ -1148,6 +1148,16 @@
         "message": "Kestra Enterprise Editionのアプリは、プラットフォーム外からKestraのworkflowと連携するカスタムUIを構築することを可能にします。この機能により、workflowをカスタムアプリケーションのバックエンドとして使用でき、技術的でないユーザーがフォームを通じてデータを送信したり、承認待ちのPAUSED状態のworkflowを再開したりすることができます。"
       }
     },
-    "apps": "アプリケーション"
+    "apps": "アプリケーション",
+    "editor_shortcuts": {
+      "save_flow": "フローを保存",
+      "comment_uncomment": "コメント/コメント解除",
+      "duplicate_cursor": "カーソルを複製",
+      "uncomment": "コメント解除",
+      "label": "キーボードショートカット",
+      "fold_unfold": "コードを折りたたむ/展開する",
+      "comment": "コメント",
+      "move_line": "行を移動"
+    }
   }
 }

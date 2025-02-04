@@ -1148,6 +1148,16 @@
         "message": "Kestra Enterprise Edition의 앱은 플랫폼 외부에서 Kestra 워크플로와 상호작용하는 맞춤형 UI를 구축할 수 있게 해줍니다. 이 기능을 통해 워크플로를 맞춤형 애플리케이션의 백엔드로 사용할 수 있으며, 비기술적 사용자도 양식을 통해 데이터를 제출하거나 승인을 기다리는 PAUSED 워크플로를 재개할 수 있습니다."
       }
     },
-    "apps": "앱"
+    "apps": "앱",
+    "editor_shortcuts": {
+      "save_flow": "Flow 저장",
+      "comment_uncomment": "주석 처리/주석 해제",
+      "duplicate_cursor": "커서 복제",
+      "uncomment": "주석 해제",
+      "label": "키보드 단축키",
+      "fold_unfold": "코드 접기/펼치기",
+      "comment": "댓글",
+      "move_line": "줄 이동"
+    }
   }
 }

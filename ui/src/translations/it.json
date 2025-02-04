@@ -1148,6 +1148,16 @@
         "message": "Le app nella Kestra Enterprise Edition ti consentono di creare interfacce utente personalizzate che interagiscono con i workflow di Kestra al di fuori della piattaforma. Questa funzionalità ti permette di utilizzare i tuoi workflow come backend per applicazioni personalizzate, consentendo agli utenti non tecnici di inviare dati tramite moduli o riprendere workflow PAUSED in attesa di approvazione."
       }
     },
-    "apps": "Applicazioni"
+    "apps": "Applicazioni",
+    "editor_shortcuts": {
+      "save_flow": "Salva flow",
+      "comment_uncomment": "Commenta/Decommenta",
+      "duplicate_cursor": "Duplica cursore",
+      "uncomment": "Decommenta",
+      "label": "Scorciatoie da tastiera",
+      "fold_unfold": "Piega/Spiega codice",
+      "comment": "Commento",
+      "move_line": "Sposta linea"
+    }
   }
 }

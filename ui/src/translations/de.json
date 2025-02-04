@@ -1148,6 +1148,16 @@
         "message": "Apps in der Kestra Enterprise Edition ermöglichen es Ihnen, benutzerdefinierte UIs zu erstellen, die mit Kestra-Workflows außerhalb der Plattform interagieren. Diese Funktion erlaubt es Ihnen, Ihre Workflows als Backend für benutzerdefinierte Anwendungen zu nutzen, sodass nicht-technische Benutzer Daten über Formulare einreichen oder pausierte Workflows, die auf eine Genehmigung warten, fortsetzen können."
       }
     },
-    "apps": "Apps"
+    "apps": "Apps",
+    "editor_shortcuts": {
+      "save_flow": "Flow speichern",
+      "comment_uncomment": "Kommentar/Kommentar entfernen",
+      "duplicate_cursor": "Kursor duplizieren",
+      "uncomment": "Entkommentieren",
+      "label": "Tastenkombinationen",
+      "fold_unfold": "Code ein-/ausklappen",
+      "comment": "Kommentar",
+      "move_line": "Zeile verschieben"
+    }
   }
 }

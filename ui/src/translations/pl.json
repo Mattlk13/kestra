@@ -1148,6 +1148,16 @@
         "message": "Aplikacje w Kestra Enterprise Edition umożliwiają tworzenie niestandardowych interfejsów użytkownika, które współdziałają z workflowami Kestra spoza platformy. Ta funkcja pozwala używać workflowów jako backendu dla niestandardowych aplikacji, umożliwiając użytkownikom nietechnicznym przesyłanie danych za pomocą formularzy lub wznawianie PAUSED workflowów oczekujących na zatwierdzenie."
       }
     },
-    "apps": "Aplikacje"
+    "apps": "Aplikacje",
+    "editor_shortcuts": {
+      "save_flow": "Zapisz flow",
+      "comment_uncomment": "Komentarz/Odkomentuj",
+      "duplicate_cursor": "Duplikuj kursor",
+      "uncomment": "Odkomentuj",
+      "label": "Skróty klawiaturowe",
+      "fold_unfold": "Zwiń/Rozwiń kod",
+      "comment": "Komentarz",
+      "move_line": "Przenieś linię"
+    }
   }
 }
