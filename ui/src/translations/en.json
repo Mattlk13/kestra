@@ -1163,6 +1163,16 @@
         "input": "Save input"
       }
     },
+    "editor_shortcuts": {
+      "label": "Keyboard shortcuts",
+      "save_flow": "Save flow",
+      "move_line": "Move line",
+      "duplicate_cursor": "Duplicate cursor",
+      "fold_unfold": "Fold/Unfold code",
+      "comment_uncomment": "Comment/Uncomment",
+      "comment": "Comment",
+      "uncomment": "Uncomment"
+    },
     "instance": "Instance"
   }
 }
