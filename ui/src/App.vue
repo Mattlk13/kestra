@@ -105,7 +105,6 @@
         },
         methods: {
             displayApp() {
-                console.log("App is loaded");
                 Utils.switchTheme(this.$store);
 
                 document.getElementById("loader-wrapper").style.display = "none";
