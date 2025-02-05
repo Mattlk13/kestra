@@ -74,8 +74,10 @@
     const tooltipContent = ref("")
 
     const parsedData = computed(() => {
+        console.log("theme", theme.value)
         let datasets = props.data.reduce(function (accumulator, value) {
             Object.keys(value.executionCounts).forEach(function (state) {
+                console.log("theme", theme.value)
                 if (accumulator[state] === undefined) {
                     accumulator[state] = {
                         label: state,
