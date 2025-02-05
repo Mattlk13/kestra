@@ -1159,6 +1159,15 @@
       "comment": "Kommentar",
       "move_line": "Zeile verschieben",
       "command_palette": "Befehlsübersicht anzeigen"
+    },
+    "something_went_wrong": {
+      "loading_execution": "Beim Laden der Ausführung ist etwas schiefgelaufen."
+    },
+    "properties": {
+      "shown": "In Tabelle angezeigt",
+      "hint": "Sichtbare Spalten auswählen",
+      "hidden": "In Tabelle versteckt",
+      "label": "Eigenschaften"
     }
   }
 }
