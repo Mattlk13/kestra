@@ -846,18 +846,18 @@
                         h(ElSwitch, {
                             modelValue: includeNonTerminated.value,
                             "onUpdate:modelValue": (val) => {
-                                includeNonTerminated.value = val
+                                includeNonTerminated.value = val;
                             },
                         }),
                     ]),
-                    h(ElAlert, {
-                        title:  this.$t("execution-warn-title"),
+                    includeNonTerminated.value ? h(ElAlert, {
+                        title: this.$t("execution-warn-title"),
                         description: this.$t("execution-warn-deleting-still-running"),
                         type: "warning",
                         showIcon: true,
                         closable: false,
                         class: "custom-warning"
-                    }),
+                    }) : null,
                     h(ElCheckbox, {
                         modelValue: deleteLogs.value,
                         label: this.$t("execution_deletion.logs"),
@@ -888,7 +888,7 @@
                         "execution/queryDeleteExecution",
                         "execution/bulkDeleteExecution",
                         "executions deleted"
-                    )
+                    );
                 });
             },
             killExecutions() {
