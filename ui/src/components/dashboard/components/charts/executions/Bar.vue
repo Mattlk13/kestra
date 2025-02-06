@@ -51,7 +51,7 @@
 
     import {barLegend} from "../legend.js";
 
-    import Utils from "../../../../../utils/utils.js";
+    import Utils, {useTheme} from "../../../../../utils/utils.js";
     import {defaultConfig, getFormat} from "../../../../../utils/charts.js";
     import {getScheme} from "../../../../../utils/scheme.js";
 
@@ -73,13 +73,14 @@
         },
     });
 
+    const theme = useTheme()
     const parsedData = computed(() => {
         let datasets = props.data.reduce(function (accumulator, value) {
             Object.keys(value.executionCounts).forEach(function (state) {
                 if (accumulator[state] === undefined) {
                     accumulator[state] = {
                         label: state,
-                        backgroundColor: getScheme(state),
+                        backgroundColor: getScheme(theme.value, state),
                         yAxisID: "y",
                         data: [],
                     };
