@@ -194,14 +194,8 @@
                 />
             </el-col>
             <el-col :xs="24" :lg="props.flow ? 7 : 12">
-                <ExecutionsDoughnut
-                    v-if="props.flow"
-                    :data="graphData"
-                    :total="stats.total"
-                    class="ms-2"
-                />
                 <ExecutionsNextScheduled
-                    v-else-if="isAllowedTriggers"
+                    v-if="isAllowedTriggers"
                     :flow="props.flowId"
                     :namespace="props.namespace"
                     class="ms-2"
