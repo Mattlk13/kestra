@@ -420,7 +420,7 @@
                 this.pendingSettings.logsFontSize = value;
             },
             saveAllSettings() {
-                Object.keys(this.pendingSettings).forEach((key) => {
+                Object.keys(this.pendingSettings).forEach(async(key) => {
                     const storedKey = this.settingsKeyMapping[key]
                     switch(key) {
                     case "defaultNamespace":
@@ -459,6 +459,8 @@
 
                         let newlang = Utils.getLang();
                         this.$moment.locale(newlang);
+                        const messages = await import(`../../translations/${newlang}.json`)
+                        this.$v_i18n.global.setLocaleMessage(newlang, messages[newlang]);
                         this.$i18n.locale = newlang;
                         this.localeKey = this.$moment.locale();
 
