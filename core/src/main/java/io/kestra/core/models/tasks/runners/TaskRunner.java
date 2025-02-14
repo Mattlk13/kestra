@@ -1,7 +1,6 @@
 package io.kestra.core.models.tasks.runners;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import io.kestra.core.exceptions.IllegalVariableEvaluationException;
 import io.kestra.core.models.Plugin;
 import io.kestra.core.models.WorkerJobLifecycle;
@@ -31,7 +30,6 @@ import static io.kestra.core.utils.WindowsUtils.windowsToUnixPath;
 @SuperBuilder(toBuilder = true)
 @Getter
 @NoArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public abstract class TaskRunner<T extends TaskRunnerDetailResult> implements Plugin, WorkerJobLifecycle {
     @NotBlank
     @Pattern(regexp="\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*(\\.\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*)*")

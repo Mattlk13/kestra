@@ -1,7 +1,6 @@
 package io.kestra.core.models.tasks;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import io.kestra.core.exceptions.IllegalVariableEvaluationException;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.executions.TaskRun;
@@ -24,7 +23,6 @@ import static io.kestra.core.utils.Rethrow.throwFunction;
 @SuperBuilder(toBuilder = true)
 @Getter
 @NoArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @Plugin
 abstract public class Task implements TaskInterface {
     protected String id;
