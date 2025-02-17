@@ -1,5 +1,6 @@
 package io.kestra.core.utils;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
@@ -10,6 +11,7 @@ import io.kestra.core.models.executions.LogEntry;
 import io.kestra.core.models.executions.TaskRun;
 import io.kestra.core.models.flows.Flow;
 import io.kestra.core.models.flows.State;
+import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.Task;
 import io.kestra.core.models.triggers.AbstractTrigger;
 import io.kestra.core.models.triggers.Trigger;
@@ -242,5 +244,9 @@ abstract public class TestsUtils {
         }).start();
 
         return flux;
+    }
+
+    public static <T> Property<List<T>> propertyFromList(List<T> list) throws JsonProcessingException {
+        return new Property<>(JacksonMapper.ofJson().writeValueAsString(list));
     }
 }
