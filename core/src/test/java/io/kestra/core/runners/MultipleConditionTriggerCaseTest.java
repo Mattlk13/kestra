@@ -1,14 +1,18 @@
 package io.kestra.core.runners;
 
-import io.kestra.core.queues.QueueException;
-import io.kestra.core.utils.TestsUtils;
-import io.micronaut.context.ApplicationContext;
 import io.kestra.core.models.executions.Execution;
 import io.kestra.core.models.flows.Flow;
 import io.kestra.core.models.flows.State;
+import io.kestra.core.queues.QueueException;
 import io.kestra.core.queues.QueueFactoryInterface;
 import io.kestra.core.queues.QueueInterface;
 import io.kestra.core.repositories.FlowRepositoryInterface;
+import io.kestra.core.utils.TestsUtils;
+import io.micronaut.context.ApplicationContext;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
+import reactor.core.publisher.Flux;
 
 import java.time.Duration;
 import java.util.Map;
@@ -17,11 +21,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
-
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
-import jakarta.inject.Singleton;
-import reactor.core.publisher.Flux;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -99,8 +98,8 @@ public class MultipleConditionTriggerCaseTest {
         Flux<Execution> receive = TestsUtils.receive(executionQueue, either -> {
             Execution execution = either.getLeft();
             if (execution.getFlowId().equals("trigger-flow-listener-namespace-condition") && execution.getState().getCurrent().isTerminated() ) {
-                countDownLatch.countDown();
                 listener.set(execution);
+                countDownLatch.countDown();
             }
         });
 
