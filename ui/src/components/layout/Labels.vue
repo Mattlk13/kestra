@@ -30,33 +30,24 @@
         {labels: () => [], readOnly: false},
     );
 
-    import {decodeParams} from "../../components/filter/utils/helpers";
     let query: any[] = [];
     watch(
         () => route.query,
-        (q: any) => (query = decodeParams(q, undefined, [])),
+        (q: any) => (query = [].concat(q.labels ?? null)),
         {immediate: true},
     );
 
-    const isChecked = (label: Label) => {
-        return query.some((l) => {
-            if (typeof l?.value !== "string") return false;
-
-            const [key, value] = l.value.split(":");
-            return key === label.key && value === label.value;
-        });
-    };
+    const isChecked = (label: Label) =>
+        query.some((l) => l === `${label.key}:${label.value}`);
 
     const updateLabel = (label: Label) => {
-        const getKey = (key: string) => `filters[labels][$eq][${key}]`;
-
         if (isChecked(label)) {
-            const replacementQuery = {...route.query};
-            delete replacementQuery[getKey(label.key)];
-            router.replace({query: replacementQuery});
+            const helper = {...route.query};
+            delete helper.labels;
+            router.replace({query: helper});
         } else {
             router.replace({
-                query: {...route.query, [getKey(label.key)]: label.value},
+                query: {...route.query, labels: `${label.key}:${label.value}`},
             });
         }
     };

@@ -581,7 +581,7 @@
         () => route.query,
         (q: any) => {
             // Handling change of label filters from direct click events
-            const routeFilters = decodeParams(route.path, q, props.include, OPTIONS);
+            const routeFilters = decodeParams(q, props.include, OPTIONS);
             currentFilters.value = routeFilters;
         },
         {immediate: true},
