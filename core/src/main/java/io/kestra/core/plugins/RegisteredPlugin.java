@@ -154,7 +154,7 @@ public class RegisteredPlugin {
         result.put("secrets", Arrays.asList(this.getSecrets().toArray(Class[]::new)));
         result.put("task-runners", Arrays.asList(this.getTaskRunners().toArray(Class[]::new)));
         result.put("apps", Arrays.asList(this.getApps().toArray(Class[]::new)));
-        result.put("appBlocks", Arrays.asList(this.getAppBlocks().toArray(Class[]::new)));
+        result.put("app-blocks", Arrays.asList(this.getAppBlocks().toArray(Class[]::new)));
         result.put("charts", Arrays.asList(this.getCharts().toArray(Class[]::new)));
         result.put("data-filters", Arrays.asList(this.getDataFilters().toArray(Class[]::new)));
         result.put("log-exporters", Arrays.asList(this.getLogExporters().toArray(Class[]::new)));
@@ -325,6 +325,18 @@ public class RegisteredPlugin {
         if (!this.getTaskRunners().isEmpty()) {
             b.append("[Task Runners: ");
             b.append(this.getTaskRunners().stream().map(Class::getName).collect(Collectors.joining(", ")));
+            b.append("] ");
+        }
+
+        if (!this.getApps().isEmpty()) {
+            b.append("[Apps: ");
+            b.append(this.getApps().stream().map(Class::getName).collect(Collectors.joining(", ")));
+            b.append("] ");
+        }
+
+        if (!this.getAppBlocks().isEmpty()) {
+            b.append("[AppBlocks: ");
+            b.append(this.getAppBlocks().stream().map(Class::getName).collect(Collectors.joining(", ")));
             b.append("] ");
         }
 
