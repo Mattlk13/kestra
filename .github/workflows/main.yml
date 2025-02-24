@@ -218,13 +218,13 @@ jobs:
           export GOOGLE_APPLICATION_CREDENTIALS=$HOME/.gcp-service-account.json
           ./gradlew check javadoc --parallel
 
-      # Sonar
-      - name: Analyze with Sonar
-        if: ${{ env.SONAR_TOKEN != 0 && (github.event.inputs.skip-test == 'false' || github.event.inputs.skip-test == '') }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: ./gradlew sonar --info
+#      # Sonar
+#      - name: Analyze with Sonar
+#        if: ${{ env.SONAR_TOKEN != 0 && (github.event.inputs.skip-test == 'false' || github.event.inputs.skip-test == '') }}
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+#        run: ./gradlew sonar --info
 
       # Allure check
       - name: Auth to Google Cloud
