@@ -1,5 +1,7 @@
 package io.kestra.core.schedulers;
 
+import io.kestra.core.models.Label;
+import io.kestra.core.repositories.FlowRepositoryInterface;
 import io.kestra.core.utils.TestsUtils;
 import io.kestra.jdbc.runner.JdbcScheduler;
 import io.kestra.plugin.core.condition.Expression;
@@ -46,6 +48,8 @@ public class SchedulerPollingTriggerTest extends AbstractSchedulerTest {
     @Inject
     private FlowListeners flowListenersService;
 
+    @Inject
+    protected FlowRepositoryInterface flowRepository;
 
     @Test
     void pollingTrigger() throws Exception {
@@ -92,6 +96,7 @@ public class SchedulerPollingTriggerTest extends AbstractSchedulerTest {
             .toBuilder()
             .tasks(List.of(Fail.builder().id("fail").type(Fail.class.getName()).build()))
             .build();
+        flowRepository.create(flow, flow.generateSource(), flow);
         doReturn(List.of(flow))
             .when(flowListenersServiceSpy)
             .flows();
