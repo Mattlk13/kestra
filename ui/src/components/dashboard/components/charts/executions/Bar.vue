@@ -59,6 +59,9 @@
 
     import Check from "vue-material-design-icons/Check.vue";
 
+    import State from "../../../../../utils/state.js";
+    const ORDER = State.arrayAllStates().map((state) => state.name);
+
     const {t} = useI18n({useScope: "global"});
     const isSmallScreen = ref(window.innerWidth < 610);
 
@@ -90,6 +93,10 @@
 
             return accumulator;
         }, Object.create(null));
+
+        datasets = Object.values(datasets).sort((a, b) => {
+            return ORDER.indexOf(a.label) - ORDER.indexOf(b.label);
+        });
 
         return {
             labels: props.data.map((r) =>
