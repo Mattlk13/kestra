@@ -1,3 +1,58 @@
+# 0.21.5
+
+**Full Changelog**: [v0.21.4...v0.21.5](https://github.com/kestra-io/kestra/compare/v0.21.4...v0.21.5)
+
+### 🚀 Enhancements
+
+- **core:** Add default options for HttpClient ([#7650](https://github.com/kestra-io/kestra/pull/7650))
+
+### 🩹 Fixes
+
+- **ui:** Plugins TOC is now handling every type of plugins ([278289a0c](https://github.com/kestra-io/kestra/commit/278289a0c))
+- **ui:** Styling enhancements for plugin doc ([e4c7c0f10](https://github.com/kestra-io/kestra/commit/e4c7c0f10))
+- **core:** Render list ([d84d66005](https://github.com/kestra-io/kestra/commit/d84d66005))
+- **core:** Properly render list properties ([4abbc4cbc](https://github.com/kestra-io/kestra/commit/4abbc4cbc))
+- **ui:** Replace alert blocks upon markdown rendering to display them properly ([9774d46d8](https://github.com/kestra-io/kestra/commit/9774d46d8))
+- **core:** Validation error when timeWindow.type is null ([c004ba1a6](https://github.com/kestra-io/kestra/commit/c004ba1a6))
+- **core:** MultipleCondition documentation ([1dc8401a0](https://github.com/kestra-io/kestra/commit/1dc8401a0))
+- make subflow not found a warning instead of an error (#7649) ([YannC](https://github.com/kestra-io/kestra/commit/d4b76506330553a43832026f70dec6391b0236c3))
+- recoverMissedSchedules behavior on long running executions (#7617) ([YannC](https://github.com/kestra-io/kestra/commit/cfe4e2a3c21f7d953458a32d5f9a663e977e1b40))
+- avoid crash on injectDefault ([YannC](https://github.com/kestra-io/kestra/commit/49977f505f7ba45fd7e6e11019721de3ea9151b1))
+
+### 💅 Refactors
+
+- **ui:** Remove obsolete `chartjs-chart-treemap` library ([#7529](https://github.com/kestra-io/kestra/pull/7529))
+
+### 📦 Build
+
+- **deps:** Bump io.micronaut.platform:micronaut-platform ([527c13dec](https://github.com/kestra-io/kestra/commit/527c13dec))
+
+### 🏡 Chore
+
+- Update the CHANGELOG.MD with details for 0.21.4 ([07329555c](https://github.com/kestra-io/kestra/commit/07329555c))
+- **ui:** Amend item labels in left menu ([#7590](https://github.com/kestra-io/kestra/pull/7590))
+- **ui:** Make sure chart stacks are following the same order every time ([#7664](https://github.com/kestra-io/kestra/pull/7664))
+- **deps**: upgrade Micronaut core to 4.7.15 ([Loïc Mathieu](https://github.com/kestra-io/kestra/commit/b3699eda5f9293887f58f0304bb42dcb951dcef4))
+- **deps**: bump ui-libs to 0.0.151 ([brian.mulier](https://github.com/kestra-io/kestra/commit/312221ef73eebdc7f7cd05112f56b2eecd526fac))
+- **deps**: upgrade ui-libs version to v0.0.153 ([YannC](https://github.com/kestra-io/kestra/commit/5b1d216c409f6af7cc4d676a53cda3b3cd751144))
+- **deps**: upgrade ui-libs version to v0.0.154 ([YannC](https://github.com/kestra-io/kestra/commit/ea26e4dda7e6f4a8fdb0c1ab9780525784774a52))
+- **deps**: upgrade ui-libs version to v0.0.154 ([MilosPaunovic](https://github.com/kestra-io/kestra/commit/65999abb3fef73bf50f9736d219524e47c659a08))
+- 09d5b2f: Feat/npe on runcontext cleanup (#7585) (Nicolas K.)
+- b7259cc: feat(#7636): add default options for HttpClient (#7650) (Nicolas K.)
+- **webserver**: merging ([nKwiatkowski](https://github.com/kestra-io/kestra/commit/5131c347cd1ed1cf429e46ed346e70182de57c95))
+- **version:** Update to version 'v0.21.5' ([df5d13467](https://github.com/kestra-io/kestra/commit/df5d13467))
+
+### ❤️ Contributors
+
+- Mathieu Gabelle <mgabelle@kestra.io>
+- NKwiatkowski <nkwiatkowski@kestra.io>
+- YannC ([@Skraye](http://github.com/Skraye))
+- Loïc Mathieu ([@loicmathieu](https://github.com/loicmathieu))
+- Brian.mulier ([@brian-mulier-p](https://github.com/brian-mulier-p))
+- MilosPaunovic ([@MilosPaunovic](https://github.com/MilosPaunovic))
+
+
+
 # 0.21.4
 
 **Full Changelog**: [v0.21.3...v0.21.4](https://github.com/kestra-io/kestra/compare/v0.21.3...v0.21.4)
