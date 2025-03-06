@@ -61,16 +61,11 @@ public class FileSizeFunction implements Function {
 
     @SuppressWarnings("unchecked")
     private long getFileSizeFromInternalStorageUri(EvaluationContext context, URI path) throws IOException {
+        // check if the file is from the current execution, the parent execution, or an allowed namespace
+        String namespace = checkAllowedFileAndReturnNamespace(context, path);
+
         Map<String, String> flow = (Map<String, String>) context.getVariable("flow");
-        Map<String, String> execution = (Map<String, String>) context.getVariable("execution");
-
-        boolean isFileFromCurrentExecution = isFileUriValid(flow.get(NAMESPACE), flow.get(ID), execution.get(ID), path);
-
-        if (!isFileFromCurrentExecution) {
-            checkIfFileFromParentExecution(context, path);
-        }
-
-        FileAttributes fileAttributes = storageInterface.getAttributes(flow.get("tenantId"), flow.get("namespace"), path);
+        FileAttributes fileAttributes = storageInterface.getAttributes(flow.get(TENANT_ID), namespace, path);
         return fileAttributes.getSize();
     }
 
