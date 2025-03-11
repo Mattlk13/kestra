@@ -3,7 +3,6 @@ package io.kestra.core.runners.pebble.functions;
 import io.kestra.core.storages.StorageContext;
 import io.kestra.core.storages.StorageInterface;
 import io.pebbletemplates.pebble.error.PebbleException;
-import io.pebbletemplates.pebble.extension.Function;
 import io.pebbletemplates.pebble.template.EvaluationContext;
 import io.pebbletemplates.pebble.template.PebbleTemplate;
 import jakarta.inject.Inject;
@@ -17,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 @Singleton
-public class ReadFileFunction implements Function {
+public class ReadFileFunction extends AbstractFileFunction {
     private static final String ERROR_MESSAGE = "The 'read' function expects an argument 'path' that is a path to a namespace file or an internal storage URI.";
     private static final String KESTRA_SCHEME = "kestra:///";
 
@@ -83,16 +82,5 @@ public class ReadFileFunction implements Function {
         try (InputStream inputStream = storageInterface.get(flow.get(TENANT_ID), namespace, path)) {
             return new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
         }
-    }
-
-    private boolean validateFileUri(String namespace, String flowId, String executionId, URI path) {
-        // Internal storage URI should be: kestra:///$namespace/$flowId/executions/$executionId/tasks/$taskName/$taskRunId/$random.ion or kestra:///$namespace/$flowId/executions/$executionId/trigger/$triggerName/$random.ion
-        // We check that the file is for the given flow execution
-        if (namespace == null || flowId == null || executionId == null) {
-            return false;
-        }
-
-        String authorizedBasePath = KESTRA_SCHEME + namespace.replace(".", "/") + "/" + Slugify.of(flowId) + "/executions/" + executionId + "/";
-        return path.toString().startsWith(authorizedBasePath);
     }
 }
