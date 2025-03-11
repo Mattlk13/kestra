@@ -3,7 +3,7 @@ package io.kestra.cli.commands.plugins;
 import org.apache.commons.io.FilenameUtils;
 import io.kestra.cli.AbstractCommand;
 import io.kestra.cli.plugins.PluginDownloader;
-import io.kestra.cli.plugins.RepositoryConfig;
+import io.kestra.cli.plugins.MavenPluginRepositoryConfig;
 import io.kestra.core.utils.IdUtils;
 import org.apache.http.client.utils.URIBuilder;
 import picocli.CommandLine;
@@ -59,13 +59,13 @@ public class PluginInstallCommand extends AbstractCommand {
                 .forEach(throwConsumer(s -> {
                     URIBuilder uriBuilder = new URIBuilder(s);
 
-                    RepositoryConfig.RepositoryConfigBuilder builder = RepositoryConfig.builder()
+                   var builder = MavenPluginRepositoryConfig.builder()
                         .id(IdUtils.create());
 
                     if (uriBuilder.getUserInfo() != null) {
                         int index = uriBuilder.getUserInfo().indexOf(":");
 
-                        builder.basicAuth(new RepositoryConfig.BasicAuth(
+                        builder.basicAuth(new MavenPluginRepositoryConfig.BasicAuth(
                             uriBuilder.getUserInfo().substring(0, index),
                             uriBuilder.getUserInfo().substring(index + 1)
                         ));

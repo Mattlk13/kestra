@@ -11,7 +11,6 @@ import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
 import org.eclipse.aether.DefaultRepositorySystemSession;
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.RepositorySystemSession;
-import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.connector.basic.BasicRepositoryConnectorFactory;
 import org.eclipse.aether.impl.DefaultServiceLocator;
@@ -31,18 +30,17 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Singleton
 @Slf4j
 public class PluginDownloader {
-    private final List<RepositoryConfig> repositoryConfigs;
+    private final List<MavenPluginRepositoryConfig> repositoryConfigs;
     private final RepositorySystem system;
     private final RepositorySystemSession session;
 
     @Inject
     public PluginDownloader(
-        List<RepositoryConfig> repositoryConfigs,
+        List<MavenPluginRepositoryConfig> repositoryConfigs,
         @Nullable @Value("${kestra.plugins.local-repository-path}") String localRepositoryPath
     ) {
         this.repositoryConfigs = repositoryConfigs;
@@ -50,7 +48,7 @@ public class PluginDownloader {
         this.session = repositorySystemSession(system, localRepositoryPath);
     }
 
-    public void addRepository(RepositoryConfig repositoryConfig) {
+    public void addRepository(MavenPluginRepositoryConfig repositoryConfig) {
         this.repositoryConfigs.add(repositoryConfig);
     }
 
@@ -69,15 +67,15 @@ public class PluginDownloader {
             .stream()
             .map(repositoryConfig -> {
                 var build = new RemoteRepository.Builder(
-                    repositoryConfig.getId(),
+                    repositoryConfig.id(),
                     "default",
-                    repositoryConfig.getUrl()
+                    repositoryConfig.url()
                 );
 
-                if (repositoryConfig.getBasicAuth() != null) {
+                if (repositoryConfig.basicAuth() != null) {
                     var authenticationBuilder = new AuthenticationBuilder();
-                    authenticationBuilder.addUsername(repositoryConfig.getBasicAuth().getUsername());
-                    authenticationBuilder.addPassword(repositoryConfig.getBasicAuth().getPassword());
+                    authenticationBuilder.addUsername(repositoryConfig.basicAuth().username());
+                    authenticationBuilder.addPassword(repositoryConfig.basicAuth().password());
 
                     build.setAuthentication(authenticationBuilder.build());
                 }
