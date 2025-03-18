@@ -53,9 +53,9 @@ public class SchedulerScheduleOnDatesTest extends AbstractSchedulerTest {
 
     private Flow createScheduleFlow(String zone, String triggerId) {
         var now = ZonedDateTime.now();
-        var before = now.minusSeconds(1).truncatedTo(ChronoUnit.SECONDS);
-        var after = now.plusSeconds(1).truncatedTo(ChronoUnit.SECONDS);
-        var later = now.plusSeconds(2).truncatedTo(ChronoUnit.SECONDS);
+        var before = now.minusSeconds(3).truncatedTo(ChronoUnit.SECONDS);
+        var after = now.plusSeconds(3).truncatedTo(ChronoUnit.SECONDS);
+        var later = now.plusSeconds(6).truncatedTo(ChronoUnit.SECONDS);
         ScheduleOnDates schedule = createScheduleOnDatesTrigger(zone, List.of(before, after, later), triggerId).build();
 
         return createFlow(Collections.singletonList(schedule));
@@ -106,11 +106,11 @@ public class SchedulerScheduleOnDatesTest extends AbstractSchedulerTest {
                 date.add((String) execution.getTrigger().getVariables().get("date"));
                 executionId.add(execution.getId());
 
-                queueCount.countDown();
                 if (execution.getState().getCurrent() == State.Type.CREATED) {
                     executionQueue.emit(execution.withState(State.Type.SUCCESS));
                 }
                 assertThat(execution.getFlowId(), is(flow.getId()));
+                queueCount.countDown();
             }));
 
             scheduler.run();
