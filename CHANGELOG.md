@@ -1,3 +1,27 @@
+# 0.21.7
+
+**Full Changelog**: [v0.21.6...v0.21.7](https://github.com/kestra-io/kestra/compare/v0.21.6...v0.21.7)
+
+### 🩹 Fixes
+
+- **core:** Avoid ClassCastException when parsing flow inputs ([#7882](https://github.com/kestra-io/kestra/pull/7882))
+- **ui:** Amend displaying large amount of logs ([ce94c9ad2](https://github.com/kestra-io/kestra/commit/ce94c9ad2))
+- **script:** Change centOS docker image because EOL ([7dd7d4507](https://github.com/kestra-io/kestra/commit/7dd7d4507))
+- **test:** Backport flacky tests fixed on develop ([17ed32556](https://github.com/kestra-io/kestra/commit/17ed32556))
+
+### 🏡 Chore
+
+- **version:** Update the CHANGELOG.MD with details for 0.21.6 ([f0fcdf485](https://github.com/kestra-io/kestra/commit/f0fcdf485))
+- **version:** Update to version 'v0.21.7' ([54da3fc26](https://github.com/kestra-io/kestra/commit/54da3fc26))
+
+### ❤️ Contributors
+
+- NKwiatkowski <nkwiatkowski@kestra.io>
+- MilosPaunovic ([@MilosPaunovic](https://github.com/MilosPaunovic))
+- Florian Hussonnois ([@fhussonnois](https://github.com/fhussonnois))
+
+
+
 # 0.21.6
 
 **Full Changelog**: [v0.21.5...v0.21.6](https://github.com/kestra-io/kestra/compare/v0.21.5...v0.21.6)
