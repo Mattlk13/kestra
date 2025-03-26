@@ -91,8 +91,9 @@ public class StandAloneCommand extends AbstractServerCommand {
         this.skipExecutionService.setSkipFlows(skipFlows);
         this.skipExecutionService.setSkipNamespaces(skipNamespaces);
         this.skipExecutionService.setSkipTenants(skipTenants);
-
         this.startExecutorService.applyOptions(startExecutors, notStartExecutors);
+
+        KestraContext.getContext().injectWorkerConfigs(workerThread, null);
 
         super.call();
         this.shutdownHook(() -> KestraContext.getContext().shutdown());

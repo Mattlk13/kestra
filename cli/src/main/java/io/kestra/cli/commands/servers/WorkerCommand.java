@@ -39,8 +39,13 @@ public class WorkerCommand extends AbstractServerCommand {
 
     @Override
     public Integer call() throws Exception {
+
+        KestraContext.getContext().injectWorkerConfigs(thread, workerGroupKey);
+
         super.call();
+
         this.shutdownHook(() -> KestraContext.getContext().shutdown());
+
         if (this.workerGroupKey != null && !this.workerGroupKey.matches("[a-zA-Z0-9_-]+")) {
             throw new IllegalArgumentException("The --worker-group option must match the [a-zA-Z0-9_-]+ pattern");
         }
