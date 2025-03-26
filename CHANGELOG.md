@@ -1,3 +1,34 @@
+# 0.21.8
+
+**Full Changelog**: [v0.21.7...v0.21.8](https://github.com/kestra-io/kestra/compare/v0.21.7...v0.21.8)
+
+### 🚀 Enhancements
+
+- **core:** Allow null or empty proxy address to bypass proxy conf ([1a8750dc9](https://github.com/kestra-io/kestra/commit/1a8750dc9))
+
+### 🩹 Fixes
+
+- **core:** Triggers don't have an execution ID already ([0fd60f811](https://github.com/kestra-io/kestra/commit/0fd60f811))
+- **core:** Possible NPE if no manifest ([072674a1e](https://github.com/kestra-io/kestra/commit/072674a1e))
+- Bad import in HttpClient ([9b8db2014](https://github.com/kestra-io/kestra/commit/9b8db2014))
+- use correctly context-path when needed (#8018) ([YannC](https://github.com/kestra-io/kestra/commit/d89b22cce7fb6f742c689718b58ffbc4eaebe346))
+- **core:** Ensure defaults can be injected in flows (kestra-io/kestra-ee#3206) ([#3206](https://github.com/kestra-io/kestra/issues/3206))
+
+### 🏡 Chore
+
+- **version:** Update the CHANGELOG.MD with details for 0.21.7 ([d1a63e71b](https://github.com/kestra-io/kestra/commit/d1a63e71b))
+- **webserver:** Create protected method for parsing flow ([cebbcc8f5](https://github.com/kestra-io/kestra/commit/cebbcc8f5))
+- Upgrade to version 'v0.21.8' ([1da2e25f3](https://github.com/kestra-io/kestra/commit/1da2e25f3))
+
+### ❤️ Contributors
+
+- Florian Hussonnois ([@fhussonnois](https://github.com/fhussonnois))
+- Loïc Mathieu ([@loicmathieu](https://github.com/loicmathieu))
+- MilosPaunovic ([@MilosPaunovic](https://github.com/MilosPaunovic))
+- YannC <ycoornaert@kestra.io>
+
+
+
 # 0.21.7
 
 **Full Changelog**: [v0.21.6...v0.21.7](https://github.com/kestra-io/kestra/compare/v0.21.6...v0.21.7)
