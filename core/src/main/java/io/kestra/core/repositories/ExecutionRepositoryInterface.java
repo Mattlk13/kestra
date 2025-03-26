@@ -103,6 +103,8 @@ public interface ExecutionRepositoryInterface extends SaveRepositoryInterface<Ex
         boolean allowDeleted
     );
 
+    Flux<Execution> findAllAsync(@Nullable String tenantId);
+
     ArrayListTotal<TaskRun> findTaskRun(
         Pageable pageable,
         @Nullable String query,

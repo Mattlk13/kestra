@@ -16,6 +16,7 @@ import java.util.List;
 import reactor.core.publisher.Flux;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 
 @KestraTest
@@ -199,7 +200,7 @@ public abstract class AbstractLogRepositoryTest {
     }
 
     @Test
-    void findAsych() {
+    void findAsync() {
         logRepository.save(logEntry(Level.INFO).build());
         logRepository.save(logEntry(Level.ERROR).build());
         logRepository.save(logEntry(Level.WARN).build());
@@ -208,18 +209,29 @@ public abstract class AbstractLogRepositoryTest {
 
         Flux<LogEntry> find = logRepository.findAsync(null, "io.kestra.unittest", Level.INFO, startDate);
         List<LogEntry> logEntries = find.collectList().block();
-        assertThat(logEntries.size(), is(3));
+        assertThat(logEntries, hasSize(3));
 
         find = logRepository.findAsync(null, null, Level.ERROR, startDate);
         logEntries = find.collectList().block();
-        assertThat(logEntries.size(), is(1));
+        assertThat(logEntries, hasSize(1));
 
         find = logRepository.findAsync(null, "io.kestra.unused", Level.INFO, startDate);
         logEntries = find.collectList().block();
-        assertThat(logEntries.size(), is(0));
+        assertThat(logEntries, hasSize(0));
 
         find = logRepository.findAsync(null, null, Level.INFO, startDate.plusSeconds(2));
         logEntries = find.collectList().block();
-        assertThat(logEntries.size(), is(0));
+        assertThat(logEntries, hasSize(0));
+    }
+
+    @Test
+    void findAllAsync() {
+        logRepository.save(logEntry(Level.INFO).build());
+        logRepository.save(logEntry(Level.ERROR).build());
+        logRepository.save(logEntry(Level.WARN).build());
+
+        Flux<LogEntry> find = logRepository.findAllAsync(null);
+        List<LogEntry> logEntries = find.collectList().block();
+        assertThat(logEntries, hasSize(3));
     }
 }
