@@ -1,3 +1,30 @@
+# 0.21.9
+
+**Full Changelog**: [v0.21.8...v0.21.9](https://github.com/kestra-io/kestra/compare/v0.21.8...v0.21.9)
+
+### 🚀 Enhancements
+
+- ***:** Add new methods findAllAsync for the backup ([e557ec45f](https://github.com/kestra-io/kestra/commit/e557ec45f))
+- **core, jdbc:** DashboardRepository.findAll() ([0bf60bd5f](https://github.com/kestra-io/kestra/commit/0bf60bd5f))
+
+### 🩹 Fixes
+
+- **cli:** Make worker args available through static KestraContext ([c71366ad4](https://github.com/kestra-io/kestra/commit/c71366ad4))
+- **jdbc:** Add missing FETCH_SIZE constant ([560f63865](https://github.com/kestra-io/kestra/commit/560f63865))
+
+### 🏡 Chore
+
+- **version:** Update the CHANGELOG.MD with details for 0.21.8 ([ed1bbb944](https://github.com/kestra-io/kestra/commit/ed1bbb944))
+- Upgrade to version 'v0.21.9' ([df31d9cc4](https://github.com/kestra-io/kestra/commit/df31d9cc4))
+
+### ❤️ Contributors
+
+- Florian Hussonnois ([@fhussonnois](https://github.com/fhussonnois))
+- Loïc Mathieu ([@loicmathieu](https://github.com/loicmathieu))
+- MilosPaunovic ([@MilosPaunovic](https://github.com/MilosPaunovic))
+
+
+
 # 0.21.8
 
 **Full Changelog**: [v0.21.7...v0.21.8](https://github.com/kestra-io/kestra/compare/v0.21.7...v0.21.8)
