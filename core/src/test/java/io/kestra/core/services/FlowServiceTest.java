@@ -217,7 +217,7 @@ class FlowServiceTest {
             ))
             .build();
 
-        List<String> warnings = flowService.warnings(flow);
+        List<String> warnings = flowService.warnings(flow, null);
 
         assertThat(warnings.size(), is(1));
         assertThat(warnings, containsInAnyOrder(
