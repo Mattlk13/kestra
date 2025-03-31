@@ -256,8 +256,9 @@
                 if (newValue !== undefined && newValue !== oldValue) {
                     if (this.namespace === undefined && this.search !== newValue) {
                         this.search = newValue;
+
+                        this.reloadSecrets();
                     }
-                    this.reloadSecrets();
                 }
             }
         },
@@ -336,6 +337,10 @@
 
                 this.hasData = true;
                 this.secrets = [...(this.secrets || []), ...fetch];
+
+                if (this.filteredSecrets.length === 0) {
+                    return this.fetchSecrets();
+                }
 
                 return fetch;
             },
