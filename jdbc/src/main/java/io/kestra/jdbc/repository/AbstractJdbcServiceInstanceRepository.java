@@ -121,7 +121,7 @@ public abstract class AbstractJdbcServiceInstanceRepository extends AbstractJdbc
             .where(STATE.in(states.stream().map(Enum::name).toList()));
 
         return isForUpdate ?
-            this.jdbcRepository.fetch(query.forUpdate()) :
+            this.jdbcRepository.fetch(query.forUpdate().skipLocked()) :
             this.jdbcRepository.fetch(query);
     }
 
@@ -149,7 +149,7 @@ public abstract class AbstractJdbcServiceInstanceRepository extends AbstractJdbc
             .where(STATE.notIn(Service.ServiceState.CREATED.name(), Service.ServiceState.RUNNING.name()));
 
         return isForUpdate ?
-            this.jdbcRepository.fetch(query.forUpdate()) :
+            this.jdbcRepository.fetch(query.forUpdate().skipLocked()) :
             this.jdbcRepository.fetch(query);
     }
 
@@ -177,7 +177,7 @@ public abstract class AbstractJdbcServiceInstanceRepository extends AbstractJdbc
             .where(STATE.eq(Service.ServiceState.NOT_RUNNING.name()));
 
         return isForUpdate ?
-            this.jdbcRepository.fetch(query.forUpdate()) :
+            this.jdbcRepository.fetch(query.forUpdate().skipLocked()) :
             this.jdbcRepository.fetch(query);
     }
 
