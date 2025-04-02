@@ -1,3 +1,44 @@
+# 0.21.11
+
+**Full Changelog**: [v0.21.10...v0.21.11](https://github.com/kestra-io/kestra/compare/v0.21.10...v0.21.11)
+
+### 🏡 Chore
+
+- **deps**: add bouncycastle:bcpkix-jdk18on to platform ([5cd1006](https://github.com/kestra-io/kestra/commit/5cd10062ee7ad5f64d8dd08d84bba421eacade3b))
+- Upgrade to v0.21.11 ([33358ca1b](https://github.com/kestra-io/kestra/commit/33358ca1b))
+
+### ❤️ Contributors
+
+- Loïc Mathieu ([@loicmathieu](https://github.com/loicmathieu))
+- Roman Acevedo ([@loicmathieu](https://github.com/AcevedoR))
+
+
+
+# 0.21.10
+
+**Full Changelog**: [v0.21.9...v0.21.10](https://github.com/kestra-io/kestra/compare/v0.21.9...v0.21.10)
+
+### 🩹 Fixes
+
+- **ui:** Let filter dropdown fit width of the content ([0c2f0ddc1](https://github.com/kestra-io/kestra/commit/0c2f0ddc1))
+- **core:** HttpClient log the URL even if it's a secret ([da15fff78](https://github.com/kestra-io/kestra/commit/da15fff78))
+- **kafka runner:** #2709 filter child forEach tasks before merging th… ([#8095](https://github.com/kestra-io/kestra/pull/8095), [#2709](https://github.com/kestra-io/kestra/issues/2709))
+
+### 🏡 Chore
+
+- ***:** Update the CHANGELOG.MD with details for 0.21.9 ([724a9e2](https://github.com/kestra-io/kestra/commit/724a9e2))
+- Upgrade to version 'v0.21.10' ([1cff398fc](https://github.com/kestra-io/kestra/commit/1cff398fc))
+
+### ❤️ Contributors
+
+- YannC <ycoornaert@kestra.io>
+- Nicolas K. <nk_mikmak@hotmail.com>
+- Loïc Mathieu ([@loicmathieu](https://github.com/loicmathieu))
+- Ludovic DEHON ([@tchiotludo](https://github.com/tchiotludo))
+- MilosPaunovic ([@MilosPaunovic](https://github.com/MilosPaunovic))
+
+
+
 # 0.21.9
 
 **Full Changelog**: [v0.21.8...v0.21.9](https://github.com/kestra-io/kestra/compare/v0.21.8...v0.21.9)
