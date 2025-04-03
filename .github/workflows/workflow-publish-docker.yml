@@ -54,15 +54,18 @@ jobs:
       always() &&
       (needs.build-artifacts.result == 'success' ||
         github.event.inputs.force-download-artifact != 'true')
+    env:
+      PLUGIN_VERSION: ${{ github.event.inputs.plugin-version != null && github.event.inputs.plugin-version || 'LATEST' }}
     strategy:
       matrix:
         image:
           - tag: -no-plugins
             packages: jattach
+            plugins: false
             python-libraries: ""
 
           - tag: ""
-            plugins: ${{ needs.build-artifacts.outputs.plugins }}
+            plugins: true
             packages: python3 python3-venv python-is-python3 python3-pip nodejs npm curl zip unzip jattach
             python-libraries: kestra
     steps:
@@ -88,21 +91,31 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
+
+#     # Get Plugins List
+      - name: Plugins - Get List
+        uses: ./.github/actions/plugins-list
+        id: plugins-list
+        if: ${{ matrix.image.plugins}}
+        with:
+          plugin-version: ${{ env.PLUGIN_VERSION }}
+
       # Vars
-      - name: Docker - Set image name
+      - name: Docker - Set variables
         shell: bash
         id: vars
         run: |
           TAG=${GITHUB_REF#refs/*/}
+          PLUGINS="${{ matrix.image.plugins == true && steps.plugins-list.outputs.plugins || '' }}"
           if [[ $TAG == v* ]]; then
             TAG="${TAG}";
             echo "plugins=${{ matrix.image.plugins }}" >> $GITHUB_OUTPUT
           elif [[ $TAG = "develop" ]]; then
             TAG="develop";
-            echo "plugins=--repositories=https://s01.oss.sonatype.org/content/repositories/snapshots ${{ matrix.image.plugins }}" >> $GITHUB_OUTPUT
+            echo "plugins=--repositories=https://s01.oss.sonatype.org/content/repositories/snapshots $PLUGINS" >> $GITHUB_OUTPUT
           else
             TAG="build-${{ github.run_id }}";
-            echo "plugins=--repositories=https://s01.oss.sonatype.org/content/repositories/snapshots ${{ matrix.image.plugins }}" >> $GITHUB_OUTPUT
+            echo "plugins=--repositories=https://s01.oss.sonatype.org/content/repositories/snapshots $PLUGINS" >> $GITHUB_OUTPUT
           fi
           
           echo "tag=${TAG}${{ matrix.image.tag }}" >> $GITHUB_OUTPUT
