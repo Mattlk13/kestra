@@ -106,16 +106,10 @@ jobs:
         id: vars
         run: |
           TAG=${GITHUB_REF#refs/*/}
-          PLUGINS="${{ matrix.image.plugins == true && steps.plugins-list.outputs.plugins || '' }}"
-          if [[ $TAG == v* ]]; then
-            TAG="${TAG}";
+          if [[ $TAG = "master" || $TAG == v* ]]; then
             echo "plugins=${{ matrix.image.plugins }}" >> $GITHUB_OUTPUT
-          elif [[ $TAG = "develop" ]]; then
-            TAG="develop";
-            echo "plugins=--repositories=https://s01.oss.sonatype.org/content/repositories/snapshots $PLUGINS" >> $GITHUB_OUTPUT
           else
-            TAG="build-${{ github.run_id }}";
-            echo "plugins=--repositories=https://s01.oss.sonatype.org/content/repositories/snapshots $PLUGINS" >> $GITHUB_OUTPUT
+            echo "plugins=--repositories=https://s01.oss.sonatype.org/content/repositories/snapshots ${{ matrix.image.plugins }}" >> $GITHUB_OUTPUT
           fi
           
           echo "tag=${TAG}${{ matrix.image.tag }}" >> $GITHUB_OUTPUT
