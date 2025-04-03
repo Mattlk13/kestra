@@ -49,6 +49,7 @@ jobs:
     needs: build-artifacts
     uses: ./.github/workflows/workflow-publish-docker.yml
     with:
+      force-download-artifact: 'false'
       plugin-version: ${{ github.event.inputs.plugin-version != null && github.event.inputs.plugin-version || 'LATEST' }}
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
