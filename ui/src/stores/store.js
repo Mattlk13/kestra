@@ -1,4 +1,3 @@
-import api from "./api"
 import auth from "./auth"
 import core from "./core"
 import execution from "./executions"
@@ -22,7 +21,6 @@ import blueprints from "./blueprints";
 
 export default {
     modules: {
-        api,
         core,
         flow,
         template,
