@@ -119,6 +119,7 @@ dependencies {
         api "org.junit-pioneer:junit-pioneer:2.2.0"
         api 'org.hamcrest:hamcrest:2.2'
         api 'org.hamcrest:hamcrest-library:2.2'
+        api 'org.assertj:assertj-core:3.27.3'
         api group: 'org.exparity', name: 'hamcrest-date', version: '2.0.8'
         api 'com.github.tomakehurst:wiremock-jre8:3.0.1'
         api "org.apache.kafka:kafka-streams-test-utils:$kafkaVersion"

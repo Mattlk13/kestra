@@ -179,6 +179,8 @@ subprojects {
             testImplementation 'org.hamcrest:hamcrest'
             testImplementation 'org.hamcrest:hamcrest-library'
             testImplementation 'org.exparity:hamcrest-date'
+
+            testImplementation 'org.assertj:assertj-core'
         }
 
         test {
