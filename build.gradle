@@ -204,6 +204,8 @@ subprojects {
         testImplementation 'org.hamcrest:hamcrest:2.2'
         testImplementation 'org.hamcrest:hamcrest-library:2.2'
         testImplementation group: 'org.exparity', name: 'hamcrest-date', version: '2.0.8'
+
+        testImplementation 'org.assertj:assertj-core:3.27.3'
     }
 
     test {
