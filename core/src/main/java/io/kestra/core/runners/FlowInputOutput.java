@@ -203,7 +203,7 @@ public class FlowInputOutput {
         final Execution execution,
         final Map<String, ?> data
     ) {
-        Map<String, Object> resolved = this.resolveInputs(inputs, flow, execution, data)
+        return this.resolveInputs(inputs, flow, execution, data)
             .stream()
             .filter(InputAndValue::enabled)
             .map(it -> {
@@ -214,7 +214,6 @@ public class FlowInputOutput {
                 return new AbstractMap.SimpleEntry<>(it.input().getId(), it.value());
             })
             .collect(HashMap::new, (m,v)-> m.put(v.getKey(), v.getValue()), HashMap::putAll);
-        return MapUtils.flattenToNestedMap(resolved);
     }
 
     /**
