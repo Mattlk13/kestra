@@ -1,3 +1,36 @@
+# 0.22.2
+
+**Full Changelog**: [v0.22.1....v0.22.2](https://github.com/kestra-io/kestra/compare/v0.22.1...v0.22.2)
+
+### 🚀 Enhancements
+
+- **jdbc:** Allow disabling queue cleaning. ([a63dbe8e8](https://github.com/kestra-io/kestra/commit/a63dbe8e8))
+- **jdbc-h2,jdbc-mysql,jdbc-postgres:** Add an index on queues.key ([412837952](https://github.com/kestra-io/kestra/commit/412837952))
+- **ui:** Ability to hide secret value when typing in secrets ([59cc56186](https://github.com/kestra-io/kestra/commit/59cc56186))
+
+### 🩹 Fixes
+
+- **core:** Default namespace in namespace file ([ffd06a57e](https://github.com/kestra-io/kestra/commit/ffd06a57e))
+- **ui:** Prevent infinite loading loop in Namespace KV Store & Secrets pages if there is none ([8fb6e6af2](https://github.com/kestra-io/kestra/commit/8fb6e6af2))
+- **ui:** Amend namespace files creation & editing problems ([#8279](https://github.com/kestra-io/kestra/pull/8279))
+- **core:** Fix NPE when generating flow graph ([37ef0a8b3](https://github.com/kestra-io/kestra/commit/37ef0a8b3))
+
+### 🏡 Chore
+
+- **version:** Update the CHANGELOG.MD with details for 0.22.1 ([120d06454](https://github.com/kestra-io/kestra/commit/120d06454))
+- **ui:** Amend the sizing of editor panels ([#8277](https://github.com/kestra-io/kestra/pull/8277))
+- **ui:** Pass prop to maximize the height of namespace file editor ([#8278](https://github.com/kestra-io/kestra/pull/8278))
+- Upgrade to 0.22.2 ([546d5478d](https://github.com/kestra-io/kestra/commit/546d5478d))
+
+### ❤️ Contributors
+
+- Brian.mulier ([@brian-mulier-p](https://github.com/brian-mulier-p))
+- Florian Hussonnois ([@fhussonnois](https://github.com/fhussonnois))
+- Miloš Paunović ([@MilosPaunovic](https://github.com/MilosPaunovic))
+- Loïc Mathieu ([@loicmathieu](https://github.com/loicmathieu))
+
+
+
 # 0.22.1
 
 **Full Changelog**: [v0.22.0....v0.22.1](https://github.com/kestra-io/kestra/compare/v0.22.0...v0.22.1)
