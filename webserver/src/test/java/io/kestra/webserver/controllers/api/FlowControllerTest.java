@@ -6,8 +6,8 @@ import io.kestra.core.exceptions.InternalException;
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.flows.Flow;
 import io.kestra.core.models.flows.FlowWithSource;
-import io.kestra.core.models.flows.Type;
 import io.kestra.core.models.flows.GenericFlow;
+import io.kestra.core.models.flows.Type;
 import io.kestra.core.models.flows.input.StringInput;
 import io.kestra.core.models.hierarchies.FlowGraph;
 import io.kestra.core.models.property.Property;
@@ -31,7 +31,6 @@ import io.micronaut.http.client.annotation.Client;
 import io.micronaut.http.client.exceptions.HttpClientResponseException;
 import io.micronaut.http.client.multipart.MultipartBody;
 import io.micronaut.http.hateoas.JsonError;
-import io.micronaut.http.uri.UriBuilder;
 import io.micronaut.reactor.http.client.ReactorHttpClient;
 import jakarta.inject.Inject;
 import org.hamcrest.Matchers;
@@ -41,7 +40,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -56,7 +54,8 @@ import static io.micronaut.http.HttpRequest.*;
 import static io.micronaut.http.HttpStatus.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.everyItem;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -87,7 +86,7 @@ class FlowControllerTest {
         jdbcTestUtils.drop();
         jdbcTestUtils.migrate();
 
-        TestsUtils.loads(repositoryLoader);
+        TestsUtils.loads(null, repositoryLoader);
     }
 
     @Test
@@ -165,7 +164,7 @@ class FlowControllerTest {
 
     @Test
     void getFlowFlowsByNamespace() throws IOException, URISyntaxException {
-        TestsUtils.loads(repositoryLoader, FlowControllerTest.class.getClassLoader().getResource("flows/getflowsbynamespace"));
+        TestsUtils.loads(null, repositoryLoader, FlowControllerTest.class.getClassLoader().getResource("flows/getflowsbynamespace"));
 
         List<Flow> flows = client.toBlocking().retrieve(HttpRequest.GET("/api/v1/flows/io.kestra.unittest.flowsbynamespace"), Argument.listOf(Flow.class));
         assertThat(flows.size()).isEqualTo(2);
@@ -335,7 +334,7 @@ class FlowControllerTest {
         String deletedResult = client.toBlocking().retrieve(HttpRequest.GET("/api/v1/flows/" + flow.getNamespace() + "/" + flow.getId() + "?allowDeleted=true"), String.class);
         Flow deletedFlow = YamlParser.parse(deletedResult, Flow.class);
 
-        assertThat(deletedFlow.isDeleted()).isEqualTo(true);
+        assertThat(deletedFlow.isDeleted()).isTrue();
     }
 
     @Test
@@ -630,9 +629,9 @@ class FlowControllerTest {
         Flow webhook = parseFlow(client.toBlocking().retrieve(HttpRequest.GET("/api/v1/flows/io.kestra.tests/webhook"), String.class));
         Flow taskFlow = parseFlow(client.toBlocking().retrieve(HttpRequest.GET("/api/v1/flows/io.kestra.tests/task-flow"), String.class));
 
-        assertThat(eachObject.isDisabled()).isEqualTo(true);
-        assertThat(webhook.isDisabled()).isEqualTo(true);
-        assertThat(taskFlow.isDisabled()).isEqualTo(true);
+        assertThat(eachObject.isDisabled()).isTrue();
+        assertThat(webhook.isDisabled()).isTrue();
+        assertThat(taskFlow.isDisabled()).isTrue();
 
         response = client
             .toBlocking()
@@ -644,9 +643,9 @@ class FlowControllerTest {
         webhook = parseFlow(client.toBlocking().retrieve(HttpRequest.GET("/api/v1/flows/io.kestra.tests/webhook"), String.class));
         taskFlow = parseFlow(client.toBlocking().retrieve(HttpRequest.GET("/api/v1/flows/io.kestra.tests/task-flow"), String.class));
 
-        assertThat(eachObject.isDisabled()).isEqualTo(false);
-        assertThat(webhook.isDisabled()).isEqualTo(false);
-        assertThat(taskFlow.isDisabled()).isEqualTo(false);
+        assertThat(eachObject.isDisabled()).isFalse();
+        assertThat(webhook.isDisabled()).isFalse();
+        assertThat(taskFlow.isDisabled()).isFalse();
     }
 
     @Test
@@ -662,7 +661,7 @@ class FlowControllerTest {
 
         Flow toDisable = parseFlow(client.toBlocking().retrieve(HttpRequest.GET("/api/v1/flows/io.kestra.unittest.disabled/toDisable"), String.class));
 
-        assertThat(toDisable.isDisabled()).isEqualTo(true);
+        assertThat(toDisable.isDisabled()).isTrue();
 
         response = client
             .toBlocking()
@@ -672,7 +671,7 @@ class FlowControllerTest {
 
         toDisable = parseFlow(client.toBlocking().retrieve(HttpRequest.GET("/api/v1/flows/io.kestra.unittest.disabled/toDisable"), String.class));
 
-        assertThat(toDisable.isDisabled()).isEqualTo(false);
+        assertThat(toDisable.isDisabled()).isFalse();
     }
 
     @Test
@@ -687,16 +686,9 @@ class FlowControllerTest {
             new IdWithNamespace("io.kestra.tests.delete", "flow-c")
         );
 
-        UriBuilder uriBuilder = UriBuilder.of("/api/v1/flows/delete/by-ids");
-        for (IdWithNamespace idWithNamespace : ids) {
-            uriBuilder.queryParam("ids.id", idWithNamespace.getId());
-            uriBuilder.queryParam("ids.namespace", idWithNamespace.getNamespace());
-        }
-        URI uri = uriBuilder.build();
-
         HttpResponse<BulkResponse> response = client
             .toBlocking()
-            .exchange(DELETE(uri), BulkResponse.class);
+            .exchange(DELETE("/api/v1/flows/delete/by-ids", ids), BulkResponse.class);
 
         assertThat(response.getBody().get().getCount()).isEqualTo(3);
 
@@ -742,12 +734,12 @@ class FlowControllerTest {
         List<ValidateConstraintViolation> body = response.body();
         assertThat(body.size()).isEqualTo(2);
         // We don't send any revision while the flow already exists so it's outdated
-        assertThat(body.getFirst().isOutdated()).isEqualTo(true);
+        assertThat(body.getFirst().isOutdated()).isTrue();
         assertThat(body.getFirst().getDeprecationPaths()).hasSize(3);
         assertThat(body.getFirst().getDeprecationPaths()).containsExactlyInAnyOrder("tasks[1]", "tasks[1].additionalProperty", "listeners");
-        assertThat(body.getFirst().getWarnings().size()).isEqualTo(0);
-        assertThat(body.getFirst().getInfos().size()).isEqualTo(0);
-        assertThat(body.get(1).isOutdated()).isEqualTo(false);
+        assertThat(body.getFirst().getWarnings().size()).isZero();
+        assertThat(body.getFirst().getInfos().size()).isZero();
+        assertThat(body.get(1).isOutdated()).isFalse();
         assertThat(body.get(1).getDeprecationPaths()).containsExactlyInAnyOrder("tasks[0]", "tasks[1]");
         assertThat(body, everyItem(
             Matchers.hasProperty("constraints", nullValue())
