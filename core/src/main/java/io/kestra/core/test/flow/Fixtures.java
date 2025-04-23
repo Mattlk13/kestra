@@ -4,11 +4,12 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @Builder
 public class Fixtures {
-    private List<InputFixture> inputs;
+    private Map<String, Object> inputs;
 
     private List<TaskFixture> tasks;
 
