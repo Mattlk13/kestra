@@ -16,10 +16,8 @@ import io.kestra.core.storages.StorageInterface;
 import io.kestra.core.utils.TestsUtils;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-import org.junit.jupiter.api.Test;
-
 import jakarta.validation.ConstraintViolationException;
-import org.junitpioneer.jupiter.RetryingTest;
+import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
 
 import java.io.FileInputStream;
@@ -31,7 +29,10 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeoutException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -404,6 +405,6 @@ public class InputsTest {
 
         var logEntry = receive.blockLast();
         assertThat(logEntry, notNullValue());
-        assertThat(logEntry.getMessage(), is("These are my secrets: ****** - ******"));
+        assertThat(logEntry.getMessage(), is("These are my secrets: **** - ********"));
     }
 }
