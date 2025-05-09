@@ -31,7 +31,7 @@
 <script setup lang="ts">
     import {inject, ref} from "vue";
 
-    import {YamlUtils as YAML_UTILS} from "@kestra-io/ui-libs";
+    import {YamlUtils as YAML_UTILS, SECTIONS} from "@kestra-io/ui-libs";
 
     import {CollapseItem} from "../../utils/types";
 
@@ -48,9 +48,10 @@
 
     const removeElement = (title: string, index: number) => {
         if(props.elements?.[index]?.id === undefined) return;
+        const sectionForDelete = title === "Tasks" ? SECTIONS.TASKS : SECTIONS.TRIGGERS;
         emits(
             "remove",
-            YAML_UTILS.deleteTask(flow.value, props.elements[index].id, title),
+            YAML_UTILS.deleteTask(flow.value, props.elements[index].id, sectionForDelete),
         );
     };
 
