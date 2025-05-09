@@ -33,8 +33,7 @@
 <script setup lang="ts">
     import {onBeforeMount, ref, watch, computed, inject} from "vue";
     import {useStore} from "vuex";
-    import {YamlUtils as YAML_UTILS} from "@kestra-io/ui-libs";
-    import {SECTIONS} from "../../../utils/constants";
+    import {YamlUtils as YAML_UTILS, SECTIONS} from "@kestra-io/ui-libs";
     import {
         BREADCRUMB_INJECTION_KEY, CLOSE_TASK_FUNCTION_INJECTION_KEY,
         FLOW_INJECTION_KEY, PARENT_TASKID_INJECTION_KEY, POSITION_INJECTION_KEY,
@@ -98,7 +97,7 @@
     });
 
     const validationSection = computed(() =>
-        SECTIONS[section.value === "triggers" ? "TRIGGERS" : "TASKS"]
+        section.value === "triggers" ? SECTIONS.TRIGGERS : SECTIONS.TASKS
     )
 
     watch(
