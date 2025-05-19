@@ -28,6 +28,7 @@ public class FlowWithPath {
     public static FlowWithPath of(FlowWithSource flow, String path) {
         return FlowWithPath.builder()
             .id(flow.getId())
+            .tenantId(flow.getTenantId())
             .namespace(flow.getNamespace())
             .path(path)
             .build();
@@ -36,6 +37,7 @@ public class FlowWithPath {
     public static FlowWithPath of(Flow flow, String path) {
         return FlowWithPath.builder()
             .id(flow.getId())
+            .tenantId(flow.getTenantId())
             .namespace(flow.getNamespace())
             .path(path)
             .build();
