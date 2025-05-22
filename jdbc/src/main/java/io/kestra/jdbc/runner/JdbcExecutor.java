@@ -3,14 +3,12 @@ package io.kestra.jdbc.runner;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.kestra.core.contexts.KestraContext;
 import io.kestra.core.exceptions.DeserializationException;
-import io.kestra.core.exceptions.IllegalVariableEvaluationException;
 import io.kestra.core.exceptions.InternalException;
-import io.kestra.core.exceptions.KestraRuntimeException;
 import io.kestra.core.metrics.MetricRegistry;
 import io.kestra.core.models.executions.*;
 import io.kestra.core.models.executions.statistics.ExecutionCount;
-import io.kestra.core.models.flows.Flow;
 import io.kestra.core.models.flows.*;
+import io.kestra.core.models.flows.Flow;
 import io.kestra.core.models.flows.sla.*;
 import io.kestra.core.models.tasks.ExecutableTask;
 import io.kestra.core.models.tasks.Task;
@@ -22,9 +20,9 @@ import io.kestra.core.queues.QueueFactoryInterface;
 import io.kestra.core.queues.QueueInterface;
 import io.kestra.core.repositories.FlowRepositoryInterface;
 import io.kestra.core.repositories.TriggerRepositoryInterface;
+import io.kestra.core.runners.*;
 import io.kestra.core.runners.Executor;
 import io.kestra.core.runners.ExecutorService;
-import io.kestra.core.runners.*;
 import io.kestra.core.schedulers.SchedulerTriggerStateInterface;
 import io.kestra.core.server.ClusterEvent;
 import io.kestra.core.server.Service;
@@ -923,7 +921,7 @@ public class JdbcExecutor implements ExecutorInterface, Service {
             log.error("Unable to kill the execution {}", killedExecution.getExecutionId(), e);
         }
 
-        Executor executor = mayTransitExecutionToKillingStateAndGet(killedExecution.getExecutionId());
+        Executor executor = killingOrAfterKillState(killedExecution.getExecutionId(), Optional.ofNullable(killedExecution.getExecutionState()));
 
         // Check whether kill event should be propagated to downstream executions.
         // By default, always propagate the ExecutionKill to sub-flows (for backward compatibility).
@@ -949,12 +947,12 @@ public class JdbcExecutor implements ExecutorInterface, Service {
         }
     }
 
-    private Executor mayTransitExecutionToKillingStateAndGet(final String executionId) {
+    private Executor killingOrAfterKillState(final String executionId, Optional<State.Type> afterKillState) {
         return executionRepository.lock(executionId, pair -> {
             Execution currentExecution = pair.getLeft();
             Flow flow = this.flowRepository.findByExecution(currentExecution);
 
-            Execution killing = executionService.kill(currentExecution, flow);
+            Execution killing = executionService.kill(currentExecution, flow, afterKillState);
             Executor current = new Executor(currentExecution, null)
                 .withExecution(killing, "joinKillingExecution");
             return Pair.of(current, pair.getRight());

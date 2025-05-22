@@ -18,9 +18,9 @@ import io.kestra.core.services.*;
 import io.kestra.core.trace.propagation.RunContextTextMapSetter;
 import io.kestra.core.utils.ListUtils;
 import io.kestra.core.utils.TruthUtils;
+import io.kestra.plugin.core.flow.LoopUntil;
 import io.kestra.plugin.core.flow.Pause;
 import io.kestra.plugin.core.flow.Subflow;
-import io.kestra.plugin.core.flow.LoopUntil;
 import io.kestra.plugin.core.flow.WorkingDirectory;
 import io.micronaut.context.ApplicationContext;
 import io.opentelemetry.api.OpenTelemetry;
@@ -1208,6 +1208,7 @@ public class ExecutorService {
         killQueue.emit(ExecutionKilledExecution
             .builder()
             .state(ExecutionKilled.State.REQUESTED)
+            .executionState(state)
             .executionId(execution.getId())
             .isOnKillCascade(false) // TODO we may offer the choice to the user here
             .tenantId(execution.getTenantId())

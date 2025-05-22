@@ -20,6 +20,7 @@ import io.kestra.core.utils.Await;
 import io.kestra.plugin.core.debug.Return;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junitpioneer.jupiter.RetryingTest;
 import org.slf4j.event.Level;
@@ -431,5 +432,18 @@ class ExecutionServiceTest {
         Flow flow = flowRepository.findByExecution(execution);
         Execution markedAs = executionService.markAs(execution, flow, execution.getTaskRunList().getFirst().getId(), State.Type.SUCCESS);
         assertThat(markedAs.getState().getCurrent(), is(State.Type.RESTARTED));
+    }
+
+    @Test
+    @LoadFlows({"flows/valids/pause_no_tasks.yaml"})
+    void killToState() throws Exception {
+        Execution execution = runnerUtils.runOneUntilPaused(null, "io.kestra.tests", "pause_no_tasks");
+        Flow flow = flowRepository.findByExecution(execution);
+
+        Execution killed = executionService.kill(execution, flow, Optional.of(State.Type.CANCELLED));
+
+        Assertions.assertThat(killed.getState().getCurrent()).isEqualTo(State.Type.CANCELLED);
+        Assertions.assertThat(killed.findTaskRunsByTaskId("pause").getFirst().getState().getCurrent()).isEqualTo(State.Type.KILLED);
+        Assertions.assertThat(killed.getState().getHistories()).hasSize(5);
     }
 }
