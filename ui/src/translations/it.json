@@ -818,6 +818,7 @@
         "error handlers": "Chiudi gestore errori",
         "finally": "Chiudi task",
         "input": "Chiudi input",
+        "pluginDefaults": "Chiudi plugin predefinito",
         "tasks": "Chiudi task",
         "triggers": "Chiudi trigger"
       },

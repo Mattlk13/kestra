@@ -818,6 +818,7 @@
         "error handlers": "关闭错误处理程序",
         "finally": "关闭 task",
         "input": "关闭输入",
+        "pluginDefaults": "关闭插件默认值",
         "tasks": "关闭task",
         "triggers": "关闭 trigger"
       },

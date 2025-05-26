@@ -818,6 +818,7 @@
         "error handlers": "Fermer le gestionnaire d'erreurs",
         "finally": "Fermer la task",
         "input": "Fermer l'input",
+        "pluginDefaults": "Fermer le plugin par défaut",
         "tasks": "Fermer la task",
         "triggers": "Fermer le trigger"
       },

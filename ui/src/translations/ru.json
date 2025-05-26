@@ -818,6 +818,7 @@
         "error handlers": "Закрыть обработчик ошибок",
         "finally": "Закрыть task",
         "input": "Закрыть input",
+        "pluginDefaults": "Закрыть плагин по умолчанию",
         "tasks": "Закрыть task",
         "triggers": "Закрыть trigger"
       },

@@ -818,6 +818,7 @@
         "error handlers": "Fehlerbehandler schließen",
         "finally": "Task schließen",
         "input": "Eingabe schließen",
+        "pluginDefaults": "Plugin-Standard schließen",
         "tasks": "Task schließen",
         "triggers": "Trigger schließen"
       },

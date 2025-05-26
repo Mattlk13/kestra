@@ -818,6 +818,7 @@
         "error handlers": "오류 처리기 닫기",
         "finally": "작업 닫기",
         "input": "입력 닫기",
+        "pluginDefaults": "플러그인 기본값 닫기",
         "tasks": "작업 닫기",
         "triggers": "트리거 닫기"
       },

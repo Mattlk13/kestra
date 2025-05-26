@@ -818,6 +818,7 @@
         "error handlers": "Fechar manipulador de erro",
         "finally": "Fechar task",
         "input": "Fechar input",
+        "pluginDefaults": "Fechar plugin padrão",
         "tasks": "Fechar task",
         "triggers": "Fechar trigger"
       },

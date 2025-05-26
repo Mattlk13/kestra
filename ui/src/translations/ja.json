@@ -818,6 +818,7 @@
         "error handlers": "エラーハンドラーを閉じる",
         "finally": "タスクを閉じる",
         "input": "入力を閉じる",
+        "pluginDefaults": "プラグインのデフォルトを閉じる",
         "tasks": "タスクを閉じる",
         "triggers": "トリガーを閉じる"
       },
