@@ -394,7 +394,7 @@ class HttpClientTest {
         try (HttpClient client = client(b -> b.configuration(HttpConfiguration.builder().allowedResponseCodes(Property.of(List.of(404))).build()))) {
             HttpResponse<Map<String, String>> response = client.request(HttpRequest.of(URI.create(embeddedServerUri + "/http/error?status=404")));
 
-            assertThat(response.getStatus().getCode()).isEqualTo(404);
+            assertThat(response.getStatus().getCode(), is(404));
         }
     }
 
@@ -407,7 +407,7 @@ class HttpClientTest {
                 client.request(HttpRequest.of(uri));
             });
 
-            assertThat(Objects.requireNonNull(e.getResponse()).getStatus().getCode()).isEqualTo(405);
+            assertThat(Objects.requireNonNull(e.getResponse()).getStatus().getCode(), is(405));
         }
     }
 

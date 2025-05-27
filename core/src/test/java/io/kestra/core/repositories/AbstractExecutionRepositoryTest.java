@@ -802,8 +802,8 @@ public abstract class AbstractExecutionRepositoryTest {
             .operation(QueryFilter.Op.EQUALS)
             .value(Map.of("key", "value"))
             .build());
-        List<Execution> executions = executionRepository.find(Pageable.from(1, 10),  MAIN_TENANT, filters);
-        assertThat(executions.size()).isEqualTo(1L);
+        List<Execution> executions = executionRepository.find(Pageable.from(1, 10),  null, filters);
+        assertThat(executions, hasSize(1));
 
         // Filtering by two pairs of labels, since now its a and behavior, it should not return anything
         filters = List.of(QueryFilter.builder()
@@ -811,7 +811,7 @@ public abstract class AbstractExecutionRepositoryTest {
             .operation(QueryFilter.Op.EQUALS)
             .value(Map.of("key", "value", "keyother", "valueother"))
             .build());
-        executions = executionRepository.find(Pageable.from(1, 10),  MAIN_TENANT, filters);
-        assertThat(executions.size()).isEqualTo(0L);
+        executions = executionRepository.find(Pageable.from(1, 10),  null, filters);
+        assertThat(executions, hasSize(0));
     }
 }
