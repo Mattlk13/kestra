@@ -42,6 +42,9 @@ on:
       SONATYPE_GPG_FILE:
         description: "The Sonatype GPG file."
         required: true
+      GH_PERSONAL_TOKEN:
+        description: "The Github personal token."
+        required: true
 jobs:
   build-artifacts:
     name: Build - Artifacts
@@ -76,5 +79,3 @@ jobs:
     needs: build-artifacts
     if: startsWith(github.ref, 'refs/tags/v')
     uses: ./.github/workflows/workflow-github-release.yml
-    secrets:
-      GH_PERSONAL_TOKEN: ${{ secrets.GH_PERSONAL_TOKEN }}
