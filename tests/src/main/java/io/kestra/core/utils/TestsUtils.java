@@ -1,7 +1,5 @@
 package io.kestra.core.utils;
 
-import static io.kestra.core.tenant.TenantService.MAIN_TENANT;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.Files;
@@ -35,11 +33,12 @@ import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
+import static io.kestra.core.tenant.TenantService.MAIN_TENANT;
 
 abstract public class TestsUtils {
     private static final ObjectMapper mapper = JacksonMapper.ofYaml();

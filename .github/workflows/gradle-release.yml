@@ -21,17 +21,17 @@ jobs:
     if: github.ref == 'refs/heads/debug-release-ci'
     steps:
       # Checks
-      - name: Check Inputs
-        run: |
-          if ! [[ "$RELEASE_VERSION" =~ ^[0-9]+(\.[0-9]+)\.0-rc[01](-SNAPSHOT)?$ ]]; then
-            echo "Invalid release version. Must match regex: ^[0-9]+(\.[0-9]+)\.0-rc[01](-SNAPSHOT)?$"
-            exit 1
-          fi
-
-          if ! [[ "$NEXT_VERSION" =~ ^[0-9]+(\.[0-9]+)\.0-SNAPSHOT$ ]]; then
-            echo "Invalid next version. Must match regex: ^[0-9]+(\.[0-9]+)\.0-SNAPSHOT$"
-            exit 1;
-          fi
+#      - name: Check Inputs
+#        run: |
+#          if ! [[ "$RELEASE_VERSION" =~ ^[0-9]+(\.[0-9]+)\.0-rc[01](-SNAPSHOT)?$ ]]; then
+#            echo "Invalid release version. Must match regex: ^[0-9]+(\.[0-9]+)\.0-rc[01](-SNAPSHOT)?$"
+#            exit 1
+#          fi
+#
+#          if ! [[ "$NEXT_VERSION" =~ ^[0-9]+(\.[0-9]+)\.0-SNAPSHOT$ ]]; then
+#            echo "Invalid next version. Must match regex: ^[0-9]+(\.[0-9]+)\.0-SNAPSHOT$"
+#            exit 1;
+#          fi
       # Checkout
       - uses: actions/checkout@v4
         with:
