@@ -18,7 +18,7 @@ jobs:
   release:
     name: Release Kestra
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/develop'
+    if: github.ref == 'refs/heads/debug-release-ci'
     steps:
       # Checks
       - name: Check Inputs
@@ -75,7 +75,7 @@ jobs:
           git push -u origin "$PUSH_RELEASE_BRANCH";
 
           # Run gradle release
-          git checkout develop;
+          git checkout debug-release-ci;
 
           if [[ "$RELEASE_VERSION" == *"-SNAPSHOT" ]]; then
             # -SNAPSHOT qualifier maybe used to test release-candidates

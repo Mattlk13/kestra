@@ -607,7 +607,7 @@ release {
     buildTasks = ['classes']
 
     git {
-        requireBranch.set('develop')
+        requireBranch.set('debug-release-ci')
     }
 
     // Dynamically set properties with default values
