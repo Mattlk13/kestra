@@ -15,9 +15,6 @@ env:
   RELEASE_VERSION: "${{ github.event.inputs.releaseVersion }}"
   NEXT_VERSION: "${{ github.event.inputs.nextVersion }}"
 
-# Grant necessary permissions to the GITHUB_TOKEN for the entire workflow since develop is a protected branch.
-permissions: write-all
-
 jobs:
   release:
     name: Release Kestra
@@ -67,6 +64,8 @@ jobs:
       - name: Run Gradle Release
         env:
           GITHUB_PAT: ${{ secrets.GH_PERSONAL_TOKEN }}
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Extract the major and minor versions
           BASE_VERSION=$(echo "$RELEASE_VERSION" | sed -E 's/^([0-9]+\.[0-9]+)\..*/\1/')
