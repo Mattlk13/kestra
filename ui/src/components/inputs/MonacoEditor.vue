@@ -56,6 +56,7 @@
     import {Moment} from "moment";
     import PlaceholderContentWidget from "../../composables/monaco/PlaceholderContentWidget.ts";
     import ICodeEditor = editor.ICodeEditor;
+    import debounce from "lodash/debounce";
     import {hashCode} from "../../utils/global.ts";
 
     const store = useStore();
@@ -168,7 +169,7 @@
                 base: kestraBaseTheme.base
             }
             : theme as Partial<editor.IStandaloneThemeData> & { base: editor.BuiltinTheme };
-        
+
         const themeId = hashCode(JSON.stringify(theme)).toString();
         monaco.editor.defineTheme(themeId, {
             inherit: true,
@@ -176,7 +177,7 @@
             colors: {},
             ...base
         });
-        
+
         return themeId;
     }
 
@@ -244,7 +245,7 @@
     watch(() => props.theme, (newTheme) => {
         if (typeof newTheme === "object") {
             const themeId = defineCustomTheme(newTheme);
-            
+
             if (editorResolved.value) {
                 monaco.editor.setTheme(themeId);
             }
@@ -657,12 +658,12 @@
                     }
                 });
 
-                localEditor.onDidChangeCursorPosition(() => {
+                localEditor.onDidChangeCursorPosition(debounce(() => {
                     if (suggestController.model.state !== 0) {
                         suggestController.cancelSuggestWidget();
                         localEditor!.trigger("refreshSuggestionsOnCursorMove", "editor.action.triggerSuggest", {});
                     }
-                })
+                }, 300))
             }
 
             if (!props.input) {
