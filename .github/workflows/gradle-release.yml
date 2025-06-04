@@ -62,8 +62,6 @@ jobs:
 
       # Execute
       - name: Run Gradle Release
-        env:
-          GITHUB_PAT: ${{ secrets.GH_PERSONAL_TOKEN }}
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
         run: |
