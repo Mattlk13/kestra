@@ -46,7 +46,7 @@ class ClassPluginDocumentationTest {
             assertThat(doc.getDocLicense()).isEqualTo("EE");
 
             // simple
-            assertThat(((Map<String, String>) doc.getInputs().get("format")).get("type")).isEqualTo("string");
+            assertThat(((Map<String, String>) doc.getInputs().get("format")).get("type")).isEqualTo("stdfsdsfdsfdsfdsfdsfdsfring");
             assertThat(((Map<String, String>) doc.getInputs().get("format")).get("default")).isEqualTo("{}");
             assertThat(((Map<String, String>) doc.getInputs().get("format")).get("pattern")).isEqualTo(".*");
             assertThat(((Map<String, String>) doc.getInputs().get("format")).get("description")).contains("of this input");
