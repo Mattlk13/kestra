@@ -1,7 +1,9 @@
 import {computed, shallowRef} from "vue";
 import {useStore} from "vuex";
-import {useRouter} from "vue-router";
+import {useRoute, useRouter} from "vue-router";
 import {useI18n} from "vue-i18n";
+
+import {getDashboardID} from "../../components/dashboard/composables/useDashboards";
 
 import FileTreeOutline from "vue-material-design-icons/FileTreeOutline.vue";
 import ContentCopy from "vue-material-design-icons/ContentCopy.vue";
@@ -16,9 +18,11 @@ import DotsSquare from "vue-material-design-icons/DotsSquare.vue";
 import FormatListGroupPlus from "vue-material-design-icons/FormatListGroupPlus.vue";
 import DatabaseOutline from "vue-material-design-icons/DatabaseOutline.vue";
 import ShieldKeyOutline from "vue-material-design-icons/ShieldKeyOutline.vue";
+import FlaskOutline from "vue-material-design-icons/FlaskOutline.vue";
 
 export function useLeftMenu() {
     const {t} = useI18n({useScope: "global"});
+    const $route = useRoute();
     const $router = useRouter();
     const store = useStore();
 
@@ -44,8 +48,11 @@ export function useLeftMenu() {
     const generateMenu = () => {
         return [
             {
-                href: {name: "home"},
-                title: t("homeDashboard.title"),
+                href: {
+                    name: "home",
+                    params: {dashboard: getDashboardID($route)},
+                },
+                title: t("dashboards.labels.plural"),
                 icon: {
                     element: shallowRef(ViewDashboardVariantOutline),
                     class: "menu-icon",
@@ -112,6 +119,18 @@ export function useLeftMenu() {
                 },
             },
             {
+                href: {name: "tests/list"},
+                routes: routeStartWith("tests"),
+                title: t("demos.tests.label"),
+                icon: {
+                    element: shallowRef(FlaskOutline),
+                    class: "menu-icon"
+                },
+                attributes: {
+                    locked: true,
+                },
+            },
+            {
                 href: {name: "namespaces/list"},
                 routes: routeStartWith("namespaces"),
                 title: t("namespaces"),
@@ -149,6 +168,17 @@ export function useLeftMenu() {
                     class: "menu-icon",
                 },
                 child: [
+                    {
+                        title: t("blueprints.custom"),
+                        routes: routeStartWith("blueprints/flow"),
+                        attributes: {
+                            locked: true,
+                        },
+                        href: {
+                            name: "blueprints",
+                            params: {kind: "flow", tab: "custom"},
+                        },
+                    },
                     {
                         title: t("blueprints.flows"),
                         routes: routeStartWith("blueprints/flow"),

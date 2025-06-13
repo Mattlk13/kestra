@@ -123,8 +123,7 @@
     import {Topology} from "@kestra-io/ui-libs";
 
     // Utils
-    import {YamlUtils as YAML_UTILS} from "@kestra-io/ui-libs";
-    import {SECTIONS} from "../../utils/constants";
+    import {YamlUtils as YAML_UTILS, SECTIONS} from "@kestra-io/ui-libs";
     import Markdown from "../layout/Markdown.vue";
     import Editor from "./Editor.vue";
 
@@ -279,17 +278,24 @@
         );
     };
 
-    const onCreateNewTask = (details) => {
+    const onCreateNewTask = (event) => {
         topologyClick.value = {
             action: "create",
-            params: {section: SECTIONS.TASKS.toLowerCase(), position: details[1], target: details[0]}
+            params: {
+                section: SECTIONS.TASKS.toLowerCase(),
+                position: event[1],
+                id: event[0],
+            }
         };
     };
 
     const onEditTask = (event) => {
         topologyClick.value = {
             action: "edit",
-            params: {id: event.task.id, section: (event.section ?? SECTIONS.TASKS).toLowerCase()}
+            params: {
+                section: (event.section ?? SECTIONS.TASKS).toLowerCase(),
+                id: event.task.id,
+            }
         };
     };
 

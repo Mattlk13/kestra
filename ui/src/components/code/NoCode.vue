@@ -1,5 +1,5 @@
 <template>
-    <div class="h-100 overflow-y-auto no-code">
+    <div class="no-code">
         <Breadcrumbs />
 
         <hr class="m-0">
@@ -9,170 +9,96 @@
             @update-metadata="(k, v) => emit('updateMetadata', {[k]: v})"
             @update-task="(yaml) => emit('updateTask', yaml)"
             @reorder="(yaml) => emit('reorder', yaml)"
-            @update-documentation="(task) => emit('updateDocumentation', task)"
         />
     </div>
 </template>
 
 <script setup lang="ts">
-    import {computed, watch, inject,  onBeforeUnmount,  provide, ref} from "vue";
-    import {useStore} from "vuex";
-    import {YamlUtils as YAML_UTILS} from "@kestra-io/ui-libs";
+    import {computed, provide, ref} from "vue";
+    import * as YAML_UTILS from "@kestra-io/ui-libs/flow-yaml-utils";
 
     import {
         BREADCRUMB_INJECTION_KEY, CLOSE_TASK_FUNCTION_INJECTION_KEY,
-        CREATE_TASK_FUNCTION_INJECTION_KEY, CREATING_TASK_INJECTION_KEY,
-        EDIT_TASK_FUNCTION_INJECTION_KEY, FLOW_INJECTION_KEY,
+        CREATING_TASK_INJECTION_KEY, BLOCKTYPE_INJECT_KEY,
         PANEL_INJECTION_KEY, POSITION_INJECTION_KEY,
-        SAVEMODE_INJECTION_KEY, SECTION_INJECTION_KEY,
-        TASKID_INJECTION_KEY, PARENT_TASKID_INJECTION_KEY,
-        TASK_CREATION_INDEX_INJECTION_KEY, TOPOLOGY_CLICK_INJECTION_KEY
+        REF_PATH_INJECTION_KEY, PARENT_PATH_INJECTION_KEY,
+        FLOW_INJECTION_KEY,
+        EDITING_TASK_INJECTION_KEY,
     } from "./injectionKeys";
     import Breadcrumbs from "./components/Breadcrumbs.vue";
     import Editor from "./segments/Editor.vue";
-    import {Breadcrumb, TopologyClickParams} from "./utils/types";
-
-    const store = useStore();
-
-    const topologyClick = inject(TOPOLOGY_CLICK_INJECTION_KEY, ref());
-
-    watch(topologyClick, (value: TopologyClickParams | undefined) => {
-        if (!value) return;
-
-        const {action, params} = value;
-        const {id, section} = params;
-
-        if (action === "create") {
-            // const {target, position} = params;
-
-            if(emit("createTask", section, injectedTaskId.value) === false){
-                return
-            }
-            parentTaskIdRef.value = injectedTaskId.value
-            injectedSection.value = section
-            creatingTaskRef.value = true
-            injectedTaskId.value = ""
-        }
-        else if(action === "edit"){
-            if(emit("editTask", section, id) === false){
-                return
-            }
-            injectedSection.value = section
-            creatingTaskRef.value = false
-            injectedTaskId.value = id
-        }
-    }, {deep: true});
+    import {Breadcrumb, BlockType} from "./utils/types";
 
     const emit = defineEmits<{
         (e: "updateTask", yaml: string): void
         (e: "updateMetadata", value: {[key: string]: any}): void
-        (e: "updateDocumentation", task: string): void
         (e: "reorder", yaml: string): void
-        (e: "createTask", section: string, parentTaskId?: string): boolean | void
-        (e: "editTask", section: string, taskId: string): boolean | void
+        (e: "createTask", blockType: string, parentPath: string, refPath: number | undefined, position?: "before" | "after"): boolean | void
+        (e: "editTask", blockType: string, parentPath: string, refPath?: number): boolean | void
         (e: "closeTask"): boolean | void
     }>()
 
     const props = withDefaults(
         defineProps<{
             flow: string;
-            saveMode?: "button" | "auto";
             /**
-             * Initial section name when opening
+             * The path of the parent block
+             */
+            parentPath?: string;
+            /**
+             * Type of block to create
+             */
+            blockType?: BlockType | "pluginDefaults";
+            /**
+             * Initial block index when opening
              * a no-code panel from topology
              */
-            section?: string;
-            /**
-             * Initial task id when opening
-             * a no-code panel from topology
-             * (if it's a pluginDefaults, we have the type instead)
-             */
-            taskId?: string;
-            /**
-             * When opening, the taskId of the parent task
-             * to add subtasks into
-             */
-            parentTaskId?: string;
+            refPath?: number;
             creatingTask?: boolean;
+            editingTask?: boolean;
             position?: "before" | "after";
         }>(), {
-            saveMode: "button",
             creatingTask: false,
+            editingTask: false,
             position: "after",
-            section: "",
-            taskId: "",
-            parentTaskId: undefined
+            refPath: undefined,
+            blockType: undefined,
+            parentPath: undefined,
         });
 
     const metadata = computed(() => YAML_UTILS.getMetadata(props.flow));
 
-    const injectedSection = ref<string>(props.section)
-    const injectedTaskId = ref<string>(props.taskId)
-
-    const creatingTaskRef = ref(props.creatingTask)
     const breadcrumbs = ref<Breadcrumb[]>([])
     const panel = ref()
-    const parentTaskIdRef = ref(props.parentTaskId)
-
-    const taskCreationIndex = inject(
-        TASK_CREATION_INDEX_INJECTION_KEY,
-        ref(0),
-    );
 
     provide(FLOW_INJECTION_KEY, computed(() => props.flow));
-    provide(PARENT_TASKID_INJECTION_KEY, parentTaskIdRef);
+    provide(PARENT_PATH_INJECTION_KEY, props.parentPath ?? "");
+    provide(REF_PATH_INJECTION_KEY, props.refPath);
     provide(PANEL_INJECTION_KEY, panel)
     provide(BREADCRUMB_INJECTION_KEY, breadcrumbs);
-    provide(SECTION_INJECTION_KEY, injectedSection);
-    provide(TASKID_INJECTION_KEY, injectedTaskId);
+    provide(BLOCKTYPE_INJECT_KEY, props.blockType);
     provide(POSITION_INJECTION_KEY, props.position);
-    provide(SAVEMODE_INJECTION_KEY, props.saveMode);
-    provide(CREATING_TASK_INJECTION_KEY, computed(() => creatingTaskRef.value));
-    provide(CREATE_TASK_FUNCTION_INJECTION_KEY, (section) => {
-        if(emit("createTask", section, injectedTaskId.value) === false){
-            return
-        }
-        parentTaskIdRef.value = injectedTaskId.value
-        injectedSection.value = section
-        creatingTaskRef.value = true
-        injectedTaskId.value = ""
-    });
-    provide(EDIT_TASK_FUNCTION_INJECTION_KEY, (section, taskId) => {
-        if(emit("editTask", section, taskId) === false){
-            return
-        }
-        injectedSection.value = section
-        creatingTaskRef.value = false
-        injectedTaskId.value = taskId
-    });
+    provide(CREATING_TASK_INJECTION_KEY, props.creatingTask);
+    provide(EDITING_TASK_INJECTION_KEY, props.editingTask);
+
     provide(CLOSE_TASK_FUNCTION_INJECTION_KEY, () => {
-        if (breadcrumbs.value.length > 2) {
+        if (breadcrumbs.value[breadcrumbs.value.length - 1].component) {
             breadcrumbs.value.pop();
         } else {
             // only close the tab if saving a task not a value
-            if(emit("closeTask") === false){
-                return
-            }
-
-            injectedSection.value = "";
-            injectedTaskId.value = "";
-            creatingTaskRef.value = false
+            emit("closeTask")
         }
 
-    })
-
-    onBeforeUnmount(() => {
-        // cleanup the addition model on close
-        if(props.creatingTask) {
-            store.commit("flow/setCreatedTaskYaml", {
-                section: injectedSection.value,
-                index: taskCreationIndex.value - 1,
-                yaml: undefined,
-            });
-        }
     })
 </script>
 
-<style scoped lang="scss">
-@import "./styles/code.scss";
+<style lang="scss" scoped>
+    .no-code {
+        height: 100%;
+        overflow-y: auto;
+
+        hr {
+            margin: 0;
+        }
+    }
 </style>

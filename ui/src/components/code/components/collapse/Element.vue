@@ -14,7 +14,7 @@
             size="small"
             class="border-0"
         />
-        <div class="d-flex flex-column">
+        <div v-if="blockType !== 'pluginDefaults' && elementIndex !== undefined" class="d-flex flex-column">
             <ChevronUp @click.prevent.stop="emits('moveElement', 'up')" />
             <ChevronDown @click.prevent.stop="emits('moveElement', 'down')" />
         </div>
@@ -23,23 +23,31 @@
 
 <script setup lang="ts">
     import {computed, inject} from "vue";
+    import {useI18n} from "vue-i18n";
 
     import {DeleteOutline, ChevronUp, ChevronDown} from "../../utils/icons";
+    import {BlockType} from "../../utils/types";
     import {EDIT_TASK_FUNCTION_INJECTION_KEY} from "../../injectionKeys";
 
     import TaskIcon from "@kestra-io/ui-libs/src/components/misc/TaskIcon.vue";
 
     const emits = defineEmits(["removeElement", "moveElement"]);
 
+    const {t} = useI18n();
+
     const props = defineProps<{
+        blockType: BlockType | "pluginDefaults";
         section: string;
+        parentPathComplete: string;
         element: {
             id: string;
             type: string;
         };
+        elementIndex?: number;
     }>();
 
     import {useStore} from "vuex";
+
     const store = useStore();
 
     const icons = computed(() => store.state.plugin.icons);
@@ -48,16 +56,20 @@
         EDIT_TASK_FUNCTION_INJECTION_KEY,
         () => {},
     );
+
+    const identifier = computed(() => {
+        return props.section === "pluginDefaults" || props.blockType === "conditions" ? props.element.type : props.element.id;
+    });
+
     const taskIdentifier = computed(() => {
-        return props.section === "Plugin Defaults"
-            ? props.element.type
-            : props.element.id
+        return identifier.value ?? `<${t("no_code.unnamed")} ${props.elementIndex}>`;
     });
 
     const handleClick = () => {
         editTask(
-            props.section.toLowerCase(),
-            taskIdentifier.value
+            props.blockType,
+            props.parentPathComplete,
+            props.elementIndex,
         );
     };
 </script>

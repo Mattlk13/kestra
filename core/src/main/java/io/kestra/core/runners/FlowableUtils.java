@@ -218,7 +218,7 @@ public class FlowableUtils {
 
     /**
      * resolveConcurrentNexts will resolve concurrent values
-     * For both concurrent vales and subtasks, see resolveParallelNexts()
+     * For both concurrent values and subtasks, see resolveParallelNexts()
      */
     public static List<NextTaskRun> resolveConcurrentNexts(
         Execution execution,
@@ -281,8 +281,7 @@ public class FlowableUtils {
             return collect.values().stream()
                 .limit(concurrencySlots)
                 .map(resolvedTasks -> resolvedTasks.getFirst().toNextTaskRun(execution))
-                .toList()
-                .reversed();
+                .toList();
         }
 
         // start as many tasks as we have concurrency slots

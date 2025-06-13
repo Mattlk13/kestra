@@ -14,14 +14,14 @@ import io.kestra.core.queues.QueueException;
 import io.kestra.core.queues.QueueFactoryInterface;
 import io.kestra.core.queues.QueueInterface;
 import io.kestra.core.services.*;
-import io.kestra.core.test.flow.TaskFixture;
 import io.kestra.core.storages.StorageContext;
+import io.kestra.core.test.flow.TaskFixture;
 import io.kestra.core.trace.propagation.RunContextTextMapSetter;
 import io.kestra.core.utils.ListUtils;
 import io.kestra.core.utils.TruthUtils;
+import io.kestra.plugin.core.flow.LoopUntil;
 import io.kestra.plugin.core.flow.Pause;
 import io.kestra.plugin.core.flow.Subflow;
-import io.kestra.plugin.core.flow.LoopUntil;
 import io.kestra.plugin.core.flow.WorkingDirectory;
 import io.micronaut.context.ApplicationContext;
 import io.opentelemetry.api.OpenTelemetry;
@@ -313,6 +313,11 @@ public class ExecutorService {
         Task parent = executor.getFlow().findTaskByTaskId(parentTaskRun.getTaskId());
 
         if (parent instanceof FlowableTask<?> flowableParent) {
+            // Count the number of flowable tasks executions, some flowable are being called multiple times,
+            // so this is not exactly the number of flowable taskruns but the number of times they are executed.
+            metricRegistry
+                .counter(MetricRegistry.METRIC_EXECUTOR_FLOWABLE_EXECUTION_COUNT, MetricRegistry.METRIC_EXECUTOR_FLOWABLE_EXECUTION_COUNT_DESCRIPTION, metricRegistry.tags(parent))
+                .increment();
 
             try {
                 List<NextTaskRun> nexts = flowableParent.resolveNexts(
@@ -577,6 +582,7 @@ public class ExecutorService {
                         ResolvedTask.of(pause.getOnPause())
                     ))
                     .task(pause.getOnPause())
+                    .executionKind(executor.getExecution().getKind())
                     .build());
             }
 
@@ -806,6 +812,7 @@ public class ExecutorService {
                         .runContext(runContext)
                         .taskRun(taskRun)
                         .task(task)
+                        .executionKind(executor.getExecution().getKind())
                         .build();
                     // Get worker group
                     Optional<WorkerGroup> workerGroup = workerGroupService.resolveGroupFromJob(workerTask);
@@ -855,18 +862,22 @@ public class ExecutorService {
         boolean hasMockedWorkerTask = false;
         record FixtureAndTaskRun(TaskFixture fixture, TaskRun taskRun) {}
         if (executor.getExecution().getFixtures() != null) {
+            RunContext runContext = runContextFactory.of(executor.getFlow(), executor.getExecution());
             List<WorkerTaskResult> workerTaskResults = executor.getExecution()
                 .getTaskRunList()
                 .stream()
                 .filter(taskRun -> taskRun.getState().getCurrent().isCreated())
                 .flatMap(taskRun -> executor.getExecution().getFixtureForTaskRun(taskRun).stream().map(fixture -> new FixtureAndTaskRun(fixture, taskRun)))
-                .map(fixtureAndTaskRun -> WorkerTaskResult.builder()
+                .map(throwFunction(fixtureAndTaskRun -> WorkerTaskResult.builder()
                     .taskRun(fixtureAndTaskRun.taskRun()
                         .withState(Optional.ofNullable(fixtureAndTaskRun.fixture().getState()).orElse(State.Type.SUCCESS))
-                        .withOutputs(variablesService.of(StorageContext.forTask(fixtureAndTaskRun.taskRun), fixtureAndTaskRun.fixture().getOutputs()))
+                        .withOutputs(
+                            variablesService.of(StorageContext.forTask(fixtureAndTaskRun.taskRun),
+                                fixtureAndTaskRun.fixture().getOutputs() == null ? null : runContext.render(fixtureAndTaskRun.fixture().getOutputs()))
+                        )
                     )
                     .build()
-                )
+                ))
                 .toList();
 
             hasMockedWorkerTask = !workerTaskResults.isEmpty();
@@ -1261,6 +1272,7 @@ public class ExecutorService {
         killQueue.emit(ExecutionKilledExecution
             .builder()
             .state(ExecutionKilled.State.REQUESTED)
+            .executionState(state)
             .executionId(execution.getId())
             .isOnKillCascade(false) // TODO we may offer the choice to the user here
             .tenantId(execution.getTenantId())

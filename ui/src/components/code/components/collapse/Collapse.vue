@@ -5,15 +5,23 @@
             :title="`${title}${elements ? ` (${elements.length})` : ''}`"
         >
             <template #icon>
-                <Creation :section="title" />
+                <Creation
+                    v-if="blockType"
+                    :block-type="blockType"
+                    :parent-path-complete="parentPathComplete"
+                    :ref-path="elements?.length ? elements.length - 1 : undefined"
+                />
             </template>
 
             <Element
-                v-for="(element, elementIndex) in elements"
+                v-for="(element, elementIndex) in filteredElements"
                 :key="elementIndex"
-                :section="title"
+                :section="section"
+                :block-type="blockType"
+                :parent-path-complete="parentPathComplete"
                 :element
-                @remove-element="removeElement(title, elementIndex)"
+                :element-index
+                @remove-element="removeElement(elementIndex)"
                 @move-element="
                     (direction: 'up' | 'down') =>
                         moveElement(
@@ -29,37 +37,54 @@
 </template>
 
 <script setup lang="ts">
-    import {inject, ref} from "vue";
+    import {computed, inject, ref} from "vue";
 
-    import {YamlUtils as YAML_UTILS} from "@kestra-io/ui-libs";
+    import * as YAML_UTILS from "@kestra-io/ui-libs/flow-yaml-utils";
 
     import {CollapseItem} from "../../utils/types";
 
     import Creation from "./buttons/Creation.vue";
     import Element from "./Element.vue";
-    import {FLOW_INJECTION_KEY} from "../../injectionKeys";
+    import {
+        CREATING_TASK_INJECTION_KEY, FLOW_INJECTION_KEY,
+        PARENT_PATH_INJECTION_KEY, REF_PATH_INJECTION_KEY
+    } from "../../injectionKeys";
+    import {SECTIONS_MAP} from "../../../../utils/constants";
 
     const emits = defineEmits(["remove", "reorder"]);
 
     const flow = inject(FLOW_INJECTION_KEY, ref(""));
 
     const props = defineProps<CollapseItem>();
+    const filteredElements = computed(() => props.elements?.filter(Boolean) ?? []);
     const expanded = ref<CollapseItem["title"]>(props.title);
 
-    const removeElement = (title: string, index: number) => {
-        const isPluginDefaults = title === "Plugin Defaults";
-        // plugin default do not have an id
-        // they have to be deleted separately
-        if (isPluginDefaults) {
-            if(props.elements?.[index]?.type === undefined) return;
-            emits("remove", YAML_UTILS.deletePluginDefaults(flow.value, props.elements[index].type));
-        } else {
-            if(props.elements?.[index]?.id === undefined) return;
-            emits(
-                "remove",
-                YAML_UTILS.deleteTask(flow.value, props.elements[index].id, title),
-            );
-        }
+    const parentPath = inject(PARENT_PATH_INJECTION_KEY, "");
+    const refPath = inject(REF_PATH_INJECTION_KEY, undefined);
+    const creatingTask = inject(CREATING_TASK_INJECTION_KEY, false);
+
+    const parentPathComplete = computed(() => {
+        return `${[
+            [
+                parentPath,
+                creatingTask && refPath !== undefined
+                    ? `[${refPath + 1}]`
+                    : refPath !== undefined
+                        ? `[${refPath}]`
+                        : undefined,
+            ].filter(Boolean).join(""),
+            props.section
+        ].filter(p => p.length).join(".")}`;
+    });
+
+    const removeElement = (index: number) => {
+        emits(
+            "remove",
+            YAML_UTILS.deleteBlockWithPath({
+                source: flow.value,
+                path: `${parentPathComplete.value}[${index}]`,
+            }),
+        );
     };
 
     const moveElement = (
@@ -68,6 +93,7 @@
         index: number,
         direction: "up" | "down",
     ) => {
+        const keyName = props.title === "Plugin Defaults" ? "type" : "id";
         if (!items || !flow) return;
         if (
             (direction === "up" && index === 0) ||
@@ -76,9 +102,16 @@
             return;
 
         const newIndex = direction === "up" ? index - 1 : index + 1;
+
         emits(
             "reorder",
-            YAML_UTILS.swapTasks(flow.value, elementID, items[newIndex].id),
+            YAML_UTILS.swapBlocks({
+                source:flow.value,
+                section: SECTIONS_MAP[props.title.toLowerCase() as keyof typeof SECTIONS_MAP],
+                key1:elementID,
+                key2:items[newIndex][keyName],
+                keyName,
+            }),
         );
     };
 </script>

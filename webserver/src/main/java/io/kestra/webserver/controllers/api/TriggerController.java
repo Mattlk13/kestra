@@ -46,7 +46,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static io.kestra.core.utils.Rethrow.throwConsumer;
 import static io.kestra.core.utils.Rethrow.throwFunction;
 
-@Controller("/api/v1/triggers")
+@Controller("/api/v1/{tenant}/triggers")
 @Slf4j
 public class TriggerController {
     @Inject
@@ -86,24 +86,20 @@ public class TriggerController {
 
 
     ) throws HttpStatusException {
-        // If filters is empty, map old params to QueryFilter
-        if (filters == null || filters.isEmpty()) {
-            filters = RequestUtils.mapLegacyParamsToFilters(
-                query,
-                namespace,
-                flowId,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                workerId,
-                null);
-        }
+        filters = RequestUtils.getFiltersOrDefaultToLegacyMapping(
+            filters,
+            query,
+            namespace,
+            flowId,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            workerId,
+            null);
+
         ArrayListTotal<Trigger> triggerContexts = triggerRepository.find(
             PageableUtils.from(page, size, sort, triggerRepository.sortMapping()),
             tenantService.resolveTenant(),
@@ -204,11 +200,27 @@ public class TriggerController {
     @Post(uri = "/unlock/by-query")
     @Operation(tags = {"Triggers"}, summary = "Unlock triggers by query parameters")
     public MutableHttpResponse<?> unlockTriggersByQuery(
-        @Parameter(description = "A string filter") @Nullable @QueryValue(value = "q") String query,
-        @Parameter(description = "A namespace filter prefix") @Nullable @QueryValue String namespace
+        @Parameter(description = "Filters") @QueryFilterFormat List<QueryFilter> filters,
+
+        @Deprecated @Parameter(description = "A string filter") @Nullable @QueryValue(value = "q") String query,
+        @Deprecated @Parameter(description = "A namespace filter prefix") @Nullable @QueryValue String namespace
     ) {
+        filters = RequestUtils.getFiltersOrDefaultToLegacyMapping(
+            filters,
+            query,
+            namespace,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
+
         Integer count = triggerRepository
-            .find(query, tenantService.resolveTenant(), namespace)
+            .find(tenantService.resolveTenant(), filters)
             .filter(trigger -> trigger.getExecutionId() != null || trigger.getEvaluateRunningDate() != null)
             .map(trigger -> {
                 try {
@@ -375,12 +387,14 @@ public class TriggerController {
     @Post(uri = "/backfill/pause/by-query")
     @Operation(tags = {"Triggers"}, summary = "Pause backfill for given triggers")
     public MutableHttpResponse<?> pauseBackfillByQuery(
-        @Parameter(description = "A string filter") @Nullable @QueryValue(value = "q") String query,
-        @Parameter(description = "A namespace filter prefix") @Nullable @QueryValue String namespace
+        @Parameter(description = "Filters") @QueryFilterFormat List<QueryFilter> filters,
+
+        @Deprecated @Parameter(description = "A string filter") @Nullable @QueryValue(value = "q") String query,
+        @Deprecated @Parameter(description = "A namespace filter prefix") @Nullable @QueryValue String namespace
     ) throws QueueException {
         // Updating the backfill within the flux does not works
         List<Trigger> triggers = triggerRepository
-            .find(query, tenantService.resolveTenant(), namespace)
+            .find(tenantService.resolveTenant(), filters)
             .collectList().block();
 
         int count = triggers == null ? 0 : backfillsAction(triggers, BACKFILL_ACTION.PAUSE);
@@ -412,12 +426,28 @@ public class TriggerController {
     @Post(uri = "/backfill/unpause/by-query")
     @Operation(tags = {"Triggers"}, summary = "Unpause backfill for given triggers")
     public MutableHttpResponse<?> unpauseBackfillByQuery(
-        @Parameter(description = "A string filter") @Nullable @QueryValue(value = "q") String query,
-        @Parameter(description = "A namespace filter prefix") @Nullable @QueryValue String namespace
+        @Parameter(description = "Filters") @QueryFilterFormat List<QueryFilter> filters,
+
+        @Deprecated @Parameter(description = "A string filter") @Nullable @QueryValue(value = "q") String query,
+        @Deprecated @Parameter(description = "A namespace filter prefix") @Nullable @QueryValue String namespace
     ) throws QueueException {
+        filters = RequestUtils.getFiltersOrDefaultToLegacyMapping(
+            filters,
+            query,
+            namespace,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
+
         // Updating the backfill within the flux does not works
         List<Trigger> triggers = triggerRepository
-            .find(query, tenantService.resolveTenant(), namespace)
+            .find(tenantService.resolveTenant(), filters)
             .collectList().block();
 
         int count = triggers == null ? 0 : backfillsAction(triggers, BACKFILL_ACTION.UNPAUSE);
@@ -465,12 +495,28 @@ public class TriggerController {
     @Post(uri = "/backfill/delete/by-query")
     @Operation(tags = {"Triggers"}, summary = "Delete backfill for given triggers")
     public MutableHttpResponse<?> deleteBackfillByQuery(
-        @Parameter(description = "A string filter") @Nullable @QueryValue(value = "q") String query,
-        @Parameter(description = "A namespace filter prefix") @Nullable @QueryValue String namespace
+        @Parameter(description = "Filters") @QueryFilterFormat List<QueryFilter> filters,
+
+        @Deprecated @Parameter(description = "A string filter") @Nullable @QueryValue(value = "q") String query,
+        @Deprecated @Parameter(description = "A namespace filter prefix") @Nullable @QueryValue String namespace
     ) throws QueueException {
+        filters = RequestUtils.getFiltersOrDefaultToLegacyMapping(
+            filters,
+            query,
+            namespace,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
+
         // Updating the backfill within the flux does not works
         List<Trigger> triggers = triggerRepository
-            .find(query, tenantService.resolveTenant(), namespace)
+            .find(tenantService.resolveTenant(), filters)
             .collectList().block();
 
         int count = triggers == null ? 0 : backfillsAction(triggers, BACKFILL_ACTION.DELETE);
@@ -493,12 +539,29 @@ public class TriggerController {
     @Post(uri = "/set-disabled/by-query")
     @Operation(tags = {"Triggers"}, summary = "Disable/enable triggers by query parameters")
     public MutableHttpResponse<?> disabledTriggersByQuery(
-        @Parameter(description = "A string filter") @Nullable @QueryValue(value = "q") String query,
-        @Parameter(description = "A namespace filter prefix") @Nullable @QueryValue String namespace,
+        @Parameter(description = "Filters") @QueryFilterFormat List<QueryFilter> filters,
+
+        @Deprecated @Parameter(description = "A string filter") @Nullable @QueryValue(value = "q") String query,
+        @Deprecated @Parameter(description = "A namespace filter prefix") @Nullable @QueryValue String namespace,
+
         @Parameter(description = "The disabled state") @QueryValue(defaultValue = "true") Boolean disabled
     ) throws QueueException {
+        filters = RequestUtils.getFiltersOrDefaultToLegacyMapping(
+            filters,
+            query,
+            namespace,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
+
         Integer count = triggerRepository
-            .find(query, tenantService.resolveTenant(), namespace)
+            .find(tenantService.resolveTenant(), filters)
             .map(throwFunction(trigger -> {
                 this.setDisabled(trigger, disabled);
                 return 1;

@@ -1,97 +1,39 @@
 <template>
-    <el-form label-position="top">
+    <el-form label-position="top" class="w-100">
         <template v-if="sortedProperties">
-            <!-- Required properties -->
-            <el-form-item
-                :key="key"
-                :required="isRequired(key)"
-                v-for="[key, schema] in requiredProperties"
-            >
-                <template #label>
-                    <span v-if="getKey(key)" class="label">
-                        {{ getKey(key) }}
-                    </span>
-                    <el-tag
-                        disable-transitions
-                        size="small"
-                        class="ms-2 type-tag"
-                    >
-                        {{ getType(schema) }}
-                    </el-tag>
-                    <el-tooltip
-                        v-if="hasTooltip(schema)"
-                        :persistent="false"
-                        :hide-after="0"
-                        effect="light"
-                    >
-                        <template #content>
-                            <markdown
-                                class="markdown-tooltip"
-                                :source="helpText(schema)"
-                            />
-                        </template>
-                        <help class="ms-2" />
-                    </el-tooltip>
+            <template v-for="[fieldKey, fieldSchema] in requiredProperties" :key="fieldKey">
+                <template v-if="fieldKey === 'id' || isNestedProperty(fieldKey)">
+                    <TaskObjectField v-bind="fieldProps(fieldKey, fieldSchema)" />
                 </template>
-                <component
-                    :is="`task-${getType(schema, key)}`"
-                    :model-value="modelValue?.[key]"
-                    :task="modelValue"
-                    @update:model-value="onObjectInput(key, $event)"
-                    :root="getKey(key)"
-                    :schema="schema"
-                    :required="isRequired(key)"
-                    :definitions="definitions"
-                    class="mt-1 mb-2 wrapper"
-                />
-            </el-form-item>
 
-            <!-- Non required properties shown collapsed-->
-            <el-collapse v-if="optionalProperties?.length" class="collapse">
-                <el-collapse-item :title="$t('no_code.sections.optional')">
-                    <el-form-item
-                        :key="key"
-                        :required="isRequired(key)"
-                        v-for="[key, schema] in optionalProperties"
-                    >
-                        <template #label>
-                            <span v-if="getKey(key)" class="label">
-                                {{ getKey(key) }}
-                            </span>
-                            <el-tag
-                                disable-transitions
-                                size="small"
-                                class="ms-2 type-tag"
-                            >
-                                {{ getType(schema) }}
-                            </el-tag>
-                            <el-tooltip
-                                v-if="hasTooltip(schema)"
-                                :persistent="false"
-                                :hide-after="0"
-                                effect="light"
-                            >
-                                <template #content>
-                                    <markdown
-                                        class="markdown-tooltip"
-                                        :source="helpText(schema)"
-                                    />
-                                </template>
-                                <help class="ms-2" />
-                            </el-tooltip>
+                <template v-else>
+                    <TaskWrapper :merge>
+                        <template #tasks>
+                            <TaskObjectField v-bind="fieldProps(fieldKey, fieldSchema)" />
                         </template>
-                        <component
-                            :is="`task-${getType(schema, key)}`"
-                            :model-value="modelValue?.[key]"
-                            :task="modelValue"
-                            @update:model-value="onObjectInput(key, $event)"
-                            :root="getKey(key)"
-                            :schema="schema"
-                            :required="isRequired(key)"
-                            :definitions="definitions"
-                            class="mt-1 mb-2 wrapper"
-                        />
-                    </el-form-item>
+                    </TaskWrapper>
+                </template>
+            </template>
+
+            <el-collapse v-model="activeNames" v-if="optionalProperties?.length || deprecatedProperties?.length" class="collapse">
+                <el-collapse-item name="optional" v-if="optionalProperties?.length" :title="$t('no_code.sections.optional')">
+                    <template v-for="[fieldKey, fieldSchema] in optionalProperties" :key="fieldKey">
+                        <TaskWrapper>
+                            <template #tasks>
+                                <TaskObjectField v-bind="fieldProps(fieldKey, fieldSchema)" />
+                            </template>
+                        </TaskWrapper>
+                    </template>
+                </el-collapse-item>
+
+                <el-collapse-item name="deprecated" v-if="deprecatedProperties?.length" :title="$t('no_code.sections.deprecated')">
+                    <template v-for="[fieldKey, fieldSchema] in deprecatedProperties" :key="fieldKey">
+                        <TaskWrapper>
+                            <template #tasks>
+                                <TaskObjectField v-bind="fieldProps(fieldKey, fieldSchema)" />
+                            </template>
+                        </TaskWrapper>
+                    </template>
                 </el-collapse-item>
             </el-collapse>
         </template>
@@ -112,14 +54,16 @@
     </el-form>
 </template>
 
+<script setup>
+    import TaskDict from "./TaskDict.vue";
+    import TaskWrapper from "./TaskWrapper.vue";
+    import TaskObjectField from "./TaskObjectField.vue";
+
+    defineEmits(["update:modelValue"]);
+</script>
+
 <script>
     import Task from "./Task";
-    import Information from "vue-material-design-icons/InformationOutline.vue";
-    import Help from "vue-material-design-icons/HelpBox.vue";
-    import Kicon from "../../Kicon.vue";
-    import Editor from "../../inputs/Editor.vue";
-    import Markdown from "../../layout/Markdown.vue";
-    import TaskDict from "./TaskDict.vue";
 
     function sortProperties(properties, required) {
         if (!properties) {
@@ -164,30 +108,31 @@
         inheritAttrs: false,
         name: "TaskObject",
         mixins: [Task],
-        components: {
-            TaskDict,
-            Information,
-            Help,
-            Kicon,
-            Editor,
-            Markdown,
-        },
         props: {
             properties: {
                 type: Object,
                 default: () => ({}),
             },
+            merge: {type: Boolean, default: false},
+            metadataInputs: {type: Boolean, default: false}
         },
-        emits: ["update:modelValue"],
+        data() {
+            return {
+                activeNames: [],
+            };
+        },
         computed: {
             sortedProperties() {
                 return sortProperties(this.properties, this.schema?.required);
             },
             requiredProperties() {
-                return this.sortedProperties.filter(([p,v]) => v && this.isRequired(p));
+                return this.merge ? this.sortedProperties : this.sortedProperties.filter(([p,v]) => v && this.isRequired(p));
             },
             optionalProperties() {
-                return this.sortedProperties.filter(([p,v]) => v && !this.isRequired(p));
+                return this.merge ? [] : this.sortedProperties.filter(([p,v]) => v && !this.isRequired(p) && !v.$deprecated);
+            },
+            deprecatedProperties() {
+                return this.merge ? [] : this.sortedProperties.filter(([_,v]) => v && v.$deprecated);
             },
         },
         methods: {
@@ -196,67 +141,94 @@
                 currentValue[propertyName] = value;
                 this.onInput(currentValue);
             },
-            isValidated(key) {
-                return (
-                    this.isRequired(key) &&
-                    !this.modelValue?.[key] &&
-                    this.schema.properties[key].default === undefined
-                );
+            isNestedProperty(key) {
+                return key.includes(".") ||
+                    ["interval", "maxInterval", "minInterval", "type"].includes(key);
             },
-            hasTooltip(schema) {
-                return schema.title || schema.description;
-            },
-            helpText(schema) {
-                return (
-                    (schema.title ? "**" + schema.title + "**" : "") +
-                    (schema.title && schema.description ? "\n" : "") +
-                    (schema.description ? schema.description : "")
-                );
+            fieldProps(key, schema) {
+                return {
+                    modelValue: this.modelValue?.[key],
+                    "onUpdate:modelValue": (value) => {
+                        this.onObjectInput(key, value);
+                    },
+                    root: this.root,
+                    fieldKey: key,
+                    task: this.modelValue,
+                    schema: schema,
+                    definitions: this.definitions,
+                    required: this.requiredProperties.map(([p]) => p),
+                };
             },
         },
+
     };
 </script>
 
 <style lang="scss">
-    .el-form-item {
-        margin-bottom: 1rem;
-    }
-
     .el-form-item__content {
         .el-form-item {
             width: 100%;
         }
+    }
+
+    .el-popper.singleton-tooltip {
+        max-width: 300px !important;
+        background: var(--ks-tooltip-background);
     }
 </style>
 
 <style lang="scss" scoped>
 @import "../../code/styles/code.scss";
 
-.type-tag {
-    background-color: var(--ks-tag-background);
-    color: var(--ks-tag-content);
-}
-
-.el-form-item.is-required:not(.is-no-asterisk).asterisk-left {
-    > :deep(.el-form-item__label) {
-        display: flex;
-    }
-}
-
-.label {
-    color: var(--ks-content-primary);
-}
-
-.el-tooltip__trigger {
-    > :deep(svg) {
-        fill: var(--ks-content-tertiary);
-    }
-}
-
 .el-form-item {
+    width: 100%;
+    margin-bottom: 0;
     > :deep(.el-form-item__label) {
+        width: 100%;
+        display: flex;
         align-items: center;
-        justify-content: flex-start;
+        padding: 0;
+    }
+}
+
+.inline-wrapper {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+
+    .inline-start {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        min-width: 0;
+        flex: 1 1 auto;
+    }
+
+    .label {
+        color: var(--ks-content-primary);
+        min-width: 0;
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-weight: 600;
+    }
+
+    .type-tag {
+        background-color: var(--ks-tag-background-active);
+        color: var(--ks-tag-content);
+        font-size: 12px;
+        line-height: 20px;
+        padding: 0 8px;
+        padding-bottom: 2px;
+        border-radius: 8px;
+        text-transform: capitalize;
+    }
+
+    .information-icon {
+        color: var(--ks-content-secondary);
+        cursor: pointer;
     }
 }
 </style>

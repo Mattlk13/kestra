@@ -22,13 +22,13 @@ import io.kestra.core.runners.RunContext;
 import io.kestra.core.utils.Await;
 import io.kestra.core.utils.ListUtils;
 import io.kestra.core.utils.RetryUtils;
+import io.kestra.core.utils.UnixModeToPosixFilePermissions;
 import io.kestra.plugin.scripts.exec.scripts.models.DockerOptions;
 import io.micronaut.core.convert.format.ReadableBytesTypeConverter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
@@ -44,6 +44,7 @@ import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.PosixFilePermission;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -240,7 +241,7 @@ public class Docker extends TaskRunner<Docker.DockerTaskRunnerDetailResult> {
         even if an image with the same tag already exists."""
     )
     @Builder.Default
-    protected Property<PullPolicy> pullPolicy = Property.of(PullPolicy.IF_NOT_PRESENT);
+    protected Property<PullPolicy> pullPolicy = Property.ofValue(PullPolicy.IF_NOT_PRESENT);
 
     @Schema(
         title = "A list of device requests to be sent to device drivers."
@@ -288,21 +289,21 @@ public class Docker extends TaskRunner<Docker.DockerTaskRunnerDetailResult> {
     )
     @NotNull
     @Builder.Default
-    private Property<FileHandlingStrategy> fileHandlingStrategy = Property.of(FileHandlingStrategy.VOLUME);
+    private Property<FileHandlingStrategy> fileHandlingStrategy = Property.ofValue(FileHandlingStrategy.VOLUME);
 
     @Schema(
         title = "Whether the container should be deleted upon completion."
     )
     @NotNull
     @Builder.Default
-    private Property<Boolean> delete = Property.of(true);
+    private Property<Boolean> delete = Property.ofValue(true);
 
     @Builder.Default
     @Schema(
         title = "Whether to wait for the container to exit."
     )
     @NotNull
-    private Property<Boolean> wait = Property.of(true);
+    private Property<Boolean> wait = Property.ofValue(true);
 
     @Builder.Default
     @NotNull
@@ -406,6 +407,13 @@ public class Docker extends TaskRunner<Docker.DockerTaskRunnerDetailResult> {
                     for (Path file: relativeWorkingDirectoryFilesPaths) {
                         Path resolvedFile = runContext.workingDir().resolve(file);
                         TarArchiveEntry entry = out.createArchiveEntry(resolvedFile.toFile(), file.toString());
+                        // Preserve POSIX permissions if supported
+                        try {
+                            Set<PosixFilePermission> perms = Files.getPosixFilePermissions(resolvedFile);
+                            entry.setMode(UnixModeToPosixFilePermissions.fromPosixFilePermissions(perms));
+                        } catch (UnsupportedOperationException | IOException ignore) {
+                            // Skipping unix file permission
+                        }
                         out.putArchiveEntry(entry);
                         if (!Files.isDirectory(resolvedFile)) {
                             try (InputStream fis = Files.newInputStream(resolvedFile)) {
@@ -589,16 +597,21 @@ public class Docker extends TaskRunner<Docker.DockerTaskRunnerDetailResult> {
         CopyArchiveFromContainerCmd copyArchiveFromContainerCmd = dockerClient.copyArchiveFromContainerCmd(execId, windowsToUnixPath(taskCommands.getWorkingDirectory().toString()));
         try (InputStream is = copyArchiveFromContainerCmd.exec();
              TarArchiveInputStream tar = new TarArchiveInputStream(is)) {
-            ArchiveEntry entry;
+            TarArchiveEntry entry;
             while ((entry = tar.getNextEntry()) != null) {
                 // each entry contains the working directory as the first part, we need to remove it
-                Path extractTo = runContext.workingDir().resolve(Path.of(entry.getName().substring(runContext.workingDir().id().length() +1)));
+                Path extractTo = runContext.workingDir().resolve(Path.of(entry.getName().substring(runContext.workingDir().id().length() + 1)));
                 if (entry.isDirectory()) {
                     if (!Files.exists(extractTo)) {
                         Files.createDirectories(extractTo);
                     }
                 } else {
                     Files.copy(tar, extractTo, StandardCopyOption.REPLACE_EXISTING);
+                    try {
+                        Files.setPosixFilePermissions(extractTo, UnixModeToPosixFilePermissions.toPosixPermissions(entry.getMode()));
+                    } catch (UnsupportedOperationException | IOException e) {
+                        // File system does not support POSIX permissions (e.g., Windows)
+                    }
                 }
             }
         }

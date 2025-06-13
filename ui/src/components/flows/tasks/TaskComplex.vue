@@ -1,47 +1,43 @@
 <template>
-    <el-input :model-value="JSON.stringify(values)">
-        <template #append>
-            <el-button
-                :icon="TextSearch"
-                @click="
-                    breadcrumbs[breadcrumbs.length] = {
-                        label: root,
-                        to: {},
-                        component: h(AnyOfContent, {
-                            modelValue,
-                            schema,
-                            definitions,
-                            'onUpdate:modelValue': onInput,
-                        }),
-                    }
-                "
-            />
-        </template>
-    </el-input>
+    <TaskObject
+        :model-value="modelValue"
+        :schema
+        :definitions
+        :properties="computedProperties"
+        :root="root"
+        :task="task"
+        :required="required"
+        merge
+        @update:model-value="onInput"
+    />
 </template>
 
 <script setup>
-    import {h, inject, ref} from "vue";
-    import {BREADCRUMB_INJECTION_KEY} from "../../code/injectionKeys";
-
-    import TextSearch from "vue-material-design-icons/TextSearch.vue";
-
-    const breadcrumbs = inject(BREADCRUMB_INJECTION_KEY, ref([]));
+    import TaskObject from "./TaskObject.vue";
 </script>
 
 <script>
     import Task from "./Task";
 
     export default {
+        inheritAttrs: false,
         mixins: [Task],
         computed: {
-
-            currentSchema() {
-                let ref = this.schema.$ref.substring(8);
-                if (this.definitions[ref]) {
-                    return this.definitions[ref];
+            computedProperties() {
+                if(!this.schema?.allOf && !this.schema?.$ref) {
+                    return this.schema?.properties || {};
                 }
-                return undefined;
+                const schemas = this.schema.allOf ?? [this.schema];
+                return schemas.reduce((acc, item) => {
+                    if (item.$ref) {
+                        const type = item.$ref.split("/").pop();
+                        return {
+                            ...acc,
+                            ...this.definitions[type]?.properties
+                        };
+                    }
+                    return {...acc, ...item.properties};
+                }, {});
             },
         },
     };

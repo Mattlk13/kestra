@@ -30,7 +30,7 @@ import java.util.stream.Stream;
 import static io.kestra.core.utils.Rethrow.throwFunction;
 
 @Validated
-@Controller("/api/v1/plugins/")
+@Controller("/api/v1/{tenant}/plugins/")
 public class PluginController {
     private static final String CACHE_DIRECTIVE = "public, max-age=3600";
 
@@ -125,7 +125,8 @@ public class PluginController {
                     plugin.getTaskRunners().stream(),
                     plugin.getLogExporters().stream(),
                     plugin.getApps().stream(),
-                    plugin.getAppBlocks().stream()
+                    plugin.getAppBlocks().stream(),
+                    plugin.getAdditionalPlugins().stream()
                 )
                 .flatMap(i -> i)
                 .map(e -> new AbstractMap.SimpleEntry<>(
@@ -204,7 +205,7 @@ public class PluginController {
         @Parameter(description = "Include all the properties") @QueryValue(value = "all", defaultValue = "false") Boolean allProperties
     ) throws IOException {
 
-        ClassPluginDocumentation<?> classPluginDocumentation = getPluginDocumentation(cls, version, allProperties);
+        ClassPluginDocumentation<?> classPluginDocumentation = buildPluginDocumentation(cls, version, allProperties);
 
         var doc = alertReplacement(DocumentationGenerator.render(classPluginDocumentation));
 
@@ -254,9 +255,7 @@ public class PluginController {
             .toList();
     }
 
-
-    @Cacheable("default")
-    protected ClassPluginDocumentation<?> getPluginDocumentation(String className, String version, Boolean allProperties) {
+    protected ClassPluginDocumentation<?> buildPluginDocumentation(String className, String version, Boolean allProperties) {
         return pluginRegistry.findMetadataByIdentifier(getPluginIdentifier(className, version))
             .map(metadata -> ClassPluginDocumentation.of(jsonSchemaGenerator, metadata, allProperties))
             .orElseThrow(() -> new NoSuchElementException("Class '" + className + "' doesn't exists "));

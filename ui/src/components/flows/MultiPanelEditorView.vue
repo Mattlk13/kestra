@@ -28,13 +28,13 @@
 
     import MultiPanelTabs, {Panel, Tab} from "../MultiPanelTabs.vue";
     import EditorButtonsWrapper from "../inputs/EditorButtonsWrapper.vue";
-    import {DEFAULT_ACTIVE_TABS, EDITOR_ELEMENTS} from "./panelDefinition";
+    import {DEFAULT_ACTIVE_TABS, EDITOR_ELEMENTS} from "override/components/flows/panelDefinition";
     import {useCodePanels, useInitialCodeTabs} from "./useCodePanels";
-    import {useCodeTopology} from "./useCodeTopology";
+    import {useTopologyPanels} from "./useTopologyPanels";
 
-    import {setupInitialNoCodeTab, setupInitialNoCodeTabIfExists, useNoCodePanels} from "./useNoCodePanels";
+    import {getCreateTabKey, getEditTabKey, setupInitialNoCodeTab, setupInitialNoCodeTabIfExists, useNoCodePanels} from "./useNoCodePanels";
 
-    function isFlowRelated(element: Tab){
+    function isTabFlowRelated(element: Tab){
         return ["code", "nocode", "topology"].includes(element.value)
             // when the flow file is dirty all the nocode tabs get splashed
             || element.value.startsWith("nocode-")
@@ -74,12 +74,47 @@
 
 
     const noCodeHandlers: Parameters<typeof setupInitialNoCodeTab>[2] = {
-        onCreateTask(...args){
-            openAddTaskTab(...args)
+        onCreateTask(opener, blockType, parentPath, refPath, position){
+            const createTabId = getCreateTabKey({
+                blockType,
+                parentPath,
+                refPath,
+                position,
+            }, 0).slice(12)
+
+            const tAdd = openTabs.value.find(t => t.endsWith(createTabId))
+
+            // if the tab is already open and has no data, to avoid conflicting data
+            // focus it and don't open a new one
+            if(tAdd && tAdd.startsWith("nocode-")){
+                focusTab(tAdd)
+                return false
+            }
+
+            openAddTaskTab(opener, blockType, parentPath, refPath, position, isFlowDirty.value)
             return false
         },
         onEditTask(...args){
-            openEditTaskTab(...args)
+            // if the tab is already open, focus it
+            // and don't open a new one)
+            const [
+                ,
+                blockType,
+                parentPath,
+                refPath,
+            ] = args
+            const editKey = getEditTabKey({
+                blockType,
+                parentPath,
+                refPath
+            }, 0).slice(12)
+
+            const tEdit = openTabs.value.find(t => t.endsWith(editKey))
+            if(tEdit && tEdit.startsWith("nocode-")){
+                focusTab(tEdit)
+                return false
+            }
+            openEditTaskTab(...args, isFlowDirty.value)
             return false
         },
         onCloseTask(...args){
@@ -90,10 +125,10 @@
 
     const {t} = useI18n()
     function getPanelFromValue(value: string, dirtyFlow = false): {prepend: boolean, panel: Panel}{
-        const tab = setupInitialNoCodeTab(value, t, noCodeHandlers)
+        const tab = setupInitialNoCodeTab(value, t, noCodeHandlers, flow.value)
         const element: Tab = tab ?? EDITOR_ELEMENTS.find(e => e.value === value)!
 
-        if(isFlowRelated(element)){
+        if(isTabFlowRelated(element)){
             element.dirty = dirtyFlow
         }
         return {
@@ -107,8 +142,19 @@
 
     const {setupInitialCodeTab} = useInitialCodeTabs()
 
+    const isTourRunning = computed(() => store.state.core.guidedProperties?.tourStarted)
+    const DEFAULT_TOUR_TABS = [
+        {tabs: ["code"], activeTab: "code", size: 1},
+        {tabs: ["topology"], activeTab: "topology", size: 1}
+    ];
+
+    function cleanupNoCodeTabKey(key: string): string {
+        // remove the number for "nocode-1234-" prefix from the key
+        return /^nocode-\d{4}/.test(key) ? key.slice(0, 6) + key.slice(11) : key
+    }
+
     const panels: Ref<Panel[]> = useStorage<any>(
-        `panels-${flow.value.namespace}-${flow.value.id}`,
+        `panel-${flow.value.namespace}-${flow.value.id}`,
         DEFAULT_ACTIVE_TABS
             .map((t):Panel => getPanelFromValue(t).panel),
         undefined,
@@ -117,13 +163,13 @@
                 write(v: Panel[]){
                     return JSON.stringify(v.map(p => ({
                         tabs: p.tabs.map(t => t.value),
-                        activeTab: p.activeTab?.value,
+                        activeTab: cleanupNoCodeTabKey(p.activeTab?.value),
                         size: p.size,
                     })))
                 },
                 read(v?: string) {
                     if(v){
-                        const panels: {tabs: string[], activeTab: string, size: number}[] = JSON.parse(v)
+                        const panels: {tabs: string[], activeTab: string, size: number}[] = isTourRunning.value ? DEFAULT_TOUR_TABS : JSON.parse(v)
                         return panels
                             .filter((p) => p.tabs.length)
                             .map((p):Panel => {
@@ -132,7 +178,9 @@
                                     ?? setupInitialNoCodeTabIfExists(store.state.flow.flowYaml, tab, t, noCodeHandlers)
                                     ?? EDITOR_ELEMENTS.find(e => e.value === tab)!
                                 )
-                                const activeTab = tabs.find(t => t.value === p.activeTab)!
+                                    // filter out any tab that may have disappeared
+                                    .filter(Boolean)
+                                const activeTab = tabs.find(t => cleanupNoCodeTabKey(t.value) === p.activeTab) ?? tabs[0]
                                 return {
                                     activeTab,
                                     tabs,
@@ -151,17 +199,21 @@
 
     const openTabs = computed(() => panels.value.flatMap(p => p.tabs.map(t => t.value)))
 
-    const {onRemoveTab, isFlowDirty} = useCodePanels(panels)
+    const {onRemoveTab: onRemoveCodeTab, isFlowDirty} = useCodePanels(panels)
 
-    useCodeTopology(panels, openAddTaskTab, openEditTaskTab)
+    function onRemoveTab(tab: string){
+        onRemoveCodeTab(tab)
+    }
+
+    useTopologyPanels(panels, openAddTaskTab, openEditTaskTab)
 
     watch(isFlowDirty, (dirty) => {
         for(const panel of panels.value){
-            if(panel.activeTab && isFlowRelated(panel.activeTab)){
+            if(panel.activeTab && isTabFlowRelated(panel.activeTab)){
                 panel.activeTab.dirty = dirty
             }
             for(const tab of panel.tabs){
-                if(isFlowRelated(tab)){
+                if(isTabFlowRelated(tab)){
                     tab.dirty = dirty
                 }
             }
@@ -178,11 +230,10 @@
     }
 
     .editor-wrapper{
-        flex: 1;
         position: relative;
     }
 
-    .editor-panels{
+    :deep(.editor-panels){
         position: absolute;
     }
 

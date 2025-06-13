@@ -48,12 +48,13 @@ export type Fields = {
     id: Field;
     namespace: Field;
     description: Field;
-    retry: EditorField;
+    retry: Field;
     labels: PairField;
     inputs: InputField;
     outputs: EditorField;
     variables: PairField;
     concurrency: ConcurrencyField;
+    sla: Field;
     disabled: Field;
 };
 
@@ -65,6 +66,8 @@ export interface NoCodeElement {
 
 export type CollapseItem = {
     title: string;
+    blockType: BlockType | "pluginDefaults";
+    section: string;
     elements?: NoCodeElement[];
 };
 
@@ -82,21 +85,18 @@ export type Component = ReturnType<typeof defineComponent>;
 
 type BasicParams = {
     id: string;
-    section: string;
+    section: BlockType;
 }
 
 type CreationParams = BasicParams & {
     position: "before" | "after";
-    target: string;
 }
 
 export type TopologyClickParams =
   | { action: "edit"; params: BasicParams }
   | { action: "create"; params: CreationParams };
 
-export type SectionKey = "tasks"
+export type BlockType = "tasks"
     |    "triggers"
-    |    "error handlers"
-    |    "finally"
-    |    "after execution"
-    |    "plugin defaults"
+    |    "conditions"
+    |    "taskRunners"

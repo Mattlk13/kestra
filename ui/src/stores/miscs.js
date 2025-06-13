@@ -1,4 +1,4 @@
-import {apiUrl} from "override/utils/route";
+import {apiUrl, apiUrlWithoutTenants} from "override/utils/route";
 import {useApiStore} from "./api";
 
 export default {
@@ -10,7 +10,7 @@ export default {
     },
     actions: {
         loadConfigs({commit}) {
-            return this.$http.get(`${apiUrl(this)}/configs`).then(response => {
+            return this.$http.get(`${apiUrlWithoutTenants(this)}/configs`).then(response => {
                 commit("setConfigs", response.data)
 
                 return response.data;
