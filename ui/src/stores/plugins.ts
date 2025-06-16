@@ -37,7 +37,7 @@ interface State {
     editorPlugin: (PluginComponent & { cls: string }) | undefined;
     inputSchema: any | undefined;
     inputsType: any | undefined;
-    store: Store<any> | undefined;
+    vuexStore: Store<any> | undefined;
 }
 
 interface LoadOptions {
@@ -59,7 +59,7 @@ export const usePluginsStore = defineStore("plugins", {
         editorPlugin: undefined,
         inputSchema: undefined,
         inputsType: undefined,
-        store: undefined
+        vuexStore: undefined
     }),
 
     getters: {
@@ -69,11 +69,12 @@ export const usePluginsStore = defineStore("plugins", {
     },
 
     actions: {
-        setStore(store: Store<any>) {
-            this.store = store;
+        setVuexStore(store: Store<any>) {
+            this.vuexStore = store;
         },
+
         async list() {
-            const response = await axios.get<Plugin[]>(`${apiUrl(this.store)}/plugins`);
+            const response = await axios.get<Plugin[]>(`${apiUrl(this.vuexStore)}/plugins`);
             this.plugins = response.data;
             this.pluginSingleList = response.data
                 .map(plugin => plugin.tasks
@@ -85,7 +86,7 @@ export const usePluginsStore = defineStore("plugins", {
         },
 
         async listWithSubgroup(options: Record<string, any>) {
-            const response = await axios.get<Plugin[]>(`${apiUrl(this.store)}/plugins/groups/subgroups`, {
+            const response = await axios.get<Plugin[]>(`${apiUrl(this.vuexStore)}/plugins/groups/subgroups`, {
                 params: options
             });
             this.plugins = response.data;
@@ -111,8 +112,8 @@ export const usePluginsStore = defineStore("plugins", {
             }
 
             const url = options.version ?
-                `${apiUrl(this.store)}/plugins/${options.cls}/versions/${options.version}` :
-                `${apiUrl(this.store)}/plugins/${options.cls}`;
+                `${apiUrl(this.vuexStore)}/plugins/${options.cls}/versions/${options.version}` :
+                `${apiUrl(this.vuexStore)}/plugins/${options.cls}`;
 
             const response = await axios.get<PluginComponent>(url, {params: options});
 
@@ -136,7 +137,7 @@ export const usePluginsStore = defineStore("plugins", {
 
         loadVersions(options: { cls: string; commit?: boolean }) {
             const promise = axios.get(
-                `${apiUrl(this.store)}/plugins/${options.cls}/versions`
+                `${apiUrl(this.vuexStore)}/plugins/${options.cls}/versions`
             );
             return promise.then(response => {
                 if (options.commit !== false) {
@@ -149,7 +150,7 @@ export const usePluginsStore = defineStore("plugins", {
         icons() {
             const apiStore = useApiStore();
             return Promise.all([
-                axios.get(`${apiUrl(this.store)}/plugins/icons`, {}),
+                axios.get(`${apiUrl(this.vuexStore)}/plugins/icons`, {}),
                 apiStore.pluginIcons()
             ]).then(responses => {
                 const icons = responses[0].data;
@@ -168,21 +169,21 @@ export const usePluginsStore = defineStore("plugins", {
 
         groupIcons() {
             return Promise.all([
-                axios.get(`${apiUrl(this.store)}/plugins/icons/groups`, {})
+                axios.get(`${apiUrl(this.vuexStore)}/plugins/icons/groups`, {})
             ]).then(responses => {
                 return responses[0].data;
             });
         },
 
         loadInputsType() {
-            return axios.get(`${apiUrl(this.store)}/plugins/inputs`, {}).then(response => {
+            return axios.get(`${apiUrl(this.vuexStore)}/plugins/inputs`, {}).then(response => {
                 this.inputsType = response.data;
 
                 return response.data;
             });
         },
         loadInputSchema(options: {type: string}) {
-            return axios.get(`${apiUrl(this.store)}/plugins/inputs/${options.type}`, {}).then(response => {
+            return axios.get(`${apiUrl(this.vuexStore)}/plugins/inputs/${options.type}`, {}).then(response => {
                 this.inputSchema = response.data;
 
                 return response.data;

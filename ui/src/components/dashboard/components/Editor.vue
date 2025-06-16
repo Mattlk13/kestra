@@ -185,7 +185,7 @@
             async updatePluginDocumentation(event) {
                 if (this.currentView === this.views.DOC) {
                     const type = YAML_UTILS.getTaskType(event.model.getValue(), event.position, this.plugins)
-                    this.pluginsStore.setStore(this.$store);
+                    this.pluginsStore.setVuexStore(this.$store);
                     if (type) {
 
                         this.pluginsStore.load({cls: type})
@@ -222,7 +222,7 @@
                 };
             },
             loadPlugins() {
-                this.pluginsStore.setStore(this.$store);
+                this.pluginsStore.setVuexStore(this.$store);
                 this.pluginsStore.list({...this.$route.params})
                     .then(data => {
                         this.plugins = data.map(plugin => {

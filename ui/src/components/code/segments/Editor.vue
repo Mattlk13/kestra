@@ -160,7 +160,7 @@
 
     const pluginStore = usePluginsStore();
 
-    pluginStore.setStore(store);
+    pluginStore.setVuexStore(store);
 
     onMounted(async () => {
         await pluginStore.loadSchemaType().then((response) => {

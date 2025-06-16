@@ -129,7 +129,7 @@
                     localStorage.setItem("uid", uid);
                 }
 
-                this.pluginsStore.setStore(this.$store);
+                this.pluginsStore.setVuexStore(this.$store);
 
                 this.pluginsStore.icons()
                 const config = await this.$store.dispatch("misc/loadConfigs");
