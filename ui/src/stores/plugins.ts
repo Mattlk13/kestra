@@ -1,5 +1,5 @@
 import {defineStore} from "pinia";
-import {apiUrl, apiUrlWithoutTenants} from "override/utils/route";
+import {apiUrl} from "override/utils/route";
 import * as YamlUtils from "@kestra-io/ui-libs/flow-yaml-utils";
 import semver from "semver";
 import {useApiStore} from "./api";
@@ -184,7 +184,7 @@ export const usePluginsStore = defineStore("plugins", {
             });
         },
         loadSchemaType(options: {type: string} = {type: "flow"}) {
-            return this.$http.get(`${apiUrlWithoutTenants()}/plugins/schemas/${options.type}`, {}).then(response => {
+            return this.$http.get(`${apiUrl(this.vuexStore)}/plugins/schemas/${options.type}`, {}).then(response => {
                 return response.data;
             });
         },
