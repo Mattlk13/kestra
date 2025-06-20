@@ -116,6 +116,12 @@ public class WorkingDirectoryTest {
         suite.encryption(runnerUtils, runContextFactory);
     }
 
+    @Test
+    @LoadFlows({"flows/valids/working-directory-invalid-runif.yaml"})
+    void invalidRunIf() throws Exception {
+        suite.invalidRunIf(runnerUtils);
+    }
+
     @Singleton
     public static class Suite {
         @Inject
@@ -316,6 +322,15 @@ public class WorkingDirectoryTest {
             assertThat(encryptedValue, is(not("Hello World")));
             assertThat(runContextFactory.of().decrypt(encryptedValue), is("Hello World"));
             assertThat(execution.findTaskRunsByTaskId("decrypted").getFirst().getOutputs().get("value"), is("Hello World"));
+        }
+
+        public void invalidRunIf(RunnerUtils runnerUtils) throws TimeoutException, QueueException {
+            Execution execution = runnerUtils.runOne(MAIN_TENANT, "io.kestra.tests", "working-directory-invalid-runif", null,
+                (f, e) -> ImmutableMap.of("failed", "false"), Duration.ofSeconds(60)
+            );
+
+            assertThat(execution.getTaskRunList()).hasSize(2);
+            assertThat(execution.getState().getCurrent()).isEqualTo(State.Type.FAILED);
         }
 
         private void put(String path, String content) throws IOException {
