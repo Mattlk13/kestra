@@ -70,6 +70,6 @@ public class SetVariables extends Task implements ExecutionUpdatableTask {
             }
         }
 
-        return execution.withVariables(MapUtils.deepMerge(execution.getVariables(), renderedVars));
+        return execution.withVariables(MapUtils.merge(execution.getVariables(), renderedVars));
     }
 }

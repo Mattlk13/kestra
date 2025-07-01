@@ -199,6 +199,8 @@ public class JdbcExecutor implements ExecutorInterface, Service {
 
     private final AbstractJdbcFlowTopologyRepository flowTopologyRepository;
 
+    private final MaintenanceService maintenanceService;
+
     private final String id = IdUtils.create();
 
     private final AtomicBoolean shutdown = new AtomicBoolean(false);
@@ -228,13 +230,15 @@ public class JdbcExecutor implements ExecutorInterface, Service {
         final AbstractJdbcFlowTopologyRepository flowTopologyRepository,
         final ApplicationEventPublisher<ServiceStateChangeEvent> eventPublisher,
         final TracerFactory tracerFactory,
-        final ExecutorsUtils executorsUtils
+        final ExecutorsUtils executorsUtils,
+        final MaintenanceService maintenanceService
         ) {
         this.serviceLivenessCoordinator = serviceLivenessCoordinator;
         this.flowRepository = flowRepository;
         this.flowTopologyRepository = flowTopologyRepository;
         this.eventPublisher = eventPublisher;
         this.tracer = tracerFactory.getTracer(JdbcExecutor.class, "EXECUTOR");
+        this.maintenanceService = maintenanceService;
 
         // By default, we start half-available processors count threads with a minimum of 4 by executor service
         // for the worker task result queue and the execution queue.
@@ -365,7 +369,12 @@ public class JdbcExecutor implements ExecutorInterface, Service {
 
             }
         ));
-        setState(ServiceState.RUNNING);
+
+        if (this.maintenanceService.isInMaintenanceMode()) {
+            enterMaintenance();
+        } else {
+            setState(ServiceState.RUNNING);
+        }
         log.info("Executor started with {} thread(s)", numberOfThreads);
     }
 
@@ -378,27 +387,31 @@ public class JdbcExecutor implements ExecutorInterface, Service {
         ClusterEvent clusterEvent = either.getLeft();
         log.info("Cluster event received: {}", clusterEvent);
         switch (clusterEvent.eventType()) {
-            case MAINTENANCE_ENTER -> {
-                this.executionQueue.pause();
-                this.workerTaskResultQueue.pause();
-                this.killQueue.pause();
-                this.subflowExecutionResultQueue.pause();
-                this.flowQueue.pause();
-
-                this.isPaused.set(true);
-                this.setState(ServiceState.MAINTENANCE);
-            }
-            case MAINTENANCE_EXIT -> {
-                this.executionQueue.resume();
-                this.workerTaskResultQueue.resume();
-                this.killQueue.resume();
-                this.subflowExecutionResultQueue.resume();
-                this.flowQueue.resume();
-
-                this.isPaused.set(false);
-                this.setState(ServiceState.RUNNING);
-            }
+            case MAINTENANCE_ENTER -> enterMaintenance();
+            case MAINTENANCE_EXIT -> exitMaintenance();
         }
+    }
+
+    private void enterMaintenance() {
+        this.executionQueue.pause();
+        this.workerTaskResultQueue.pause();
+        this.killQueue.pause();
+        this.subflowExecutionResultQueue.pause();
+        this.flowQueue.pause();
+
+        this.isPaused.set(true);
+        this.setState(ServiceState.MAINTENANCE);
+    }
+
+    private void exitMaintenance() {
+        this.executionQueue.resume();
+        this.workerTaskResultQueue.resume();
+        this.killQueue.resume();
+        this.subflowExecutionResultQueue.resume();
+        this.flowQueue.resume();
+
+        this.isPaused.set(false);
+        this.setState(ServiceState.RUNNING);
     }
 
     void reEmitWorkerJobsForWorkers(final Configuration configuration,

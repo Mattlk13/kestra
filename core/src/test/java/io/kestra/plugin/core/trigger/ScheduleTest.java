@@ -50,7 +50,7 @@ class ScheduleTest {
 
     @Test
     void failed() throws Exception {
-        Schedule trigger = Schedule.builder().id("schedule").cron("1 1 1 1 1").build();
+        Schedule trigger = Schedule.builder().id("schedule").type(Schedule.class.getName()).cron("1 1 1 1 1").build();
 
         Optional<Execution> evaluate = trigger.evaluate(
             conditionContext(trigger),
@@ -83,9 +83,8 @@ class ScheduleTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     void success() throws Exception {
-        Schedule trigger = Schedule.builder().id("schedule").cron("0 0 1 * *").build();
+        Schedule trigger = Schedule.builder().id("schedule").type(Schedule.class.getName()).cron("0 0 1 * *").build();
 
         ZonedDateTime date = ZonedDateTime.now()
             .withDayOfMonth(1)
@@ -104,12 +103,12 @@ class ScheduleTest {
         assertThat(evaluate.get().getLabels(), hasSize(3));
         assertTrue(evaluate.get().getLabels().stream().anyMatch(label -> label.key().equals(Label.CORRELATION_ID)));
 
-        var vars = (Map<String, String>) evaluate.get().getVariables().get("schedule");
+        var vars = evaluate.get().getTrigger().getVariables();
         var inputs = evaluate.get().getInputs();
 
-        assertThat(dateFromVars(vars.get("date"), date), is(date));
-        assertThat(dateFromVars(vars.get("next"), date), is(date.plusMonths(1)));
-        assertThat(dateFromVars(vars.get("previous"), date), is(date.minusMonths(1)));
+        assertThat(dateFromVars((String) vars.get("date"), date), is(date));
+        assertThat(dateFromVars((String) vars.get("next"), date), is(date.plusMonths(1)));
+        assertThat(dateFromVars((String) vars.get("previous"), date), is(date.minusMonths(1)));
         assertThat(evaluate.get().getLabels(), hasItem(new Label("flow-label-1", "flow-label-1")));
         assertThat(evaluate.get().getLabels(), hasItem(new Label("flow-label-2", "flow-label-2")));
         assertThat(inputs.size(), is(2));
@@ -119,7 +118,7 @@ class ScheduleTest {
 
     @Test
     void successWithInput() throws Exception {
-        Schedule trigger = Schedule.builder().id("schedule").cron("0 0 1 * *").inputs(Map.of("input1", "input1")).build();
+        Schedule trigger = Schedule.builder().id("schedule").type(Schedule.class.getName()).cron("0 0 1 * *").inputs(Map.of("input1", "input1")).build();
 
         ZonedDateTime date = ZonedDateTime.now()
             .withDayOfMonth(1)
@@ -148,7 +147,7 @@ class ScheduleTest {
     @Test
     void success_withLabels() throws Exception {
         var scheduleTrigger = Schedule.builder()
-            .id("schedule")
+            .id("schedule").type(Schedule.class.getName())
             .cron("0 0 1 * *")
             .labels(List.of(
                 new Label("trigger-label-1", "trigger-label-1"),
@@ -174,10 +173,9 @@ class ScheduleTest {
         assertThat(evaluate.get().getLabels(), hasItem(new Label("trigger-label-3", "")));
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     void everyMinute() throws Exception {
-        Schedule trigger = Schedule.builder().id("schedule").cron("* * * * *").build();
+        Schedule trigger = Schedule.builder().id("schedule").type(Schedule.class.getName()).cron("* * * * *").build();
 
         ZonedDateTime date = ZonedDateTime.now()
             .minus(Duration.ofMinutes(1))
@@ -192,18 +190,16 @@ class ScheduleTest {
 
         assertThat(evaluate.isPresent(), is(true));
 
-        var vars = (Map<String, String>) evaluate.get().getVariables().get("schedule");
+        var vars = evaluate.get().getTrigger().getVariables();;
 
-
-        assertThat(dateFromVars(vars.get("date"), date), is(date));
-        assertThat(dateFromVars(vars.get("next"), date), is(date.plus(Duration.ofMinutes(1))));
-        assertThat(dateFromVars(vars.get("previous"), date), is(date.minus(Duration.ofMinutes(1))));
+        assertThat(dateFromVars((String) vars.get("date"), date), is(date));
+        assertThat(dateFromVars((String) vars.get("next"), date), is(date.plus(Duration.ofMinutes(1))));
+        assertThat(dateFromVars((String) vars.get("previous"), date), is(date.minus(Duration.ofMinutes(1))));
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     void everySecond() throws Exception {
-        Schedule trigger = Schedule.builder().id("schedule").cron("* * * * * *").withSeconds(true).build();
+        Schedule trigger = Schedule.builder().id("schedule").type(Schedule.class.getName()).cron("* * * * * *").withSeconds(true).build();
 
         ZonedDateTime date = ZonedDateTime.now()
             .truncatedTo(ChronoUnit.SECONDS)
@@ -216,18 +212,18 @@ class ScheduleTest {
 
         assertThat(evaluate.isPresent(), is(true));
 
-        var vars = (Map<String, String>) evaluate.get().getVariables().get("schedule");
+        var vars = evaluate.get().getTrigger().getVariables();;
 
 
-        assertThat(dateFromVars(vars.get("date"), date), is(date));
-        assertThat(dateFromVars(vars.get("next"), date), is(date.plus(Duration.ofSeconds(1))));
-        assertThat(dateFromVars(vars.get("previous"), date), is(date.minus(Duration.ofSeconds(1))));
+        assertThat(dateFromVars((String) vars.get("date"), date), is(date));
+        assertThat(dateFromVars((String) vars.get("next"), date), is(date.plus(Duration.ofSeconds(1))));
+        assertThat(dateFromVars((String) vars.get("previous"), date), is(date.minus(Duration.ofSeconds(1))));
     }
 
     @Test
     void shouldNotReturnExecutionForBackFillWhenCurrentDateIsBeforeScheduleDate() throws Exception {
         // Given
-        Schedule trigger = Schedule.builder().id("schedule").cron(TEST_CRON_EVERYDAY_AT_8).build();
+        Schedule trigger = Schedule.builder().id("schedule").type(Schedule.class.getName()).cron(TEST_CRON_EVERYDAY_AT_8).build();
         ZonedDateTime now = ZonedDateTime.now();
         TriggerContext triggerContext = triggerContext(now, trigger).toBuilder()
             .backfill(Backfill
@@ -247,7 +243,7 @@ class ScheduleTest {
     void
     shouldReturnExecutionForBackFillWhenCurrentDateIsAfterScheduleDate() throws Exception {
         // Given
-        Schedule trigger = Schedule.builder().id("schedule").cron(TEST_CRON_EVERYDAY_AT_8).build();
+        Schedule trigger = Schedule.builder().id("schedule").type(Schedule.class.getName()).cron(TEST_CRON_EVERYDAY_AT_8).build();
         ZonedDateTime now = ZonedDateTime.of(2025, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault());
         TriggerContext triggerContext = triggerContext(ZonedDateTime.now(), trigger).toBuilder()
             .backfill(Backfill
@@ -266,7 +262,7 @@ class ScheduleTest {
 
     @Test
     void noBackfillNextDate() {
-        Schedule trigger = Schedule.builder().id("schedule").cron("0 0 * * *").build();
+        Schedule trigger = Schedule.builder().id("schedule").type(Schedule.class.getName()).cron("0 0 * * *").build();
         ZonedDateTime next = trigger.nextEvaluationDate(conditionContext(trigger), Optional.empty());
 
         assertThat(next.getDayOfMonth(), is(ZonedDateTime.now().plusDays(1).getDayOfMonth()));
@@ -274,7 +270,7 @@ class ScheduleTest {
 
     @Test
     void noBackfillNextDateContext() {
-        Schedule trigger = Schedule.builder().id("schedule").cron("0 0 * * *").timezone("Europe/Paris").build();
+        Schedule trigger = Schedule.builder().id("schedule").type(Schedule.class.getName()).cron("0 0 * * *").timezone("Europe/Paris").build();
         ZonedDateTime date = ZonedDateTime.parse("2020-01-01T00:00:00+01:00[Europe/Paris]");
         ZonedDateTime next = trigger.nextEvaluationDate(conditionContext(trigger), Optional.of(triggerContext(date, trigger)));
 
@@ -282,9 +278,8 @@ class ScheduleTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     void systemBackfillChangedFromCronExpression() throws Exception {
-        Schedule trigger = Schedule.builder().id("schedule").cron("30 0 1 * *").build();
+        Schedule trigger = Schedule.builder().id("schedule").type(Schedule.class.getName()).cron("30 0 1 * *").build();
 
         ZonedDateTime date = ZonedDateTime.now()
             .withDayOfMonth(1)
@@ -304,17 +299,17 @@ class ScheduleTest {
 
         assertThat(evaluate.isPresent(), is(true));
 
-        var vars = (Map<String, String>) evaluate.get().getVariables().get("schedule");
-        assertThat(dateFromVars(vars.get("date"), expexted), is(expexted));
-        assertThat(dateFromVars(vars.get("next"), expexted), is(expexted.plusMonths(1)));
-        assertThat(dateFromVars(vars.get("previous"), expexted), is(expexted.minusMonths(1)));
+        var vars = evaluate.get().getTrigger().getVariables();;
+        assertThat(dateFromVars((String) vars.get("date"), expexted), is(expexted));
+        assertThat(dateFromVars((String) vars.get("next"), expexted), is(expexted.plusMonths(1)));
+        assertThat(dateFromVars((String) vars.get("previous"), expexted), is(expexted.minusMonths(1)));
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     void conditions() throws Exception {
         Schedule trigger = Schedule.builder()
-            .id("schedule")
+            .id("schedule").type(Schedule.class.getName())
+            .type(Schedule.class.getName())
             .cron("0 12 * * 1")
             .timezone("Europe/Paris")
             .conditions(List.of(
@@ -337,17 +332,17 @@ class ScheduleTest {
 
         assertThat(evaluate.isPresent(), is(true));
 
-        var vars = (Map<String, String>) evaluate.get().getVariables().get("schedule");
-        assertThat(dateFromVars(vars.get("date"), date), is(date));
-        assertThat(dateFromVars(vars.get("next"), next), is(next));
-        assertThat(dateFromVars(vars.get("previous"), previous), is(previous));
+        var vars = evaluate.get().getTrigger().getVariables();;
+        assertThat(dateFromVars((String) vars.get("date"), date), is(date));
+        assertThat(dateFromVars((String) vars.get("next"), next), is(next));
+        assertThat(dateFromVars((String) vars.get("previous"), previous), is(previous));
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     void impossibleNextConditions() throws Exception {
         Schedule trigger = Schedule.builder()
-            .id("schedule")
+            .id("schedule").type(Schedule.class.getName())
+            .type(Schedule.class.getName())
             .cron("0 12 * * 1")
             .timezone("Europe/Paris")
             .conditions(List.of(
@@ -368,16 +363,16 @@ class ScheduleTest {
 
         assertThat(evaluate.isPresent(), is(true));
 
-        var vars = (Map<String, String>) evaluate.get().getVariables().get("schedule");
-        assertThat(dateFromVars(vars.get("date"), date), is(date));
-        assertThat(dateFromVars(vars.get("previous"), previous), is(previous));
+        var vars = evaluate.get().getTrigger().getVariables();;
+        assertThat(dateFromVars((String) vars.get("date"), date), is(date));
+        assertThat(dateFromVars((String) vars.get("previous"), previous), is(previous));
         assertThat(vars.containsKey("next"), is(false));
     }
 
     @Test
     void lateMaximumDelay() {
         Schedule trigger = Schedule.builder()
-            .id("schedule")
+            .id("schedule").type(Schedule.class.getName())
             .cron("* * * * *")
             .lateMaximumDelay(Duration.ofMinutes(5))
             .build();
@@ -398,16 +393,14 @@ class ScheduleTest {
 
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     void hourly() throws Exception {
         Schedule trigger = Schedule.builder()
-            .id("schedule")
+            .id("schedule").type(Schedule.class.getName())
             .cron("@hourly")
             .build();
 
         ZonedDateTime date = ZonedDateTime.now().minusHours(1).withMinute(0).withSecond(0).withNano(0);
-
 
         Optional<Execution> evaluate = trigger.evaluate(
             conditionContext(trigger),
@@ -419,14 +412,13 @@ class ScheduleTest {
         );
 
         assertThat(evaluate.isPresent(), is(true));
-        var vars = (Map<String, String>) evaluate.get().getVariables().get("schedule");
-        assertThat(dateFromVars(vars.get("date"), date), is(date));
+        var vars = evaluate.get().getTrigger().getVariables();;
+        assertThat(dateFromVars((String) vars.get("date"), date), is(date));
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     void timezone() throws Exception {
-        Schedule trigger = Schedule.builder().id("schedule").cron("12 9 1 * *").timezone("America/New_York").build();
+        Schedule trigger = Schedule.builder().id("schedule").type(Schedule.class.getName()).cron("12 9 1 * *").timezone("America/New_York").build();
 
         ZonedDateTime date = ZonedDateTime.now()
             .withZoneSameLocal(ZoneId.of("America/New_York"))
@@ -446,18 +438,18 @@ class ScheduleTest {
 
         assertThat(evaluate.isPresent(), is(true));
 
-        var vars = (Map<String, String>) evaluate.get().getVariables().get("schedule");
+        var vars = evaluate.get().getTrigger().getVariables();
 
-        assertThat(dateFromVars(vars.get("date"), date), is(date));
-        assertThat(ZonedDateTime.parse(vars.get("date")).getZone().getId(), is("-04:00"));
-        assertThat(dateFromVars(vars.get("next"), date), is(date.plusMonths(1)));
-        assertThat(dateFromVars(vars.get("previous"), date), is(date.minusMonths(1)));
+        assertThat(dateFromVars((String) vars.get("date"), date), is(date));
+        assertThat(ZonedDateTime.parse((String) vars.get("date")).getZone().getId(), is("-04:00"));
+        assertThat(dateFromVars((String) vars.get("next"), date), is(date.plusMonths(1)));
+        assertThat(dateFromVars((String) vars.get("previous"), date), is(date.minusMonths(1)));
     }
 
     @Test
     void timezone_with_backfile() throws Exception {
         Schedule trigger = Schedule.builder()
-            .id("schedule")
+            .id("schedule").type(Schedule.class.getName())
             .cron(TEST_CRON_EVERYDAY_AT_8)
             .timezone("America/New_York")
             .build();
@@ -476,8 +468,6 @@ class ScheduleTest {
         // Then
         assertThat(result.isPresent(), is(true));
     }
-
-
 
     private ConditionContext conditionContext(AbstractTrigger trigger) {
         Flow flow = Flow.builder()
