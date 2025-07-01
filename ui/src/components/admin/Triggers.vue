@@ -318,15 +318,22 @@
                 this.selection = selection;
             },
             loadData(callback) {
+                const previousSelection = this.selection;
                 this.$store.dispatch("trigger/search", {
                     namespace: this.$route.query.namespace,
                     q: this.$route.query.q,
                     size: parseInt(this.$route.query.size || 25),
                     page: parseInt(this.$route.query.page || 1),
                     sort: this.$route.query.sort || "triggerId:asc"
-                }).then(triggersData => {
+                }).then(async triggersData => {
                     this.triggers = triggersData.results;
                     this.total = triggersData.total;
+
+                    if (previousSelection && this.$refs.selectTable) {
+                        await this.$refs.selectTable.waitTableRender();
+                        this.$refs.selectTable.setSelection(previousSelection);
+                    }
+
                     if (callback) {
                         callback();
                     }
