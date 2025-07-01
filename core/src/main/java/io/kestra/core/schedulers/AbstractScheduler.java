@@ -86,6 +86,7 @@ public abstract class AbstractScheduler implements Scheduler, Service {
     private final LogService logService;
     protected SchedulerExecutionStateInterface executionState;
     private final WorkerGroupExecutorInterface workerGroupExecutorInterface;
+    private final MaintenanceService maintenanceService;
 
     // must be volatile as it's updated by the flow listener thread and read by the scheduleExecutor thread
     private volatile Boolean isReady = false;
@@ -136,6 +137,8 @@ public abstract class AbstractScheduler implements Scheduler, Service {
         this.serviceStateEventPublisher = applicationContext.getBean(ApplicationEventPublisher.class);
         this.executionEventPublisher = applicationContext.getBean(ApplicationEventPublisher.class);
         this.workerGroupExecutorInterface = applicationContext.getBean(WorkerGroupExecutorInterface.class);
+        this.maintenanceService = applicationContext.getBean(MaintenanceService.class);
+
         setState(ServiceState.CREATED);
     }
 
@@ -289,8 +292,11 @@ public abstract class AbstractScheduler implements Scheduler, Service {
 
         // listen to cluster events
         this.clusterEventQueue.ifPresent(clusterEventQueueInterface -> this.receiveCancellations.addFirst(((QueueInterface<ClusterEvent>) clusterEventQueueInterface).receive(this::clusterEventQueue)));
-
-        setState(ServiceState.RUNNING);
+        if (this.maintenanceService.isInMaintenanceMode()) {
+            enterMaintenance();
+        } else {
+            setState(ServiceState.RUNNING);
+        }
         log.info("Scheduler started");
     }
 
@@ -399,29 +405,33 @@ public abstract class AbstractScheduler implements Scheduler, Service {
         ClusterEvent clusterEvent = either.getLeft();
         log.info("Cluster event received: {}", clusterEvent);
         switch (clusterEvent.eventType()) {
-            case MAINTENANCE_ENTER -> {
-                this.executionQueue.pause();
-                this.triggerQueue.pause();
-                this.workerJobQueue.pause();
-                this.workerTriggerResultQueue.pause();
-                this.executionKilledQueue.pause();
-                this.pauseAdditionalQueues();
-
-                this.isPaused.set(true);
-                this.setState(ServiceState.MAINTENANCE);
-            }
-            case MAINTENANCE_EXIT -> {
-                this.executionQueue.resume();
-                this.triggerQueue.resume();
-                this.workerJobQueue.resume();
-                this.workerTriggerResultQueue.resume();
-                this.executionKilledQueue.resume();
-                this.resumeAdditionalQueues();
-
-                this.isPaused.set(false);
-                this.setState(ServiceState.RUNNING);
-            }
+            case MAINTENANCE_ENTER -> enterMaintenance();
+            case MAINTENANCE_EXIT -> exitMaintenance();
         }
+    }
+
+    private void enterMaintenance() {
+        this.executionQueue.pause();
+        this.triggerQueue.pause();
+        this.workerJobQueue.pause();
+        this.workerTriggerResultQueue.pause();
+        this.executionKilledQueue.pause();
+        this.pauseAdditionalQueues();
+
+        this.isPaused.set(true);
+        this.setState(ServiceState.MAINTENANCE);
+    }
+
+    private void exitMaintenance() {
+        this.executionQueue.resume();
+        this.triggerQueue.resume();
+        this.workerJobQueue.resume();
+        this.workerTriggerResultQueue.resume();
+        this.executionKilledQueue.resume();
+        this.resumeAdditionalQueues();
+
+        this.isPaused.set(false);
+        this.setState(ServiceState.RUNNING);
     }
 
     protected void resumeAdditionalQueues() {
