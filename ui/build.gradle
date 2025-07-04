@@ -4,8 +4,6 @@ plugins {
     id 'org.siouan.frontend-jdk21'
 }
 
-publishSonatypePublicationPublicationToSonatypeRepository.enabled = false
-
 frontend {
     nodeVersion = '22.12.0'
     installScript = 'install'
