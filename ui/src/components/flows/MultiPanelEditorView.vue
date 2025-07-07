@@ -1,6 +1,6 @@
 <template>
     <div class="multi-panel-editor-wrapper">
-        <div class="tabs-wrapper">
+        <div class="tabs-wrapper" :class="{playgroundMode: store.state.flow.playgroundMode}">
             <div class="tabs">
                 <button
                     v-for="element of EDITOR_ELEMENTS"
@@ -221,7 +221,7 @@
 </script>
 
 <style lang="scss" scoped>
-
+    @use "@kestra-io/ui-libs/src/scss/color-palette.scss" as colorPalette;
     .multi-panel-editor-wrapper{
         display: grid;
         grid-template-rows: auto 1fr;
@@ -241,6 +241,16 @@
         align-items: center;
         justify-content: space-between;
         border-bottom: 1px solid var(--ks-border-primary);
+        background-image: linear-gradient(
+            to right,
+            colorPalette.$base-blue-500 0%,
+            colorPalette.$base-blue-700 40%,
+            transparent 50%,
+            transparent 100%
+        );
+        background-size: 200% 100%;
+        background-position: 100% 0;
+        transition: background-position .2s;
     }
     .tabs{
         padding: .5rem 1rem;
@@ -273,5 +283,10 @@
     .tabs-icon {
         margin-right: .25rem;
         vertical-align: bottom;
+    }
+
+    .playgroundMode {
+        #{--el-color-primary}: colorPalette.$base-blue-500;
+        background-position: 0 0;
     }
 </style>

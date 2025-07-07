@@ -40,6 +40,7 @@
     import {useRouter, useRoute} from "vue-router";
     import {useI18n} from "vue-i18n";
     import EditorButtons from "./EditorButtons.vue";
+    import PlaygroundToggle from "./PlaygroundToggle.vue";
     import ValidationError from "../flows/ValidationError.vue";
 
     import localUtils from "../../utils/utils";
