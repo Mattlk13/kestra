@@ -1193,7 +1193,7 @@
       "confirm": {
         "config_title": "Bestätigen Sie, dass die Konfiguration gültig ist",
         "confirm": "Bestätigen",
-        "not_valid": "Nein, es ist nicht gültig",
+        "not_valid": "Nein, es ist nicht gültig.",
         "valid": "Ja, es ist gültig"
       },
       "form": {
@@ -1213,7 +1213,7 @@
       "subtitles": {
         "complete": "Einrichtung erfolgreich abgeschlossen!",
         "config": "Hier sind die Details Ihrer Konfiguration",
-        "survey": "Hilf uns, die Kestra Open Source Edition zu verbessern",
+        "survey": "Helfen Sie uns, die Kestra Open Source Edition zu verbessern",
         "user": "Richten Sie Ihre Instanz ein, indem Sie Ihren ersten Benutzer erstellen"
       },
       "success": {
@@ -1227,7 +1227,7 @@
         "company_50_250": "50-250",
         "company_personal": "Persönliche Nutzung",
         "company_size": "Wie groß ist Ihr Unternehmen?",
-        "continue": "Weiter",
+        "continue": "Fortfahren",
         "newsletter": "Abonnieren Sie den Kestra-Newsletter – bleiben Sie auf dem Laufenden über die <br> neuesten Funktionen und Änderungen.",
         "skip": "Überspringen",
         "use_case": "Was ist Ihr primärer Anwendungsfall?",

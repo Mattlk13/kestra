@@ -1203,7 +1203,7 @@
         "password": "Password"
       },
       "login": "Accedi",
-      "logout": "Disconnetti",
+      "logout": "Logout",
       "steps": {
         "complete": "Avvia Kestra UI",
         "config": "Convalida Configurazione",
@@ -1217,7 +1217,7 @@
         "user": "Configura la tua istanza creando il tuo primo utente"
       },
       "success": {
-        "subtitle": "Tutto pronto!",
+        "subtitle": "Sei pronto!",
         "title": "Congratulazioni!"
       },
       "survey": {
@@ -1228,7 +1228,7 @@
         "company_personal": "Uso personale",
         "company_size": "Qual è la dimensione della tua azienda?",
         "continue": "Continua",
-        "newsletter": "Iscriviti alla newsletter di Kestra – rimani aggiornato con le ultime funzionalità e modifiche.",
+        "newsletter": "Iscriviti alla newsletter di Kestra – rimani aggiornato con le <br> ultime funzionalità e modifiche.",
         "skip": "Salta",
         "use_case": "Qual è il tuo caso d'uso principale?",
         "use_case_business": "Processi aziendali",
@@ -1246,8 +1246,8 @@
         "email_required": "L'email è obbligatoria",
         "email_temporary_not_allowed": "Indirizzi email temporanei o usa e getta non sono consentiti",
         "firstName_required": "Nome richiesto",
-        "lastName_required": "Cognome richiesto",
-        "password_invalid": "Password non valido"
+        "lastName_required": "Cognome obbligatorio",
+        "password_invalid": "Password non valida"
       }
     },
     "show": "Mostra",

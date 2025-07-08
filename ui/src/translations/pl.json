@@ -1188,13 +1188,13 @@
         "basicauth": "Podstawowe uwierzytelnianie",
         "queue": "Kolejka",
         "repository": "Baza danych",
-        "storage": "Magazyn wewnętrzny"
+        "storage": "Magazyn Wewnętrzny"
       },
       "confirm": {
         "config_title": "Potwierdź, że konfiguracja jest prawidłowa",
         "confirm": "Potwierdź",
         "not_valid": "Nie, to nie jest prawidłowe",
-        "valid": "Tak, jest ważny"
+        "valid": "Tak, jest prawidłowy"
       },
       "form": {
         "email": "Email",
@@ -1206,18 +1206,18 @@
       "logout": "Wyloguj się",
       "steps": {
         "complete": "Uruchom Kestra UI",
-        "config": "Weryfikacja Konfiguracji",
+        "config": "Sprawdź Konfigurację",
         "survey": "Powiedz nam więcej",
-        "user": "Utwórz swojego pierwszego użytkownika"
+        "user": "Utwórz pierwszego użytkownika"
       },
       "subtitles": {
-        "complete": "Konfiguracja zakończona pomyślnie!",
+        "complete": "Konfiguracja zakończona sukcesem!",
         "config": "Oto szczegóły Twojej konfiguracji",
         "survey": "Pomóż nam ulepszyć Kestra Open Source Edition",
         "user": "Skonfiguruj swoją instancję, tworząc pierwszego użytkownika"
       },
       "success": {
-        "subtitle": "Wszystko gotowe!",
+        "subtitle": "Jesteś gotowy!",
         "title": "Gratulacje!"
       },
       "survey": {
@@ -1243,10 +1243,10 @@
       },
       "validation": {
         "email_invalid": "Nieprawidłowy email",
-        "email_required": "Wymagany jest email",
+        "email_required": "Email jest wymagany",
         "email_temporary_not_allowed": "Tymczasowe lub jednorazowe adresy e-mail nie są dozwolone",
         "firstName_required": "Imię jest wymagane",
-        "lastName_required": "Nazwisko wymagane",
+        "lastName_required": "Wymagane nazwisko",
         "password_invalid": "Nieprawidłowe hasło"
       }
     },

@@ -1205,7 +1205,7 @@
       "login": "Connexion",
       "logout": "Déconnexion",
       "steps": {
-        "complete": "Démarrer l'interface utilisateur de Kestra",
+        "complete": "Démarrer l'UI de Kestra",
         "config": "Valider la Configuration",
         "survey": "Dites-nous en plus",
         "user": "Créez votre premier utilisateur"
@@ -1242,7 +1242,7 @@
         "user": "Créer le premier utilisateur"
       },
       "validation": {
-        "email_invalid": "Email invalide",
+        "email_invalid": "E-mail invalide",
         "email_required": "L'email est requis",
         "email_temporary_not_allowed": "Les adresses email temporaires ou jetables ne sont pas autorisées",
         "firstName_required": "Prénom requis",

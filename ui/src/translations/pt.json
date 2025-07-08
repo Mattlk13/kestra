@@ -1202,7 +1202,7 @@
         "lastName": "Sobrenome",
         "password": "Senha"
       },
-      "login": "Entrar",
+      "login": "Login",
       "logout": "Sair",
       "steps": {
         "complete": "Iniciar Kestra UI",
@@ -1217,7 +1217,7 @@
         "user": "Configure sua instância criando seu primeiro usuário"
       },
       "success": {
-        "subtitle": "Tudo pronto!",
+        "subtitle": "Você está pronto!",
         "title": "Parabéns!"
       },
       "survey": {
@@ -1231,7 +1231,7 @@
         "newsletter": "Inscreva-se na newsletter da Kestra – mantenha-se atualizado com os <br> últimos recursos e mudanças.",
         "skip": "Pular",
         "use_case": "Qual é o seu caso de uso principal?",
-        "use_case_business": "Processos de negócios",
+        "use_case_business": "Processos de negócio",
         "use_case_data": "Fluxos de trabalho de dados",
         "use_case_infrastructure": "Automação de infraestrutura",
         "use_case_ml": "Pipelines de ML/AI",
@@ -1244,8 +1244,8 @@
       "validation": {
         "email_invalid": "E-mail inválido",
         "email_required": "O e-mail é obrigatório",
-        "email_temporary_not_allowed": "Endereços de email temporários ou descartáveis não são permitidos",
-        "firstName_required": "Nome obrigatório",
+        "email_temporary_not_allowed": "Endereços de e-mail temporários ou descartáveis não são permitidos",
+        "firstName_required": "Nome é obrigatório",
         "lastName_required": "Sobrenome obrigatório",
         "password_invalid": "Senha inválida"
       }

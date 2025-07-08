@@ -1185,7 +1185,7 @@
     },
     "setup": {
       "config": {
-        "basicauth": "बेसिक ऑथेंटिकेशन",
+        "basicauth": "बेसिक authentication",
         "queue": "पंक्ति",
         "repository": "डेटाबेस",
         "storage": "आंतरिक Storage"
@@ -1205,19 +1205,19 @@
       "login": "लॉगिन",
       "logout": "लॉगआउट",
       "steps": {
-        "complete": "Kestra UI प्रारंभ करें",
+        "complete": "Kestra UI शुरू करें",
         "config": "कॉन्फ़िगरेशन सत्यापित करें",
         "survey": "हमें और बताएं",
         "user": "अपना पहला उपयोगकर्ता बनाएं"
       },
       "subtitles": {
         "complete": "सेटअप सफलतापूर्वक पूरा हुआ!",
-        "config": "यहाँ आपके configuration का विवरण है",
+        "config": "यहाँ आपके कॉन्फ़िगरेशन का विवरण दिया गया है",
         "survey": "हमें Kestra Open Source Edition को बेहतर बनाने में मदद करें",
         "user": "अपने instance को सेट अप करें अपने पहले उपयोगकर्ता को बनाकर"
       },
       "success": {
-        "subtitle": "आप तैयार हैं!",
+        "subtitle": "आप पूरी तरह से तैयार हैं!",
         "title": "बधाई हो!"
       },
       "survey": {
@@ -1232,7 +1232,7 @@
         "skip": "छोड़ें",
         "use_case": "आपका प्राथमिक उपयोग मामला क्या है?",
         "use_case_business": "व्यावसायिक प्रक्रियाएँ",
-        "use_case_data": "डेटा वर्कफ्लो",
+        "use_case_data": "डेटा वर्कफ्लोज़",
         "use_case_infrastructure": "इन्फ्रास्ट्रक्चर ऑटोमेशन",
         "use_case_ml": "ML/AI पाइपलाइन्स",
         "use_case_other": "अन्य"
