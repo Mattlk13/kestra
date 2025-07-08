@@ -15,7 +15,16 @@
             <EditorButtonsWrapper />
         </div>
         <div class="editor-wrapper">
-            <MultiPanelTabs v-model="panels" class="editor-panels" @remove-tab="onRemoveTab" />
+            <Splitpanes class="default-theme editor-panels" horizontal>
+                <Pane>
+                    <MultiPanelTabs v-model="panels" @remove-tab="onRemoveTab" />
+                </Pane>
+                <Pane v-if="store.state.flow.playgroundMode">
+                    <div class="playground">
+                        Playground
+                    </div>
+                </Pane>
+            </Splitpanes>
         </div>
     </div>
 </template>
@@ -25,6 +34,7 @@
     import {useStorage} from "@vueuse/core";
     import {useStore} from "vuex";
     import {useI18n} from "vue-i18n";
+    import {Splitpanes, Pane} from "splitpanes"
     import {useCoreStore} from "../../stores/core";
 
     import MultiPanelTabs, {Panel, Tab} from "../MultiPanelTabs.vue";
@@ -244,8 +254,8 @@
         background-image: linear-gradient(
             to right,
             colorPalette.$base-blue-500 0%,
-            colorPalette.$base-blue-700 45%,
-            transparent 55%,
+            colorPalette.$base-blue-700 30%,
+            transparent 50%,
             transparent 100%
         );
         background-size: 220% 100%;
@@ -288,5 +298,9 @@
     .playgroundMode {
         #{--el-color-primary}: colorPalette.$base-blue-500;
         background-position: 0 0;
+    }
+
+    .playground {
+        background-color: black;
     }
 </style>
