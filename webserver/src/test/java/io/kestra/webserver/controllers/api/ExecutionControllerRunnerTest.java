@@ -1087,7 +1087,7 @@ class ExecutionControllerRunnerTest {
             GET("/api/v1/executions/" + runningExecution.getId()),
             Execution.class);
         assertThat(execution.getState().getCurrent(), is(State.Type.KILLED));
-        assertThat(execution.getTaskRunList().size(), is(1));
+        assertThat(execution.getTaskRunList().size(), is(2));
         assertThat(execution.getTaskRunList().getFirst().getState().getCurrent(), is(State.Type.KILLED));
     }
 
