@@ -348,7 +348,6 @@
         },
         data() {
             return {
-                lastExecutionByFlowReady: false,
                 optionalColumns: [
                     {
                         label: this.$t("labels"),
@@ -390,6 +389,7 @@
                     localStorage.getItem(storageKeys.SHOW_FLOWS_CHART),
                 ),
                 loading: false,
+                lastExecutionByFlowReady: false,
                 latestExecutions: []
             };
         },
