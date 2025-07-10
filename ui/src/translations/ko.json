@@ -214,6 +214,7 @@
         "label": "대시보드 편집"
       },
       "empty": "결과가 표시되지 않습니다.",
+      "export": "CSV로 내보내기",
       "labels": {
         "plural": "대시보드",
         "singular": "대시보드"
@@ -701,6 +702,7 @@
     "last execution date": "마지막 실행 날짜",
     "last execution state": "마지막 상태",
     "last execution status": "마지막 실행 상태",
+    "last modified": "마지막 수정",
     "launch execution": "실행",
     "learn_more": "자세히 알아보기",
     "light_background": "밝은 배경에서 작업할 때 선호되는 옵션입니다.",

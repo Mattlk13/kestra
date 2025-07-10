@@ -214,6 +214,7 @@
         "label": "Modifier le tableau de bord"
       },
       "empty": "Il n'y a aucun résultat à afficher.",
+      "export": "Exporter vers CSV",
       "labels": {
         "plural": "Tableaux de bord",
         "singular": "Tableau de bord"
@@ -701,6 +702,7 @@
     "last execution date": "Dernière exécution",
     "last execution state": "Dernier état",
     "last execution status": "Statut de la dernière exécution",
+    "last modified": "Dernière modification",
     "launch execution": "Déclencher",
     "learn_more": "En savoir plus",
     "light_background": "C'est l'option préférée lorsque vous travaillez avec un fond clair.",

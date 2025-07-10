@@ -214,6 +214,7 @@
         "label": "Editar Dashboard"
       },
       "empty": "Não há resultados para serem exibidos.",
+      "export": "Exportar para CSV",
       "labels": {
         "plural": "Dashboards",
         "singular": "Dashboard"
@@ -701,6 +702,7 @@
     "last execution date": "Data da última execução",
     "last execution state": "Último estado",
     "last execution status": "Último status de execução",
+    "last modified": "Última modificação",
     "launch execution": "Executar",
     "learn_more": "Saiba mais",
     "light_background": "Esta é a opção preferida ao trabalhar com um fundo claro.",
