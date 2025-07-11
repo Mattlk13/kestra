@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeoutException;
 
+import static io.kestra.core.tenant.TenantService.MAIN_TENANT;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @KestraTest(startRunner = true)
@@ -47,6 +48,7 @@ class TimeoutTest {
         Flow flow = Flow.builder()
             .id(IdUtils.create())
             .namespace("io.kestra.unittest")
+            .tenantId(MAIN_TENANT)
             .revision(1)
             .tasks(Collections.singletonList(Sleep.builder()
                 .id("test")

@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import static io.kestra.core.tenant.TenantService.MAIN_TENANT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -33,7 +34,7 @@ class FlowServiceTest {
     private FlowRepositoryInterface flowRepository;
 
     private static FlowWithSource create(String flowId, String taskId, Integer revision) {
-        return create(null, TEST_NAMESPACE, flowId, taskId, revision);
+        return create(MAIN_TENANT, TEST_NAMESPACE, flowId, taskId, revision);
     }
 
     private static FlowWithSource create(String tenantId, String namespace, String flowId, String taskId, Integer revision) {
@@ -321,16 +322,16 @@ class FlowServiceTest {
 
     @Test
     void findByNamespacePrefix() {
-        FlowWithSource flow = create(null, "some.namespace","findByTest", "test", 1);
+        FlowWithSource flow = create(MAIN_TENANT, "some.namespace","findByTest", "test", 1);
         flowRepository.create(GenericFlow.of(flow));
-        assertThat(flowService.findByNamespacePrefix(null, "some.namespace").size()).isEqualTo(1);
+        assertThat(flowService.findByNamespacePrefix(MAIN_TENANT, "some.namespace").size()).isEqualTo(1);
     }
 
     @Test
     void findById() {
         FlowWithSource flow = create("findByIdTest", "test", 1);
         FlowWithSource saved = flowRepository.create(GenericFlow.of(flow));
-        assertThat(flowService.findById(null, saved.getNamespace(), saved.getId()).isPresent()).isTrue();
+        assertThat(flowService.findById(MAIN_TENANT, saved.getNamespace(), saved.getId()).isPresent()).isTrue();
     }
 
     @Test
@@ -368,7 +369,7 @@ class FlowServiceTest {
             ))
             .build();
 
-        List<String> exceptions = flowService.checkValidSubflows(flow, null);
+        List<String> exceptions = flowService.checkValidSubflows(flow, MAIN_TENANT);
 
         assertThat(exceptions.size()).isZero();
     }

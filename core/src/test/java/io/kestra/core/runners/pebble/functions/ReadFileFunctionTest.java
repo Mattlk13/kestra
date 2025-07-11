@@ -76,7 +76,8 @@ class ReadFileFunctionTest {
 
     @Test
     void readUnknownNamespaceFile() {
-        IllegalVariableEvaluationException illegalVariableEvaluationException = assertThrows(IllegalVariableEvaluationException.class, () -> variableRenderer.render("{{ read('unknown.txt') }}", Map.of("flow", Map.of("namespace", "io.kestra.tests"))));
+        IllegalVariableEvaluationException illegalVariableEvaluationException = assertThrows(IllegalVariableEvaluationException.class, () ->
+            variableRenderer.render("{{ read('unknown.txt') }}", Map.of("flow", Map.of("tenantId", MAIN_TENANT, "namespace", "io.kestra.tests"))));
         assertThat(illegalVariableEvaluationException.getCause().getCause().getClass()).isEqualTo(FileNotFoundException.class);
     }
 

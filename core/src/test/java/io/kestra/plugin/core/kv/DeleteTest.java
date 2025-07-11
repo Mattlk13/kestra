@@ -1,9 +1,9 @@
 package io.kestra.plugin.core.kv;
 
+import io.kestra.core.context.TestRunContextFactory;
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
-import io.kestra.core.runners.RunContextFactory;
 import io.kestra.core.storages.kv.KVStore;
 import io.kestra.core.storages.kv.KVValueAndMetadata;
 import io.kestra.core.utils.IdUtils;
@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import static io.kestra.core.tenant.TenantService.MAIN_TENANT;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @KestraTest
@@ -21,19 +22,18 @@ class DeleteTest {
     static final String TEST_KV_KEY = "test-key";
 
     @Inject
-    RunContextFactory runContextFactory;
+    TestRunContextFactory runContextFactory;
 
     @Test
     void shouldOutputTrueGivenExistingKey() throws Exception {
         // Given
         String namespaceId = "io.kestra." + IdUtils.create();
-        RunContext runContext = this.runContextFactory.of(Map.of(
-            "flow", Map.of("namespace", namespaceId),
-            "inputs", Map.of(
+        RunContext runContext = this.runContextFactory.withInputs(
+            namespaceId, Map.of(
                 "key", TEST_KV_KEY,
                 "namespace", namespaceId
             )
-        ));
+        );
 
         Delete delete = Delete.builder()
             .id(Delete.class.getSimpleName())
@@ -56,13 +56,12 @@ class DeleteTest {
     void shouldOutputFalseGivenNonExistingKey() throws Exception {
         // Given
         String namespaceId = "io.kestra." + IdUtils.create();
-        RunContext runContext = this.runContextFactory.of(Map.of(
-            "flow", Map.of("namespace", namespaceId),
-            "inputs", Map.of(
+        RunContext runContext = this.runContextFactory.withInputs(namespaceId,
+            Map.of(
                 "key", TEST_KV_KEY,
                 "namespace", namespaceId
             )
-        ));
+        );
 
         Delete delete = Delete.builder()
             .id(Delete.class.getSimpleName())

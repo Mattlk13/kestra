@@ -23,7 +23,6 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import reactor.core.publisher.Flux;
 
 import java.time.Duration;
@@ -33,6 +32,7 @@ import java.util.List;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static io.kestra.core.tenant.TenantService.MAIN_TENANT;
 import static io.kestra.core.utils.Rethrow.throwSupplier;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -109,6 +109,7 @@ class WorkerTest {
 
         Flow flow = Flow.builder()
             .id(IdUtils.create())
+            .tenantId(MAIN_TENANT)
             .namespace("io.kestra.unit-test")
             .tasks(Collections.singletonList(theWorkerTask))
             .build();
@@ -132,7 +133,7 @@ class WorkerTest {
             }),
             () -> workerTaskResult.get() != null && workerTaskResult.get().getTaskRun().getState().isFailed(),
             Duration.ofMillis(100),
-            Duration.ofMinutes(1)
+            Duration.ofSeconds(10L)
         );
         receive.blockLast();
         worker.shutdown();
@@ -162,7 +163,7 @@ class WorkerTest {
 
         Thread.sleep(500);
 
-        executionKilledQueue.emit(ExecutionKilledExecution.builder().executionId(workerTask.getTaskRun().getExecutionId()).build());
+        executionKilledQueue.emit(ExecutionKilledExecution.builder().tenantId(MAIN_TENANT).executionId(workerTask.getTaskRun().getExecutionId()).build());
 
         Await.until(
             () -> {
@@ -171,7 +172,7 @@ class WorkerTest {
                 return copy.stream().filter(r -> r.getTaskRun().getState().isTerminated()).count() == 5;
             },
             Duration.ofMillis(100),
-            Duration.ofMinutes(1)
+            Duration.ofSeconds(10L)
         );
         receiveWorkerTaskResults.blockLast();
 
@@ -211,6 +212,7 @@ class WorkerTest {
         Flow flow = Flow.builder()
             .id(IdUtils.create())
             .namespace("io.kestra.unit-test")
+            .tenantId(MAIN_TENANT)
             .tasks(Collections.singletonList(bash))
             .build();
 
