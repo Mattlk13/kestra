@@ -37,7 +37,7 @@ public class ExecutionKilledExecution extends ExecutionKilled implements TenantI
     public boolean isEqual(WorkerTask workerTask) {
         String taskTenantId = workerTask.getTaskRun().getTenantId();
         String taskExecutionId = workerTask.getTaskRun().getExecutionId();
-        return (taskTenantId == null || taskTenantId.equals(this.tenantId)) && taskExecutionId.equals(this.executionId);
+        return taskTenantId.equals(this.tenantId) && taskExecutionId.equals(this.executionId);
     }
 
     @Override

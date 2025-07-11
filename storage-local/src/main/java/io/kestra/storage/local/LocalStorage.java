@@ -50,8 +50,7 @@ public class LocalStorage implements StorageInterface {
     }
 
     protected Path getLocalPath(String tenantId, URI uri) {
-        Path basePath = tenantId == null ? this.basePath.toAbsolutePath()
-            : Paths.get(this.basePath.toAbsolutePath().toString(), tenantId);
+        Path basePath = Paths.get(this.basePath.toAbsolutePath().toString(), tenantId);
         if(uri == null) {
             return basePath;
         }
@@ -235,9 +234,7 @@ public class LocalStorage implements StorageInterface {
     }
 
     private URI getKestraUri(String tenantId, Path path) {
-        Path prefix = (tenantId == null) ?
-            basePath.toAbsolutePath():
-            basePath.toAbsolutePath().resolve(tenantId);
+        Path prefix = basePath.toAbsolutePath().resolve(tenantId);
         subPathParentGuard(path, prefix);
         return URI.create("kestra:///" + prefix.relativize(path).toString().replace("\\", "/"));
     }

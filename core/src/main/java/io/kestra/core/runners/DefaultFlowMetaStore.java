@@ -34,7 +34,7 @@ public class DefaultFlowMetaStore implements FlowMetaStoreInterface {
     public Optional<FlowInterface> findById(String tenantId, String namespace, String id, Optional<Integer> revision) {
         Optional<FlowInterface> find = this.allFlows
             .stream()
-            .filter(flow -> ((flow.getTenantId() == null && tenantId == null) || Objects.equals(flow.getTenantId(), tenantId)) &&
+            .filter(flow -> Objects.equals(flow.getTenantId(), tenantId) &&
                 flow.getNamespace().equals(namespace) &&
                 flow.getId().equals(id) &&
                 (revision.isEmpty() || revision.get().equals(flow.getRevision()))

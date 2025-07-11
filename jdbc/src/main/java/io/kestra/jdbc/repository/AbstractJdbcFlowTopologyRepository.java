@@ -140,6 +140,6 @@ public abstract class AbstractJdbcFlowTopologyRepository extends AbstractJdbcRep
     }
 
     protected Condition buildTenantCondition(String prefix, String tenantId) {
-        return tenantId == null ? field(prefix + "_tenant_id").isNull() : field(prefix + "_tenant_id").eq(tenantId);
+        return field(prefix + "_tenant_id").eq(tenantId);
     }
 }

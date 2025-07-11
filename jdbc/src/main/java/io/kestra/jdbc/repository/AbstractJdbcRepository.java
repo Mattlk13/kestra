@@ -70,7 +70,7 @@ public abstract class AbstractJdbcRepository {
     }
 
     protected Condition buildTenantCondition(String tenantId) {
-        return tenantId == null ? field("tenant_id").isNull() : field("tenant_id").eq(tenantId);
+        return field("tenant_id").eq(tenantId);
     }
 
     public static Field<Object> field(String name) {
