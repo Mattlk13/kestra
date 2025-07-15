@@ -41,7 +41,7 @@
     </transition>
     <AcceptDecline
         v-if="draftSource !== undefined"
-        class="position-absolute prompt"
+        class="position-absolute actions"
         @accept="acceptDraft"
         @decline="declineDraft"
     />
@@ -62,14 +62,17 @@
 
     import {EDITOR_CURSOR_INJECTION_KEY} from "../code/injectionKeys";
     import {usePluginsStore} from "../../stores/plugins";
+    import {useMiscStore} from "../../stores/misc";
 
     import AiAgent from "../ai/AiAgent.vue";
     import AiIcon from "../ai/AiIcon.vue";
     import AcceptDecline from "./AcceptDecline.vue";
+    import * as YAML_UTILS from "@kestra-io/ui-libs/flow-yaml-utils";
 
     const store = useStore();
+    const miscStore = useMiscStore();
 
-    const aiEnabled = computed(() => store.state.misc.configs?.isAiEnabled);
+    const aiEnabled = computed(() => miscStore.configs?.isAiEnabled);
     const cursor = ref();
 
     const toggleAiShortcut = (event: KeyboardEvent) => {
@@ -183,8 +186,10 @@
     }
 
 
-    function updatePluginDocumentation(event: any, task: string | undefined) {
-        pluginsStore.updateDocumentation({event, task});
+    function updatePluginDocumentation(event: any) {
+        const elementWrapper = YAML_UTILS.localizeElementAtIndex(event.model.getValue(), event.model.getOffsetAt(event.position));
+        let element = (elementWrapper?.value?.type !== undefined ? elementWrapper.value : elementWrapper?.parents?.findLast(p => p.type !== undefined)) as Parameters<typeof pluginsStore.updateDocumentation>[0];
+        pluginsStore.updateDocumentation(element);
     };
 
     const flowParsed = computed(() => store.getters["flow/flowParsed"]);
@@ -249,5 +254,9 @@
         bottom: 10%;
         width: calc(100% - 4rem);
         left: 2rem;
+    }
+
+    .actions {
+        bottom: 10%;
     }
 </style>
