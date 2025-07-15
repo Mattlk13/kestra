@@ -121,7 +121,7 @@ export const encodeSearchParams = (filters, OPTIONS) => {
 
     return filters.reduce((query, filter) => {
         const match = OPTIONS.find((o) => o.value.label === filter.label);
-        const key = match ? match.key : filter.label === "text" ? "q" : null;
+        const key = match ? match.key : filter.label === "text" ? "q" : filter.field;
         if(filter.operation) {
             Object.assign(query, encode(filter.value, key, filter.operation));
         } else {
