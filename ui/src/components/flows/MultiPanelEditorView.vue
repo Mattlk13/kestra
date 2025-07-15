@@ -296,6 +296,7 @@
 
     .playgroundMode {
         #{--el-color-primary}: colorPalette.$base-blue-500;
+        color: colorPalette.$base-white;
         background-position: 0 0;
     }
 
