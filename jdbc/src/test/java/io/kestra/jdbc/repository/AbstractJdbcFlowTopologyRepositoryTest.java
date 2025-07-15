@@ -1,6 +1,5 @@
 package io.kestra.jdbc.repository;
 
-import io.kestra.core.models.flows.Flow;
 import io.kestra.core.models.flows.FlowWithSource;
 import io.kestra.core.models.topologies.FlowTopology;
 import io.kestra.core.repositories.AbstractFlowTopologyRepositoryTest;
@@ -11,6 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static io.kestra.core.tenant.TenantService.MAIN_TENANT;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public abstract class AbstractJdbcFlowTopologyRepositoryTest extends AbstractFlowTopologyRepositoryTest {
@@ -25,6 +25,7 @@ public abstract class AbstractJdbcFlowTopologyRepositoryTest extends AbstractFlo
         FlowWithSource flow = FlowWithSource.builder()
             .id("flow-a")
             .namespace("io.kestra.tests")
+            .tenantId(MAIN_TENANT)
             .revision(1)
             .build();
 
@@ -35,7 +36,7 @@ public abstract class AbstractJdbcFlowTopologyRepositoryTest extends AbstractFlo
             )
         );
 
-        List<FlowTopology> list = flowTopologyRepository.findByFlow(null, "io.kestra.tests", "flow-a", false);
+        List<FlowTopology> list = flowTopologyRepository.findByFlow(MAIN_TENANT, "io.kestra.tests", "flow-a", false);
         assertThat(list.size()).isEqualTo(1);
 
         flowTopologyRepository.save(
@@ -45,7 +46,7 @@ public abstract class AbstractJdbcFlowTopologyRepositoryTest extends AbstractFlo
             )
         );
 
-        list = flowTopologyRepository.findByFlow(null, "io.kestra.tests", "flow-a", false);
+        list = flowTopologyRepository.findByFlow(MAIN_TENANT, "io.kestra.tests", "flow-a", false);
 
         assertThat(list.size()).isEqualTo(1);
         assertThat(list.getFirst().getDestination().getId()).isEqualTo("flow-c");
@@ -58,7 +59,7 @@ public abstract class AbstractJdbcFlowTopologyRepositoryTest extends AbstractFlo
             )
         );
 
-        list = flowTopologyRepository.findByNamespace(null, "io.kestra.tests");
+        list = flowTopologyRepository.findByNamespace(MAIN_TENANT, "io.kestra.tests");
 
         assertThat(list.size()).isEqualTo(2);
     }

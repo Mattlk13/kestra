@@ -1,37 +1,34 @@
 package io.kestra.plugin.core.kv;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import io.kestra.core.context.TestRunContextFactory;
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.kv.KVType;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.runners.RunContext;
-import io.kestra.core.runners.RunContextFactory;
-import io.kestra.core.storages.StorageInterface;
 import io.kestra.core.storages.kv.KVStore;
 import io.kestra.core.storages.kv.KVStoreException;
 import io.kestra.core.storages.kv.KVValue;
 import io.kestra.core.utils.TestsUtils;
 import jakarta.inject.Inject;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 @KestraTest
 class SetTest {
+
     static final String TEST_KEY = "test-key";
+    public static final String NAMESPACE = "io.kestra.test";
 
     @Inject
-    StorageInterface storageInterface;
-
-    @Inject
-    RunContextFactory runContextFactory;
+    TestRunContextFactory runContextFactory;
 
     @Test
     void shouldSetKVGivenNoNamespace() throws Exception {
@@ -65,27 +62,25 @@ class SetTest {
     @Test
     void shouldSetKVGivenSameNamespace() throws Exception {
         // Given
-        RunContext runContext = this.runContextFactory.of(Map.of(
-            "flow", Map.of("namespace", "io.kestra.test"),
-            "inputs", Map.of(
+        RunContext runContext = this.runContextFactory.withInputs(NAMESPACE,
+            Map.of(
                 "key", TEST_KEY,
                 "value", "test-value"
-            )
-        ));
+            ));
 
         Set set = Set.builder()
             .id(Set.class.getSimpleName())
             .type(Set.class.getName())
             .key(new Property<>("{{ inputs.key }}"))
             .value(new Property<>("{{ inputs.value }}"))
-            .namespace(new Property<>("io.kestra.test"))
+            .namespace(new Property<>(NAMESPACE))
             .build();
 
         // When
         set.run(runContext);
 
         // Then
-        final KVStore kv = runContext.namespaceKv("io.kestra.test");
+        final KVStore kv = runContext.namespaceKv(NAMESPACE);
         assertThat(kv.getValue(TEST_KEY)).isEqualTo(Optional.of(new KVValue("test-value")));
         assertThat(kv.list().getFirst().expirationDate()).isNull();
     }
@@ -93,13 +88,11 @@ class SetTest {
     @Test
     void shouldSetKVGivenChildNamespace() throws Exception {
         // Given
-        RunContext runContext = this.runContextFactory.of(Map.of(
-            "flow", Map.of("namespace", "io.kestra.test"),
-            "inputs", Map.of(
+        RunContext runContext = this.runContextFactory.withInputs(NAMESPACE,
+            Map.of(
                 "key", TEST_KEY,
                 "value", "test-value"
-            )
-        ));
+            ));
 
         Set set = Set.builder()
             .id(Set.class.getSimpleName())
@@ -120,13 +113,11 @@ class SetTest {
     @Test
     void shouldFailGivenNonExistingNamespace() {
         // Given
-        RunContext runContext = this.runContextFactory.of(Map.of(
-            "flow", Map.of("namespace", "io.kestra.test"),
-            "inputs", Map.of(
+        RunContext runContext = this.runContextFactory.withInputs(NAMESPACE,
+            Map.of(
                 "key", TEST_KEY,
                 "value", "test-value"
-            )
-        ));
+            ));
 
         Set set = Set.builder()
             .id(Set.class.getSimpleName())

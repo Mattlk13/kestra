@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
 
+import static io.kestra.core.tenant.TenantService.MAIN_TENANT;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public abstract class AbstractJdbcTemplateRepositoryTest extends io.kestra.core.repositories.AbstractTemplateRepositoryTest {
@@ -23,13 +24,13 @@ public abstract class AbstractJdbcTemplateRepositoryTest extends io.kestra.core.
         templateRepository.create(builder("io.kestra.unitest").build());
         templateRepository.create(builder("com.kestra.test").build());
 
-        List<Template> save = templateRepository.find(Pageable.from(1, 10, Sort.UNSORTED), null, null, null);
+        List<Template> save = templateRepository.find(Pageable.from(1, 10, Sort.UNSORTED), null, MAIN_TENANT, null);
         assertThat(save.size()).isEqualTo(2);
 
-        save = templateRepository.find(Pageable.from(1, 10, Sort.UNSORTED), "kestra", null, "com");
+        save = templateRepository.find(Pageable.from(1, 10, Sort.UNSORTED), "kestra", MAIN_TENANT, "com");
         assertThat(save.size()).isEqualTo(1);
 
-        save = templateRepository.find(Pageable.from(1, 10, Sort.of(Sort.Order.asc("id"))), "kestra unit", null, null);
+        save = templateRepository.find(Pageable.from(1, 10, Sort.of(Sort.Order.asc("id"))), "kestra unit", MAIN_TENANT, null);
         assertThat(save.size()).isEqualTo(1);
     }
 

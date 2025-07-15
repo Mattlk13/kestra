@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static io.kestra.core.tenant.TenantService.MAIN_TENANT;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @KestraTest
@@ -21,12 +22,14 @@ public abstract class AbstractFlowTopologyRepositoryTest {
             .relation(FlowRelation.FLOW_TASK)
             .source(FlowNode.builder()
                 .id(flowA)
+                .tenantId(MAIN_TENANT)
                 .namespace("io.kestra.tests")
                 .uid(flowA)
                 .build()
             )
             .destination(FlowNode.builder()
                 .id(flowB)
+                .tenantId(MAIN_TENANT)
                 .namespace("io.kestra.tests")
                 .uid(flowB)
                 .build()
@@ -40,7 +43,7 @@ public abstract class AbstractFlowTopologyRepositoryTest {
             createSimpleFlowTopology("flow-a", "flow-b")
         );
 
-        List<FlowTopology> list = flowTopologyRepository.findByFlow(null, "io.kestra.tests", "flow-a", false);
+        List<FlowTopology> list = flowTopologyRepository.findByFlow(MAIN_TENANT, "io.kestra.tests", "flow-a", false);
 
         assertThat(list.size()).isEqualTo(1);
     }

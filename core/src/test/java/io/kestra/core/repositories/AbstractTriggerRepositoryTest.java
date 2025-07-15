@@ -138,7 +138,7 @@ public abstract class AbstractTriggerRepositoryTest {
 
         assertThat(all.size()).isEqualTo(4);
 
-        all = triggerRepository.findAll(null);
+        all = triggerRepository.findAll(MAIN_TENANT);
 
         assertThat(all.size()).isEqualTo(4);
 

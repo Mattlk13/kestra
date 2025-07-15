@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static io.kestra.core.tenant.TenantService.MAIN_TENANT;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @KestraTest
@@ -146,12 +147,12 @@ public abstract class AbstractMultipleConditionStorageTest {
 
         assertThat(window.getResults().get("a")).isTrue();
 
-        List<MultipleConditionWindow> expired = multipleConditionStorage.expired(null);
+        List<MultipleConditionWindow> expired = multipleConditionStorage.expired(MAIN_TENANT);
         assertThat(expired.size()).isZero();
 
         Thread.sleep(2005);
 
-        expired = multipleConditionStorage.expired(null);
+        expired = multipleConditionStorage.expired(MAIN_TENANT);
         assertThat(expired.size()).isEqualTo(1);
     }
 
@@ -168,12 +169,12 @@ public abstract class AbstractMultipleConditionStorageTest {
 
         assertThat(window.getResults().get("a")).isTrue();
 
-        List<MultipleConditionWindow> expired = multipleConditionStorage.expired(null);
+        List<MultipleConditionWindow> expired = multipleConditionStorage.expired(MAIN_TENANT);
         assertThat(expired.size()).isZero();
 
         Thread.sleep(2005);
 
-        expired = multipleConditionStorage.expired(null);
+        expired = multipleConditionStorage.expired(MAIN_TENANT);
         assertThat(expired.size()).isEqualTo(1);
     }
 
@@ -190,7 +191,7 @@ public abstract class AbstractMultipleConditionStorageTest {
 
         assertThat(window.getResults()).isEmpty();
 
-        List<MultipleConditionWindow> expired = multipleConditionStorage.expired(null);
+        List<MultipleConditionWindow> expired = multipleConditionStorage.expired(MAIN_TENANT);
         assertThat(expired.size()).isEqualTo(1);
     }
 
@@ -208,7 +209,7 @@ public abstract class AbstractMultipleConditionStorageTest {
 
         assertThat(window.getResults().get("a")).isTrue();
 
-        List<MultipleConditionWindow> expired = multipleConditionStorage.expired(null);
+        List<MultipleConditionWindow> expired = multipleConditionStorage.expired(MAIN_TENANT);
         assertThat(expired.size()).isZero();
     }
 
@@ -225,7 +226,7 @@ public abstract class AbstractMultipleConditionStorageTest {
 
         assertThat(window.getResults().get("a")).isTrue();
 
-        List<MultipleConditionWindow> expired = multipleConditionStorage.expired(null);
+        List<MultipleConditionWindow> expired = multipleConditionStorage.expired(MAIN_TENANT);
         assertThat(expired.size()).isZero();
     }
 
@@ -247,6 +248,7 @@ public abstract class AbstractMultipleConditionStorageTest {
 
         Flow flow = Flow.builder()
             .namespace(NAMESPACE)
+            .tenantId(MAIN_TENANT)
             .id("multiple-flow")
             .revision(1)
             .triggers(Collections.singletonList(io.kestra.plugin.core.trigger.Flow.builder()

@@ -16,6 +16,7 @@ import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.List;
 
+import static io.kestra.core.tenant.TenantService.MAIN_TENANT;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @KestraTest
@@ -35,17 +36,17 @@ public abstract class AbstractMetricRepositoryTest {
         metricRepository.save(testCounter); // should only be retrieved by execution id
         metricRepository.save(timer);
 
-        List<MetricEntry> results = metricRepository.findByExecutionId(null, executionId, Pageable.from(1, 10));
+        List<MetricEntry> results = metricRepository.findByExecutionId(MAIN_TENANT, executionId, Pageable.from(1, 10));
         assertThat(results.size()).isEqualTo(3);
 
-        results = metricRepository.findByExecutionIdAndTaskId(null, executionId, taskRun1.getTaskId(), Pageable.from(1, 10));
+        results = metricRepository.findByExecutionIdAndTaskId(MAIN_TENANT, executionId, taskRun1.getTaskId(), Pageable.from(1, 10));
         assertThat(results.size()).isEqualTo(3);
 
-        results = metricRepository.findByExecutionIdAndTaskRunId(null, executionId, taskRun1.getId(), Pageable.from(1, 10));
+        results = metricRepository.findByExecutionIdAndTaskRunId(MAIN_TENANT, executionId, taskRun1.getId(), Pageable.from(1, 10));
         assertThat(results.size()).isEqualTo(2);
 
         MetricAggregations aggregationResults = metricRepository.aggregateByFlowId(
-            null,
+            MAIN_TENANT,
             "namespace",
             "flow",
             null,
@@ -59,7 +60,7 @@ public abstract class AbstractMetricRepositoryTest {
         assertThat(aggregationResults.getGroupBy()).isEqualTo("day");
 
         aggregationResults = metricRepository.aggregateByFlowId(
-            null,
+            MAIN_TENANT,
             "namespace",
             "flow",
             null,
@@ -90,9 +91,9 @@ public abstract class AbstractMetricRepositoryTest {
          metricRepository.save(test); // should only be retrieved by execution id
 
 
-         List<String> flowMetricsNames = metricRepository.flowMetrics(null, "namespace", "flow");
-         List<String> taskMetricsNames = metricRepository.taskMetrics(null, "namespace", "flow", "task");
-         List<String> tasksWithMetrics = metricRepository.tasksWithMetrics(null, "namespace", "flow");
+         List<String> flowMetricsNames = metricRepository.flowMetrics(MAIN_TENANT, "namespace", "flow");
+         List<String> taskMetricsNames = metricRepository.taskMetrics(MAIN_TENANT, "namespace", "flow", "task");
+         List<String> tasksWithMetrics = metricRepository.tasksWithMetrics(MAIN_TENANT, "namespace", "flow");
 
          assertThat(flowMetricsNames.size()).isEqualTo(2);
          assertThat(taskMetricsNames.size()).isEqualTo(1);
@@ -111,7 +112,7 @@ public abstract class AbstractMetricRepositoryTest {
         metricRepository.save(timer);
         metricRepository.save(test); // should be retrieved as findAllAsync is used for backup
 
-        List<MetricEntry> results = metricRepository.findAllAsync(null).collectList().block();
+        List<MetricEntry> results = metricRepository.findAllAsync(MAIN_TENANT).collectList().block();
         assertThat(results).hasSize(3);
     }
 
@@ -127,6 +128,7 @@ public abstract class AbstractMetricRepositoryTest {
         return TaskRun.builder()
             .flowId("flow")
             .namespace("namespace")
+            .tenantId(MAIN_TENANT)
             .executionId(executionId)
             .taskId(taskId)
             .id(FriendlyId.createFriendlyId())

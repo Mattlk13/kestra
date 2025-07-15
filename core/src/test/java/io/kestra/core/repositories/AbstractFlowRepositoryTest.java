@@ -815,12 +815,14 @@ public abstract class AbstractFlowRepositoryTest {
     @Test
     void findByExecutionNoRevision() {
         Flow flow = builder()
+            .tenantId(MAIN_TENANT)
             .revision(3)
             .build();
         flowRepository.create(GenericFlow.of(flow));
         Execution execution = Execution.builder()
             .id(IdUtils.create())
             .namespace(flow.getNamespace())
+            .tenantId(MAIN_TENANT)
             .flowId(flow.getId())
             .state(new State())
             .build();

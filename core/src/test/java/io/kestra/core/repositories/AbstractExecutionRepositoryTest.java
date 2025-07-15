@@ -371,7 +371,7 @@ public abstract class AbstractExecutionRepositoryTest {
     protected void shouldFindByIdTestExecution() {
         executionRepository.save(ExecutionFixture.EXECUTION_TEST);
 
-        Optional<Execution> full = executionRepository.findById(null, ExecutionFixture.EXECUTION_TEST.getId());
+        Optional<Execution> full = executionRepository.findById(MAIN_TENANT, ExecutionFixture.EXECUTION_TEST.getId());
         assertThat(full.isPresent()).isTrue();
 
         full.ifPresent(current -> {
@@ -388,7 +388,7 @@ public abstract class AbstractExecutionRepositoryTest {
 
         executionRepository.purge(ExecutionFixture.EXECUTION_1);
 
-        full = executionRepository.findById(null, ExecutionFixture.EXECUTION_1.getId());
+        full = executionRepository.findById(MAIN_TENANT, ExecutionFixture.EXECUTION_1.getId());
         assertThat(full.isPresent()).isFalse();
     }
 

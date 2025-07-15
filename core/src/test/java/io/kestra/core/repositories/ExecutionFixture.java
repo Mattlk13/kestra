@@ -64,6 +64,7 @@ class ExecutionFixture {
     public static final Execution EXECUTION_TEST = Execution.builder()
         .id(IdUtils.create())
         .namespace("io.kestra.unittest")
+        .tenantId(MAIN_TENANT)
         .flowId("full")
         .flowRevision(1)
         .state(new State())
