@@ -414,5 +414,17 @@ export const useExecutionsStore = defineStore("executions", {
             this.logs.results.push(logs);
             this.logs.total = this.logs.results.length;
         },
+        getFlowExecutions({namespace, flowId}: { namespace: string; flowId: string }) {
+            return this.$http.get(`${apiUrl(this.vuexStore)}/executions`, {
+                params: {
+                    namespace,
+                    flowId,
+                }
+            }).then(response => {
+                this.executions = response.data.results;
+                this.total = response.data.total;
+                return response.data;
+            });
+        }
     },
 });

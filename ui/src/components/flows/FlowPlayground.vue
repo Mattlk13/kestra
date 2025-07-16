@@ -22,7 +22,7 @@
 </template>
 
 <script setup lang="ts">
-    import {computed, ref, markRaw, onMounted} from "vue";
+    import {computed, ref, markRaw, onMounted, watch} from "vue";
     import {useI18n} from "vue-i18n";
     import Gantt from "../executions/Gantt.vue";
     import Logs from "../executions/Logs.vue";
@@ -54,19 +54,24 @@
                                   }
     ]));
 
+    const activeExecutionId = ref();
+
     const executionsStore = useExecutionsStore();
+    watch(activeExecutionId, (newId) => {
+        if (newId) {
+            executionsStore.loadExecution({id: newId});
+        }
+    });
+
+
     const store = useStore();
     onMounted(async () => {
-        const lastExecutions = await executionsStore.loadLatestExecutions({
-            flowFilters: [{
-                namespace: store.state.flow.flow.namespace,
-                id: store.state.flow.flow.id,
-            }]
+        const {results: lastExecutions} = await executionsStore.getFlowExecutions({
+            namespace: store.state.flow.flow.namespace,
+            flowId: store.state.flow.flow.id,
         });
         if (lastExecutions.length > 0) {
-            await executionsStore.loadExecution({
-                id: lastExecutions[0].id
-            });
+            activeExecutionId.value = lastExecutions[0].id
         }
     })
 
