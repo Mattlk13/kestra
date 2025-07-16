@@ -11,14 +11,16 @@
 </template>
 
 <script>
+    import {mapState} from "vuex";
+    import {mapStores} from "pinia";
+
     import Gantt from "./Gantt.vue";
     import Overview from "./Overview.vue";
     import Logs from "./Logs.vue";
     import Topology from "./Topology.vue";
     import ExecutionOutput from "./outputs/Wrapper.vue";
+    import ExecutionMetric from "./ExecutionMetric.vue";
     import RouteContext from "../../mixins/routeContext";
-    import {mapState} from "vuex";
-    import {mapStores} from "pinia";
     import {useCoreStore} from "../../stores/core";
     import permission from "../../models/permission";
     import action from "../../models/action";
@@ -26,7 +28,6 @@
     import ExecutionRootTopBar from "./ExecutionRootTopBar.vue";
     import DemoAuditLogs from "../demo/AuditLogs.vue";
 
-    import ExecutionMetric from "./ExecutionMetric.vue";
     import throttle from "lodash/throttle";
     import {useExecutionsStore} from "../../stores/executions";
 
@@ -137,54 +138,53 @@
                 }
             },
             getTabs() {
-                const title = title => this.$t(title);
-                return [
-                    {
-                        name: undefined,
-                        component: Overview,
-                        title: title("overview"),
-                    },
-                    {
-                        name: "gantt",
-                        component: Gantt,
-                        title: title("gantt")
-                    },
-                    {
-                        name: "logs",
-                        component: Logs,
-                        title: title("logs")
-                    },
-                    {
-                        name: "topology",
-                        component: Topology,
-                        title: title("topology")
-                    },
-                    {
-                        name: "outputs",
-                        component: ExecutionOutput,
-                        title: title("outputs"),
-                        maximized: true
-                    },
-                    {
-                        name: "metrics",
-                        component: ExecutionMetric,
-                        title: title("metrics")
-                    },
-                    {
-                        name: "auditlogs",
-                        component: DemoAuditLogs,
-                        title: title("auditlogs"),
-                        maximized: true,
-                        locked: true
-                    }
-                ];
+
             },
         },
         computed: {
             ...mapState("auth", ["user"]),
             ...mapStores(useCoreStore, useExecutionsStore),
             tabs() {
-                return this.getTabs();
+                return [
+                    {
+                        name: undefined,
+                        component: Overview,
+                        title: this.$t("overview"),
+                    },
+                    {
+                        name: "gantt",
+                        component: Gantt,
+                        title: this.$t("gantt")
+                    },
+                    {
+                        name: "logs",
+                        component: Logs,
+                        title: this.$t("logs")
+                    },
+                    {
+                        name: "topology",
+                        component: Topology,
+                        title: this.$t("topology")
+                    },
+                    {
+                        name: "outputs",
+                        component: ExecutionOutput,
+                        title: this.$t("outputs"),
+                        maximized: true
+                    },
+                    {
+                        name: "metrics",
+                        component: ExecutionMetric,
+                        title: this.$t("metrics")
+                    },
+                    {
+                        name: "auditlogs",
+                        component: DemoAuditLogs,
+                        title: this.$t("auditlogs"),
+                        maximized: true,
+                        locked: true
+                    }
+                ];
             },
             routeInfo() {
                 const ns = this.$route.params.namespace;
