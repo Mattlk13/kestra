@@ -41,7 +41,7 @@
             v-if="isNamespace || isAllowedEdit"
             :icon="ContentSave"
             @click="forwardEvent('save', $event)"
-            type="primary"
+            :type="store.state.flow.playgroundMode ? 'playground' : 'primary'"
             :disabled="hasErrors || !canSave"
             class="edit-flow-save-button"
         >
@@ -93,3 +93,17 @@
         return props.haveChange || props.isCreating;
     });
 </script>
+
+<style lang="scss" scoped>
+    @import "@kestra-io/ui-libs/src/scss/_color-palette";
+
+    .el-button--playground {
+        background-color: $base-blue-500;
+        &:hover {
+            background-color: $base-blue-400;
+        }
+        &:active {
+            background-color: $base-blue-600;
+        }
+    }
+</style>

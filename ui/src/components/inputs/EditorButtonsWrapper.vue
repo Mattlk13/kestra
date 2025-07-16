@@ -1,5 +1,5 @@
 <template>
-    <div style="display: flex; align-items: center; margin: .5rem; gap: .5rem;">
+    <div class="button-wrapper">
         <FlowPlaygroundToggle />
 
         <ValidationError
@@ -127,3 +127,12 @@
             });
     };
 </script>
+
+<style lang="scss" scoped>
+    .button-wrapper {
+        display: flex;
+        align-items: center;
+        margin: .5rem;
+        gap: .5rem;
+    }
+</style>
