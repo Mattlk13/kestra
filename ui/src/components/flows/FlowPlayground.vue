@@ -11,31 +11,29 @@
                 {{ tab.title }}
             </button>
         </div>
-        <div class="tab-content">
+        <div v-if="activeTab?.component && playgroundStore.latestExecution" class="tab-content">
             <component
-                v-if="activeTab?.component && executionsStore.execution"
                 :is="activeTab.component"
                 :key="activeTab.name"
             />
-            <div v-else class="empty-state">
-                <p>
-                    <EmptyVisualPlayground />
-                    {{ t("playground.empty") }}
-                </p>
-            </div>
+        </div>
+        <div v-else class="empty-state">
+            <img :src="EmptyVisualPlayground">
+            <p>
+                {{ t("playground.empty") }}
+            </p>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-    import {computed, ref, markRaw, onMounted, watch} from "vue";
-    import {useStore} from "vuex";
+    import {computed, ref, markRaw} from "vue";
     import {useI18n} from "vue-i18n";
     import Gantt from "../executions/Gantt.vue";
     import Logs from "../executions/Logs.vue";
     import ExecutionOutput from "../executions/outputs/Wrapper.vue";
     import ExecutionMetric from "../executions/ExecutionMetric.vue";
-    import {useExecutionsStore} from "../../stores/executions";
+    import {usePlaygroundStore} from "../../stores/playground";
     import EmptyVisualPlayground from "../../assets/empty_visuals/playground.svg"
 
     const {t} = useI18n();
@@ -61,27 +59,7 @@
                                   }
     ]));
 
-    const activeExecutionId = ref();
-
-    const executionsStore = useExecutionsStore();
-    watch(activeExecutionId, (newId) => {
-        if (newId) {
-            executionsStore.loadExecution({id: newId});
-        }
-    });
-
-
-    const store = useStore();
-    onMounted(async () => {
-        const {results: lastExecutions} = await executionsStore.getFlowExecutions({
-            namespace: store.state.flow.flow.namespace,
-            flowId: store.state.flow.flow.id,
-        });
-        if (lastExecutions.length > 0) {
-            activeExecutionId.value = lastExecutions[0].id
-        }
-    })
-
+    const playgroundStore = usePlaygroundStore();
     const activeTab = ref(tabs.value[0]);
 </script>
 
@@ -119,5 +97,20 @@
         overflow: auto;
         padding: 1rem;
         background-color: var(--ks-background-panel);
+    }
+
+    .empty-state{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        p {
+            text-align: center;
+            color: var(--ks-content-secondary);
+            img {
+                width: 200px;
+                margin-bottom: 1rem;
+            }
+        }
     }
 </style>
