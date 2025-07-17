@@ -27,7 +27,7 @@
 </template>
 
 <script setup lang="ts">
-    import {computed, ref, markRaw} from "vue";
+    import {computed, ref, markRaw, watch} from "vue";
     import {useI18n} from "vue-i18n";
     import Gantt from "../executions/Gantt.vue";
     import Logs from "../executions/Logs.vue";
@@ -35,6 +35,7 @@
     import ExecutionMetric from "../executions/ExecutionMetric.vue";
     import {usePlaygroundStore} from "../../stores/playground";
     import EmptyVisualPlayground from "../../assets/empty_visuals/playground.svg"
+    import {useExecutionsStore} from "../../stores/executions";
 
     const {t} = useI18n();
 
@@ -60,6 +61,14 @@
     ]));
 
     const playgroundStore = usePlaygroundStore();
+    const executionsStore = useExecutionsStore();
+
+    watch(() => playgroundStore.latestExecution, (newValue) => {
+        if (newValue) {
+            activeTab.value = tabs.value[0]; // Reset to first tab when a new execution is loaded
+            executionsStore.followExecution(newValue);
+        }
+    });
     const activeTab = ref(tabs.value[0]);
 </script>
 
