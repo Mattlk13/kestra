@@ -239,7 +239,15 @@ export const useExecutionsStore = defineStore("executions", () => {
         })
     }
 
-    const triggerExecution = (options: { namespace: string; id: string; formData: any; labels?: string[]; scheduleDate?: string, kind: "PLAYGROUND" | "NORMAL" }) => {
+    const triggerExecution = (options: {
+        namespace: string;
+        id: string;
+        formData: any;
+        kind: "PLAYGROUND" | "NORMAL"
+        breakpoints?: string[];
+        labels?: string[];
+        scheduleDate?: string,
+    }) => {
         return store.$http.post(`${apiUrl(store)}/executions/${options.namespace}/${options.id}`, Utils.toFormData(options.formData), {
             timeout: 60 * 60 * 1000,
             headers: {
@@ -249,6 +257,7 @@ export const useExecutionsStore = defineStore("executions", () => {
                 labels: options.labels ?? [],
                 scheduleDate: options.scheduleDate,
                 kind: options.kind,
+                breakpoints: options.breakpoints ? options.breakpoints.join(",") : undefined
             }
         })
     }
