@@ -47,7 +47,7 @@
                             :icon="Flash"
                             class="flow-run-trigger-button"
                             :class="{'onboarding-glow': coreStore.guidedProperties.tourStarted}"
-                            @click="onSubmit($refs.form); executeClicked = true;"
+                            @click.prevent="onSubmit($refs.form); executeClicked = true;"
                             type="primary"
                             native-type="submit"
                             :disabled="!flowCanBeExecuted"
