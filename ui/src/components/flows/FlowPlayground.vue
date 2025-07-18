@@ -92,14 +92,20 @@
 
     .playground {
         height: 100%;
+        position: relative;
         color: var(--ks-color-text-secondary);
         background-color: var(--ks-background-panel);
+        overflow-y: auto;
         h2{
             border-bottom: 1px solid var(--ks-border-primary);
             font-size: .8rem;
             font-weight: normal;
             line-height: 1.2rem;
             padding: 0 8px 4px;
+            position: sticky;
+            background-color: var(--ks-background-panel);
+            top: 0;
+            z-index: 100;
         }
     }
 
