@@ -255,6 +255,7 @@ export default {
             });
         },
         async initYamlSource({getters, commit, dispatch, state}, {viewType}) {
+            if(!getters.flow) return;
             const {source} = getters.flow;
             commit("setFlowYaml", source);
             commit("setFlowYamlOrigin", source);
