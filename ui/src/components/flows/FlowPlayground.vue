@@ -31,13 +31,12 @@
                 </div>
             </div>
             <div class="run-history" :class="{'history-visible': historyVisible}">
-                <h3>{{ t("playground.history") }}</h3>
-                <div v-for="execution of playgroundStore.executions" :key="execution.id">
-                    {{ execution.id }} - {{ execution.state.current }}
-                </div>
+                <h3><HistoryIcon class="tab-icon" />{{ t("playground.history") }}</h3>
+                <PlaygroundLog :executions="playgroundStore.executions" />
             </div>
             <button class="toggle-history" @click="historyVisible = !historyVisible">
-                <HistoryIcon />
+                <CloseIcon v-if="historyVisible" />
+                <HistoryIcon v-else />
             </button>
         </div>
     </section>
@@ -48,10 +47,12 @@
     import {useI18n} from "vue-i18n";
     import ChartTimelineIcon from "vue-material-design-icons/ChartTimeline.vue";
     import HistoryIcon from "vue-material-design-icons/History.vue";
+    import CloseIcon from "vue-material-design-icons/Close.vue";
     import Gantt from "../executions/Gantt.vue";
     import Logs from "../executions/Logs.vue";
     import ExecutionOutput from "../executions/outputs/Wrapper.vue";
     import ExecutionMetric from "../executions/ExecutionMetric.vue";
+    import PlaygroundLog from "./playground/PlaygroundLog.vue";
     import {usePlaygroundStore} from "../../stores/playground";
     import EmptyVisualPlayground from "../../assets/empty_visuals/playground.svg"
     import {useExecutionsStore} from "../../stores/executions";
@@ -146,7 +147,7 @@
         padding: 8px;
         border-radius: 50%;
         display: flex;
-        z-index: 1000;
+        z-index: 99;
         &:hover {
             background-color: var(--ks-background-card-hover);
         }
@@ -158,6 +159,9 @@
         overflow: hidden;
         transition: all .2s ease-in-out;
         h3{
+            display: flex;
+            align-items: center;
+            gap: .5rem;
             width: 268px;
             font-size: 1rem;
             margin: .8rem 1rem;

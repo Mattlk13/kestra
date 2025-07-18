@@ -23,6 +23,8 @@ export interface Execution{
     state: {
         current: string;
         history: string;
+        startDate: string;
+        duration: string;
     }
 }
 
