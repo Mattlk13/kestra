@@ -1,5 +1,9 @@
 <template>
     <div class="playground">
+        <h2>
+            <ChartTimelineIcon class="tab-icon" />
+            {{ t("playground.title") }}
+        </h2>
         <div class="pillTabs">
             <button
                 v-for="tab in tabs"
@@ -29,6 +33,7 @@
 <script setup lang="ts">
     import {computed, ref, markRaw, watch, onUnmounted} from "vue";
     import {useI18n} from "vue-i18n";
+    import ChartTimelineIcon from "vue-material-design-icons/ChartTimeline.vue";
     import Gantt from "../executions/Gantt.vue";
     import Logs from "../executions/Logs.vue";
     import ExecutionOutput from "../executions/outputs/Wrapper.vue";
@@ -80,10 +85,22 @@
 <style lang="scss" scoped>
     @import "@kestra-io/ui-libs/src/scss/_color-palette";
 
+    .tab-icon{
+        color: var(--ks-content-inactive);
+        margin-right: 4px;
+    }
+
     .playground {
         height: 100%;
         color: var(--ks-color-text-secondary);
         background-color: var(--ks-background-panel);
+        h2{
+            border-bottom: 1px solid var(--ks-border-primary);
+            font-size: .8rem;
+            font-weight: normal;
+            line-height: 1.2rem;
+            padding: 0 8px 4px;
+        }
     }
 
     .pillTabs {

@@ -10,16 +10,14 @@ export const usePlaygroundStore = defineStore("playground", () => {
         removeFalsyValues: true
     })
 
-    const enabled = ref<boolean>(params.playground === "1")
+    const enabled = ref<boolean>(params.playground === "on")
     watch(enabled, (newValue) => {
         if (newValue) {
-            params.playground = "1"
+            params.playground = "on"
         } else {
             params.playground = ""
         }
     })
-
-
 
     const executions = ref<Execution[]>([])
     function addExecution(execution: Execution) {

@@ -1441,6 +1441,7 @@
       }
     },
     "playground": {
+      "title": "Playground",
       "empty": "Click the \"Run task\" button to test your workflow with a simulated execution.",
       "toggle": "Playground",
       "run_task": "Run Task",
