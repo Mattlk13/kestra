@@ -1445,7 +1445,8 @@
       "empty": "Click the \"Run task\" button to test your workflow with a simulated execution.",
       "toggle": "Playground",
       "run_task": "Run Task",
-      "run_all_tasks": "Run All Tasks"
+      "run_all_tasks": "Run All Tasks",
+      "history": "Last 10 runs"
     },
     "submit": "Submit",
     "to toggle": "to toggle",

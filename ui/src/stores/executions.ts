@@ -20,6 +20,10 @@ export interface Execution{
         taskId: string,
         value?: string
     }[]
+    state: {
+        current: string;
+        history: string;
+    }
 }
 
 export const useExecutionsStore = defineStore("executions", () => {

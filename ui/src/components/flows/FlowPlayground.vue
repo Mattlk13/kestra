@@ -1,39 +1,53 @@
 <template>
-    <div class="playground">
+    <section class="playground">
         <h2>
             <ChartTimelineIcon class="tab-icon" />
             {{ t("playground.title") }}
         </h2>
-        <div class="pillTabs">
-            <button
-                v-for="tab in tabs"
-                :key="tab.name"
-                type="button"
-                :class="[{activeTab: tab.name === activeTab.name}]"
-                @click="activeTab = tab"
-            >
-                {{ tab.title }}
+        <div class="content">
+            <div class="current-run">
+                <div class="pillTabs">
+                    <button
+                        v-for="tab in tabs"
+                        :key="tab.name"
+                        type="button"
+                        :class="[{activeTab: tab.name === activeTab.name}]"
+                        @click="activeTab = tab"
+                    >
+                        {{ tab.title }}
+                    </button>
+                </div>
+                <div v-if="activeTab?.component && playgroundStore.latestExecution" class="tab-content">
+                    <component
+                        :is="activeTab.component"
+                        :key="activeTab.name"
+                    />
+                </div>
+                <div v-else class="empty-state">
+                    <img :src="EmptyVisualPlayground">
+                    <p>
+                        {{ t("playground.empty") }}
+                    </p>
+                </div>
+            </div>
+            <div class="run-history" :class="{'history-visible': historyVisible}">
+                <h3>{{ t("playground.history") }}</h3>
+                <div v-for="execution of playgroundStore.executions" :key="execution.id">
+                    {{ execution.id }} - {{ execution.state.current }}
+                </div>
+            </div>
+            <button class="toggle-history" @click="historyVisible = !historyVisible">
+                <HistoryIcon />
             </button>
         </div>
-        <div v-if="activeTab?.component && playgroundStore.latestExecution" class="tab-content">
-            <component
-                :is="activeTab.component"
-                :key="activeTab.name"
-            />
-        </div>
-        <div v-else class="empty-state">
-            <img :src="EmptyVisualPlayground">
-            <p>
-                {{ t("playground.empty") }}
-            </p>
-        </div>
-    </div>
+    </section>
 </template>
 
 <script setup lang="ts">
     import {computed, ref, markRaw, watch, onUnmounted} from "vue";
     import {useI18n} from "vue-i18n";
     import ChartTimelineIcon from "vue-material-design-icons/ChartTimeline.vue";
+    import HistoryIcon from "vue-material-design-icons/History.vue";
     import Gantt from "../executions/Gantt.vue";
     import Logs from "../executions/Logs.vue";
     import ExecutionOutput from "../executions/outputs/Wrapper.vue";
@@ -80,6 +94,8 @@
     onUnmounted(() => {
         executionsStore.closeSSE();
     });
+
+    const historyVisible = ref(false);
 </script>
 
 <style lang="scss" scoped>
@@ -92,6 +108,8 @@
 
     .playground {
         height: 100%;
+        display: flex;
+        flex-direction: column;
         position: relative;
         color: var(--ks-color-text-secondary);
         background-color: var(--ks-background-panel);
@@ -106,6 +124,52 @@
             background-color: var(--ks-background-panel);
             top: 0;
             z-index: 100;
+        }
+    }
+
+    .content{
+        display: flex;
+        flex: 1;
+        align-items: stretch;
+    }
+
+    .current-run {
+        flex: 1;
+    }
+
+    .toggle-history{
+        position: absolute;
+        top: 36px;
+        right: 12px;
+        background-color: var(--ks-background-card);
+        border: none;
+        padding: 8px;
+        border-radius: 50%;
+        display: flex;
+        z-index: 1000;
+        &:hover {
+            background-color: var(--ks-background-card-hover);
+        }
+    }
+
+    .run-history{
+        border-left: 1px solid transparent;
+        width: 0;
+        overflow: hidden;
+        transition: all .2s ease-in-out;
+        h3{
+            width: 268px;
+            font-size: 1rem;
+            margin: .8rem 1rem;
+            font-weight: normal;
+            margin-bottom: 0.5rem;
+            color: var(--ks-content-primary);
+        }
+
+        &.history-visible {
+            width: 300px;
+            overflow-y: auto;
+            border-color: var(--ks-border-primary);
         }
     }
 
