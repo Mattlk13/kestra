@@ -355,6 +355,10 @@ export const useExecutionsStore = defineStore("executions", () => {
         return Promise.resolve();
     }
 
+    function followExecutionDependencies(options: { id: string; expandAll?: boolean }) {
+        return new EventSource(`${apiUrl(store)}/executions/${options.id}/follow-dependencies${options.expandAll ? "?expandAll=true" : ""}`, {withCredentials: true});
+    }
+
     const followLogs = (options: { id: string }) => {
         return Promise.resolve(new EventSource(`${apiUrl(store)}/logs/${options.id}/follow`, {withCredentials: true}));
     }
@@ -605,6 +609,7 @@ export const useExecutionsStore = defineStore("executions", () => {
         queryDeleteExecution,
         closeSSE,
         followExecution,
+        followExecutionDependencies,
         followLogs,
         loadLogs,
         loadMetrics,
