@@ -119,7 +119,6 @@
     import ForEachStatus from "../executions/ForEachStatus.vue";
     import TaskRunLine from "../executions/TaskRunLine.vue";
     import FlowUtils from "../../utils/flowUtils";
-    import throttle from "lodash/throttle";
     import FilePreview from "../executions/FilePreview.vue";
     import {apiUrl} from "override/utils/route";
     import Utils from "../../utils/utils";
@@ -166,12 +165,6 @@
                 type: Number,
                 default: undefined
             },
-            // allows to pass directly a raw execution (since it is already fetched by parent component)
-            targetExecution: {
-                type: Object,
-                required: false,
-                default: undefined
-            },
             // allows to fetch the execution at startup
             targetExecutionId: {
                 type: String,
@@ -206,16 +199,12 @@
                 timer: undefined,
                 timeout: undefined,
                 selectedAttemptNumberByTaskRunId: {},
-                followedExecution: undefined,
                 executionSSE: undefined,
                 logsSSE: undefined,
                 flow: undefined,
                 logsBuffer: [],
                 shownSubflowsIds: [],
                 logFileSizeByPath: {},
-                throttledExecutionUpdate: throttle(function (event) {
-                    this.followedExecution = JSON.parse(event.data)
-                }, 500),
                 selectedLogLevel: undefined,
                 childrenLogIndicesByLevelByChildUid: {},
                 logsScrollerRefs: {},
@@ -238,14 +227,6 @@
                 },
                 immediate: true,
                 deep: true
-            },
-            targetExecution: {
-                handler: function (newExecution) {
-                    if (newExecution) {
-                        this.followedExecution = newExecution;
-                    }
-                },
-                immediate: true
             },
             targetFlow: {
                 handler: function (flowSource) {
@@ -290,9 +271,9 @@
                     }
 
                     if (![State.RUNNING, State.PAUSED].includes(this.followedExecution.state.current)) {
-                        this.closeExecutionSSE()
                         // wait a bit to make sure we don't miss logs as log indexer is asynchronous
                         setTimeout(() => {
+                            this.closeExecutionSSE()
                             this.closeLogsSSE()
                         }, 2000);
 
@@ -325,6 +306,9 @@
         computed: {
             ...mapState("auth", ["user"]),
             ...mapStores(useCoreStore, useExecutionsStore),
+            followedExecution() {
+                return this.executionsStore.execution;
+            },
             Download() {
                 return Download
             },
@@ -428,10 +412,7 @@
                 this.logFileSizeByPath[path] = Utils.humanFileSize(axiosResponse.data.size);
             },
             closeExecutionSSE() {
-                if (this.executionSSE) {
-                    this.executionSSE.close();
-                    this.executionSSE = undefined;
-                }
+                this.executionsStore.closeSSE();
             },
             closeLogsSSE() {
                 if (this.logsSSE) {
@@ -481,22 +462,6 @@
                 this.closeExecutionSSE();
                 this.executionsStore
                     .followExecution({id: executionId}, this.$t)
-                    .then(sse => {
-                        this.executionSSE = sse;
-                        this.executionSSE.onmessage = executionEvent => {
-                            const isEnd = executionEvent && executionEvent.lastEventId === "end";
-                            if (isEnd) {
-                                this.closeExecutionSSE();
-                            }
-                            // we are receiving a first "fake" event to force initializing the connection: ignoring it
-                            if (executionEvent.lastEventId !== "start") {
-                                this.throttledExecutionUpdate(executionEvent);
-                            }
-                            if (isEnd) {
-                                this.throttledExecutionUpdate.flush();
-                            }
-                        }
-                    });
             },
             followLogs(executionId) {
                 this.executionsStore

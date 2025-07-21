@@ -80,7 +80,6 @@
                                     :exclude-metas="['namespace', 'flowId', 'taskId', 'executionId']"
                                     level="TRACE"
                                     @follow="forwardEvent('follow', $event)"
-                                    :target-execution="execution"
                                     :target-flow="executionsStore.flow"
                                     :show-logs="taskTypeByTaskRunId[item.id] !== 'io.kestra.plugin.core.flow.ForEachItem' && taskTypeByTaskRunId[item.id] !== 'io.kestra.core.tasks.flows.ForEachItem'"
                                     class="mh-100 mx-3"
