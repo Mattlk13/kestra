@@ -358,7 +358,8 @@ export const useExecutionsStore = defineStore("executions", () => {
                 };
             }
         }
-        return Promise.resolve();
+
+        return Promise.resolve(sse.value);
     }
 
     function followExecutionDependencies(options: { id: string; expandAll?: boolean }) {
