@@ -21,7 +21,7 @@ export const usePlaygroundStore = defineStore("playground", () => {
 
     const executions = ref<Execution[]>([])
     function addExecution(execution: Execution) {
-        executions.value.push(execution);
+        executions.value.unshift(execution);
     }
 
     function clearExecutions() {
