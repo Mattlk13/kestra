@@ -339,7 +339,7 @@ export const useExecutionsStore = defineStore("executions", () => {
             }
         }
 
-        // sse.onerror doesnt return the details of the error
+        // sse.onerror doesn't return the details of the error
         // but as our emitter can only throw an error on 404
         // we can safely assume that the error is a 404
         // if execution is not defined
