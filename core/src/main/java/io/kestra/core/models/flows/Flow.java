@@ -248,17 +248,30 @@ public class Flow extends AbstractFlow implements HasUID {
             .toList();
     }
 
-    public List<Task> allErrorsWithChilds() {
+    public List<Task> allErrorsWithChildrend() {
         var allErrors = allTasksWithChilds().stream()
             .filter(task -> task.isFlowable() && ((FlowableTask<?>) task).getErrors() != null)
             .flatMap(task -> ((FlowableTask<?>) task).getErrors().stream())
             .collect(Collectors.toCollection(ArrayList::new));
 
-        if (this.getErrors() != null && !this.getErrors().isEmpty()) {
+        if (!ListUtils.isEmpty(this.getErrors())) {
             allErrors.addAll(this.getErrors());
         }
 
         return allErrors;
+    }
+
+    public List<Task> allFinallyWithChildren() {
+        var allFinally = allTasksWithChilds().stream()
+            .filter(task -> task.isFlowable() && ((FlowableTask<?>) task).getFinally() != null)
+            .flatMap(task -> ((FlowableTask<?>) task).getFinally().stream())
+            .collect(Collectors.toCollection(ArrayList::new));
+
+        if (!ListUtils.isEmpty(this.getFinally())) {
+            allFinally.addAll(this.getFinally());
+        }
+
+        return allFinally;
     }
 
     public Task findParentTasksByTaskId(String taskId) {
