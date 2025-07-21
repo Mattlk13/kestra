@@ -44,6 +44,7 @@
     .playground-log > button{
         display: grid;
         border: none;
+        width: 284px;
         background-color: var(--ks-background-panel);
         text-align: left;
         padding: .3rem .5rem;
