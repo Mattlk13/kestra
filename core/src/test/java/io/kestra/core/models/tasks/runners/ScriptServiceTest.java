@@ -81,10 +81,10 @@ class ScriptServiceTest {
             var command = ScriptService.replaceInternalStorage(runContext, "my command with an internal storage file: " + internalStorageUri, false);
 
             Matcher matcher = COMMAND_PATTERN_CAPTURE_LOCAL_PATH.matcher(command);
-            assertThat(matcher.matches()).isTrue();
+            assertThat(matcher.matches(), is(true));
             Path absoluteLocalFilePath = Path.of(matcher.group(1));
             localFile = absoluteLocalFilePath.toFile();
-            assertThat(localFile.exists()).isTrue();
+            assertThat(localFile.exists(), is(true));
         } finally {
             localFile.delete();
             path.toFile().delete();
