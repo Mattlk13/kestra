@@ -414,7 +414,8 @@
                         .dispatch(queryAction, options)
                         .then(data => {
                             this.$toast().success(this.$t(success, {count: data.count}));
-                            this.loadData()
+                            this.toggleAllUnselected();
+                            this.loadData();
                         })
                 } else {
                     const selection = this.selection;
@@ -423,7 +424,8 @@
                         .dispatch(byIdAction, byIdAction.includes("setDisabled") ? options : selection)
                         .then(data => {
                             this.$toast().success(this.$t(success, {count: data.count}));
-                            this.loadData()
+                            this.toggleAllUnselected();
+                            this.loadData();
                         }).catch(e => {
                             this.$toast().error(e?.invalids.map(exec => {
                                 return {message: this.$t(exec.message, {triggers: exec.invalidValue})}
