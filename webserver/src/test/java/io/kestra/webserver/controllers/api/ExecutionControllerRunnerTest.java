@@ -1946,11 +1946,11 @@ class ExecutionControllerRunnerTest {
     }
 
     @Test
-    @LoadFlows({"flows/valids/logs.yaml"})
+    @LoadFlows({"flows/valids/minimal.yaml"})
     void killByIdShouldFailed() throws InterruptedException {
         Execution execution = client.toBlocking().retrieve(
             POST(
-                "/api/v1/main/executions/" + TESTS_FLOW_NS + "/logs",
+                "/api/v1/main/executions/" + TESTS_FLOW_NS + "/minimal",
                 null
             ),
             Execution.class
