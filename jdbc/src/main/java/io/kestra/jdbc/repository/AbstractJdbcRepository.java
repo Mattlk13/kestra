@@ -29,6 +29,7 @@ import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static io.kestra.core.utils.NamespaceUtils.SYSTEM_FLOWS_DEFAULT_NAMESPACE;
@@ -243,7 +244,7 @@ public abstract class AbstractJdbcRepository {
     protected <T extends Record> SelectConditionStep<T> filter(
         SelectConditionStep<T> select,
         List<QueryFilter> filters,
-        String dateColumn,
+        Function<QueryFilter, String> dateColumn,
         Resource resource
     ) {
         if (filters != null) {
@@ -252,7 +253,7 @@ public abstract class AbstractJdbcRepository {
                 QueryFilter.Field field = filter.field();
                 QueryFilter.Op operation = filter.operation();
                 Object value = filter.value();
-                select = getConditionOnField(select, field, value, operation, dateColumn);
+                select = getConditionOnField(select, field, value, operation, dateColumn.apply(filter));
             }
         }
         return select;
@@ -260,7 +261,7 @@ public abstract class AbstractJdbcRepository {
 
     /**
      *
-     * @param dateColumn the JDBC column name of the logical date to filter on with {@link io.kestra.core.models.QueryFilter.Field#START_DATE} and/or {@link QueryFilter.Field#END_DATE}
+     * @param dateColumn the JDBC column name of the logical date to filter on with {@link QueryFilter.Field#START_DATE} and/or {@link QueryFilter.Field#END_DATE}
      */
     protected <T extends Record> SelectConditionStep<T> getConditionOnField(
         SelectConditionStep<T> select,

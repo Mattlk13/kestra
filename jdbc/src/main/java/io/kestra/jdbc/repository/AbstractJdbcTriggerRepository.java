@@ -305,7 +305,7 @@ public abstract class AbstractJdbcTriggerRepository extends AbstractJdbcReposito
             .from(this.jdbcRepository.getTable())
             .where(this.defaultFilter(tenantId));
 
-        return filter(select, filters, "next_execution_date", Resource.TRIGGER);
+        return filter(select, filters, unused -> "next_execution_date", Resource.TRIGGER);
     }
 
     @Override

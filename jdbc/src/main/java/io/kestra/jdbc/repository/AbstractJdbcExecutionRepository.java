@@ -302,12 +302,16 @@ public abstract class AbstractJdbcExecutionRepository extends AbstractJdbcReposi
             .from(this.jdbcRepository.getTable())
             .where(this.defaultFilter(tenantId, false))
             .and(NORMAL_KIND_CONDITION);
-
-        select = this.filter(select, filters, "start_date", Resource.EXECUTION);
+        
+        select = this.filter(select, filters, this::getDateColumn, QueryFilter.Resource.EXECUTION);
 
         return select;
     }
 
+    protected String getDateColumn(QueryFilter filter) {
+        return filter.field() == QueryFilter.Field.END_DATE ? "end_date" : "start_date";
+    }
+    
     private SelectConditionStep<Record1<Object>> findSelect(
         DSLContext context,
         @Nullable String query,

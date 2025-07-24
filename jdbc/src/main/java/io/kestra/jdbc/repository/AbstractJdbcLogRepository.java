@@ -103,7 +103,7 @@ public abstract class AbstractJdbcLogRepository extends AbstractJdbcRepository i
                     .where(this.defaultFilter(tenantId))
                     .and(NORMAL_KIND_CONDITION);
 
-               select = this.filter(select, filters, "timestamp", Resource.LOG);
+               select = this.filter(select, filters, unused -> "timestamp", Resource.LOG);
 
                 return this.jdbcRepository.fetchPage(context, select, pageable);
             });
