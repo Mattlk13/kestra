@@ -24,6 +24,7 @@ import io.kestra.core.serializers.ListOrMapOfLabelSerializer;
 import io.kestra.core.services.LabelService;
 import io.kestra.core.test.flow.TaskFixture;
 import io.kestra.core.utils.IdUtils;
+import io.kestra.core.utils.ListUtils;
 import io.kestra.core.utils.MapUtils;
 import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.annotation.Nullable;
@@ -132,7 +133,7 @@ public class Execution implements DeletedInterface, TenantInterface {
     }
 
     public List<Label> getLabels() {
-        return Optional.ofNullable(this.labels).orElse(new ArrayList<>());
+        return ListUtils.emptyOnNull(this.labels);
     }
 
     /**
@@ -177,7 +178,21 @@ public class Execution implements DeletedInterface, TenantInterface {
     }
 
 
+    /**
+     * Customization of Lombok-generated builder.
+     */
     public static class ExecutionBuilder {
+
+        /**
+         * Enforce unique values of {@link Label} when using the builder.
+         *
+         * @param labels The labels.
+         * @return Deduplicated labels.
+         */
+        public ExecutionBuilder labels(List<Label> labels) {
+            this.labels = Label.deduplicate(labels);
+            return this;
+        }
 
         void prebuild() {
             this.originalId = this.id;
@@ -226,7 +241,6 @@ public class Execution implements DeletedInterface, TenantInterface {
     }
 
     public Execution withLabels(List<Label> labels) {
-
         return new Execution(
             this.tenantId,
             this.id,
@@ -236,7 +250,7 @@ public class Execution implements DeletedInterface, TenantInterface {
             this.taskRunList,
             this.inputs,
             this.outputs,
-            labels,
+            Label.deduplicate(labels),
             this.variables,
             this.state,
             this.parentId,
@@ -366,7 +380,7 @@ public class Execution implements DeletedInterface, TenantInterface {
      *
      * @param resolvedTasks normal tasks
      * @param resolvedErrors errors tasks
-     * @param resolvedErrors finally tasks
+     * @param resolvedFinally finally tasks
      * @return the flow we need to follow
      */
     public List<ResolvedTask> findTaskDependingFlowState(
