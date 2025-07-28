@@ -788,6 +788,7 @@ public class JdbcExecutor implements ExecutorInterface, Service {
                         if (taskRun.getState().getCurrent() != message.getState()) {
                             taskRun = taskRun.withState(message.getState());
                         }
+                        Map<String, Object> outputs = MapUtils.merge(taskRun.getOutputs(), message.getParentTaskRun().getOutputs());
                         Variables variables = variablesService.of(StorageContext.forTask(taskRun), outputs);
                         taskRun = taskRun.withOutputs(variables);
                         taskRun = ExecutableUtils.manageIterations(

@@ -207,7 +207,6 @@ class ExecutionTest {
             null,
             null,
             null,
-            null,
             null
         );
         assertThat(executionNew.getLabels()).containsExactly(new Label("test", "value2"));
