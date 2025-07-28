@@ -2,6 +2,7 @@ package io.kestra.core.models.executions;
 
 import io.kestra.core.models.Label;
 import io.kestra.core.utils.IdUtils;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import io.kestra.core.models.flows.State;
 
@@ -160,5 +161,57 @@ class ExecutionTest {
 
         assertThat(execution.getLabels().size(), is(1));
         assertThat(execution.getLabels().getFirst(), is(new Label("test", "test-value")));
+    }
+
+    @Test
+    void labelsGetDeduplicated() {
+        final List<Label> duplicatedLabels = List.of(
+            new Label("test", "value1"),
+            new Label("test", "value2")
+        );
+
+        final Execution executionWithLabels = Execution.builder()
+            .build()
+            .withLabels(duplicatedLabels);
+        assertThat(executionWithLabels.getLabels()).containsExactly(new Label("test", "value2"));
+
+        final Execution executionBuilder = Execution.builder()
+            .labels(duplicatedLabels)
+            .build();
+        assertThat(executionBuilder.getLabels()).containsExactly(new Label("test", "value2"));
+    }
+
+    @Test
+    @Disabled("Solve label deduplication on instantization")
+    void labelsGetDeduplicatedOnNewInstance() {
+        final List<Label> duplicatedLabels = List.of(
+            new Label("test", "value1"),
+            new Label("test", "value2")
+        );
+
+        final Execution executionNew = new Execution(
+            "foo",
+            "id",
+            "namespace",
+            "flowId",
+            1,
+            Collections.emptyList(),
+            Map.of(),
+            Map.of(),
+            duplicatedLabels,
+            Map.of(),
+            State.of(State.Type.SUCCESS, Collections.emptyList()),
+            "parentId",
+            "originalId",
+            null,
+            false,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+        );
+        assertThat(executionNew.getLabels()).containsExactly(new Label("test", "value2"));
     }
 }

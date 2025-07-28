@@ -1696,7 +1696,10 @@ public class ExecutionController {
             );
         }
 
-        executions.forEach(execution -> setLabels(execution, ListUtils.concat(execution.getLabels(), setLabelsByIds.executionLabels())));
+        executions.forEach(execution -> setLabelsOnTerminatedExecution(
+                execution,
+                Label.deduplicate(ListUtils.concat(execution.getLabels(), setLabelsByIds.executionLabels())))
+        );
         return HttpResponse.ok(BulkResponse.builder().count(executions.size()).build());
     }
 
