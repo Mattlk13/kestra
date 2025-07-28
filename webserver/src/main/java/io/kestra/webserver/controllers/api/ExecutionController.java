@@ -1696,7 +1696,7 @@ public class ExecutionController {
             );
         }
 
-        executions.forEach(execution -> setLabelsOnTerminatedExecution(
+        executions.forEach(execution -> setLabels(
                 execution,
                 Label.deduplicate(ListUtils.concat(execution.getLabels(), setLabelsByIds.executionLabels())))
         );

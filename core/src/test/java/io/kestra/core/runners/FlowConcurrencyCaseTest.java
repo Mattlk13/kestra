@@ -31,6 +31,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.IntStream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -242,9 +243,9 @@ public class FlowConcurrencyCaseTest {
     public void flowConcurrencyWithForEachItem() throws TimeoutException, QueueException, InterruptedException, URISyntaxException, IOException {
         URI file = storageUpload();
         Map<String, Object> inputs = Map.of("file", file.toString(), "batch", 4);
-        Execution forEachItem = runnerUtils.runOneUntilRunning(MAIN_TENANT, "io.kestra.tests", "flow-concurrency-for-each-item", null,
+        Execution forEachItem = runnerUtils.runOneUntilRunning(null, "io.kestra.tests", "flow-concurrency-for-each-item", null,
         (flow, execution1) -> flowIO.readExecutionInputs(flow, execution1, inputs), Duration.ofSeconds(5));
-        assertThat(forEachItem.getState().getCurrent()).isEqualTo(Type.RUNNING);
+        assertThat(forEachItem.getState().getCurrent(), is(State.Type.RUNNING));
 
         Set<String> executionIds = new HashSet<>();
         Flux<Execution> receive = TestsUtils.receive(executionQueue, e -> {
@@ -256,11 +257,11 @@ public class FlowConcurrencyCaseTest {
         // wait a little to be sure there are not too many executions started
         Thread.sleep(500);
 
-        assertThat(executionIds).hasSize(1);
+        assertThat(executionIds, hasSize(1));
         receive.blockLast();
 
         Execution terminated = runnerUtils.awaitExecution(e -> e.getId().equals(forEachItem.getId()) && e.getState().isTerminated(), () -> {}, Duration.ofSeconds(10));
-        assertThat(terminated.getState().getCurrent()).isEqualTo(Type.SUCCESS);
+        assertThat(terminated.getState().getCurrent(), is(State.Type.SUCCESS));
     }
 
     private URI storageUpload() throws URISyntaxException, IOException {
@@ -269,7 +270,7 @@ public class FlowConcurrencyCaseTest {
         Files.write(tempFile.toPath(), content());
 
         return storageInterface.put(
-            MAIN_TENANT,
+            null,
             null,
             new URI("/file/storage/file.txt"),
             new FileInputStream(tempFile)

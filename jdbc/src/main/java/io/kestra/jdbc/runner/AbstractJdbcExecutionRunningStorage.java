@@ -1,7 +1,7 @@
 package io.kestra.jdbc.runner;
 
 import io.kestra.core.models.executions.Execution;
-import io.kestra.core.models.flows.FlowInterface;
+import io.kestra.core.models.flows.Flow;
 import io.kestra.core.runners.ExecutionRunning;
 import io.kestra.core.utils.IdUtils;
 import io.kestra.jdbc.repository.AbstractJdbcRepository;
@@ -32,7 +32,7 @@ public class AbstractJdbcExecutionRunningStorage extends AbstractJdbcRepository 
      * Note: when there is no execution running, there will be no database locks, so multiple calls will return 0.
      * This is only potentially an issue with multiple executor instances when the concurrency limit is set to 1.
      */
-    public ExecutionRunning countThenProcess(FlowInterface flow, BiFunction<DSLContext, Integer, ExecutionRunning> consumer) {
+    public ExecutionRunning countThenProcess(Flow flow, BiFunction<DSLContext, Integer, ExecutionRunning> consumer) {
         return this.jdbcRepository
             .getDslContextWrapper()
             .transactionResult(configuration -> {

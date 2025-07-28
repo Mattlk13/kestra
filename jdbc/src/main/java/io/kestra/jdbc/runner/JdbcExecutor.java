@@ -949,7 +949,7 @@ public class JdbcExecutor implements ExecutorInterface, Service {
         }
 
         ExecutionRunning executionRunning = either.getLeft();
-        FlowInterface flow = flowMetaStore.findByExecution(executionRunning.getExecution()).orElseThrow();
+        Flow flow = flowRepository.findByExecution(executionRunning.getExecution());
         ExecutionRunning processed = executionRunningStorage.countThenProcess(flow, (dslContext, count) -> {
             ExecutionRunning computed = executorService.processExecutionRunning(flow, count, executionRunning);
             if (computed.getConcurrencyState() == ExecutionRunning.ConcurrencyState.RUNNING && !computed.getExecution().getState().isTerminated()) {

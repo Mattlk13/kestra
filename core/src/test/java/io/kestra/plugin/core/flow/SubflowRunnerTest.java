@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.TimeoutException;
 
-import static io.kestra.core.tenant.TenantService.MAIN_TENANT;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @KestraTest(startRunner = true)
@@ -27,7 +26,7 @@ class SubflowRunnerTest {
     @Test
     @LoadFlows({"flows/valids/subflow-inherited-labels-child.yaml", "flows/valids/subflow-inherited-labels-parent.yaml"})
     void inheritedLabelsAreOverridden() throws QueueException, TimeoutException {
-        Execution parentExecution = runnerUtils.runOne(MAIN_TENANT, "io.kestra.tests", "subflow-inherited-labels-parent");
+        Execution parentExecution = runnerUtils.runOne(null, "io.kestra.tests", "subflow-inherited-labels-parent");
 
         assertThat(parentExecution.getLabels()).containsExactlyInAnyOrder(
             new Label(Label.CORRELATION_ID, parentExecution.getId()),
@@ -39,7 +38,7 @@ class SubflowRunnerTest {
 
         assertThat(childExecutionId).isNotBlank();
 
-        Execution childExecution = executionRepository.findById(MAIN_TENANT, childExecutionId).orElseThrow();
+        Execution childExecution = executionRepository.findById(null, childExecutionId).orElseThrow();
 
         assertThat(childExecution.getLabels()).containsExactlyInAnyOrder(
             new Label(Label.CORRELATION_ID, parentExecution.getId()), // parent's correlation ID

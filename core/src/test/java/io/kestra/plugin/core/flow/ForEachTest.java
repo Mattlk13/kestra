@@ -60,6 +60,6 @@ class ForEachTest {
     @Test
     @ExecuteFlow("flows/valids/foreach-nested.yaml")
     void nested(Execution execution) {
-        assertThat(execution.getState().getCurrent()).isEqualTo(State.Type.SUCCESS);
+        assertThat(execution.getState().getCurrent(), is(State.Type.SUCCESS));
     }
 }

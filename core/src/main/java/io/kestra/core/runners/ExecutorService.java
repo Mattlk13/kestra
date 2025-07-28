@@ -95,7 +95,7 @@ public class ExecutorService {
         return this.flowExecutorInterface;
     }
 
-    public ExecutionRunning processExecutionRunning(FlowInterface flow, int runningCount, ExecutionRunning executionRunning) {
+    public ExecutionRunning processExecutionRunning(Flow flow, int runningCount, ExecutionRunning executionRunning) {
         // if concurrency was removed, it can be null as we always get the latest flow definition
         if (flow.getConcurrency() != null && runningCount >= flow.getConcurrency().getLimit()) {
             return switch (flow.getConcurrency().getBehavior()) {
@@ -107,7 +107,6 @@ public class ExecutorService {
                         runningCount
                     );
                     var newExecution = executionRunning.getExecution().withState(State.Type.QUEUED);
-                    metricRegistry.counter(MetricRegistry.METRIC_EXECUTOR_EXECUTION_QUEUED_COUNT, MetricRegistry.METRIC_EXECUTOR_EXECUTION_QUEUED_COUNT_DESCRIPTION, metricRegistry.tags(newExecution)).increment();
                     yield executionRunning
                         .withExecution(newExecution)
                         .withConcurrencyState(ExecutionRunning.ConcurrencyState.QUEUED);

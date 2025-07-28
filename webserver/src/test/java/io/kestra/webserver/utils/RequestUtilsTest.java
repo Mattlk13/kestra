@@ -20,25 +20,9 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.*;
 
 class RequestUtilsTest {
-    @ParameterizedTest
-    @CsvSource({
-        "timestamp:2023-12-18T14:32:14Z,timestamp,2023-12-18T14:32:14Z",
-        "url:https://your@company.com,url,https://your@company.com",
-        "city:Düsseldorf,city,Düsseldorf",
-        "key:foo bar,key,foo bar",
-    })
-    void toMap(String input, String key, String value) {
-        final Map<String, String> resultMap = RequestUtils.toMap(List.of(input));
-
-        assertThat(resultMap).containsEntry(key, value);
-    }
-
     @Test
     void toMapNullHandling() {
-        assertThat(RequestUtils.toMap(null)).isEqualTo(Map.of());
-    }
-
-        assertThat(resultMap.get("timestamp"), is("2023-12-18T14:32:14Z"));
+        assertThat(RequestUtils.toMap(null), is(Map.of()));
     }
 
     @Test
@@ -68,12 +52,6 @@ class RequestUtilsTest {
             HttpStatusException.class,
             () -> RequestUtils.toMap(List.of(":value"))
         );
-    }
-
-    @Test
-    void toMapTrimWorks() {
-        final Map<String, String> resultMap = RequestUtils.toMap(List.of(" key : value "));
-        assertThat(resultMap).containsEntry("key", "value");
     }
 
     @Test

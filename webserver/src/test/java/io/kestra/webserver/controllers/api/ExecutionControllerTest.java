@@ -259,7 +259,7 @@ class ExecutionControllerTest {
 
     @Test
     void duplicatedLabels() {
-        MultipartBody requestBody = createExecutionInputsFlowBody();
+        MultipartBody requestBody = createInputsFlowBody();
 
         // duplicated keys are forbidden
         MutableHttpRequest<MultipartBody> requestNullKey = HttpRequest
