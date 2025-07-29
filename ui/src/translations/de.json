@@ -75,6 +75,7 @@
       "title": "Blueprints"
     },
     "bookmark": "Lesezeichen",
+    "bulk action async warning": "Dies kann einige Augenblicke dauern.",
     "bulk change state": "Sind Sie sicher, dass Sie den Zustand von <code>{executionCount}</code> Ausführung(en) ändern möchten?",
     "bulk delete": "Sind Sie sicher, dass Sie <code>{executionCount}</code> Ausführung(en) löschen möchten?",
     "bulk delete backfills": "{count} Backfill löschen",
@@ -511,16 +512,16 @@
         "contains": "enthält",
         "ends_with": "endet mit",
         "greater_than": "größer als",
+        "greater_than_or_equal_to": "greater than or equal to",
         "in": "im",
         "is": "ist",
         "is_not": "ist nicht",
         "is_one_of": "ist eine von",
         "less_than": "weniger als",
+        "less_than_or_equal_to": "less than or equal to",
         "not_contains": "nicht enthält",
         "not_in": "nicht in",
-        "starts_with": "beginnt mit",
-        "greater_than_or_equal_to": "greater than or equal to",
-        "less_than_or_equal_to": "less than or equal to"
+        "starts_with": "beginnt mit"
       },
       "empty": "Keine Daten.",
       "format": "Geben Sie den Parameter als 'key:value' ein",
@@ -531,6 +532,7 @@
         "aggregation": "Aggregation",
         "child": "Kind",
         "details": "Details",
+        "endDate": "End date",
         "flow": "Flow",
         "labels": "Labels",
         "level": "Log-Ebene",
@@ -540,15 +542,14 @@
         "relative_date": "Relatives Datum",
         "scope": "Umfang",
         "service_type": "Typ",
+        "startDate": "Start date",
         "state": "Zustand",
         "status": "Status",
         "task": "Aufgabe",
         "text": "I'm sorry, but it seems that there is no text provided after \"----------\" for translation. Could you please provide the text you would like me to translate?",
         "trigger_state": "Zustand",
         "type": "Typ",
-        "user": "Benutzer",
-        "startDate": "Start date",
-        "endDate": "End date"
+        "user": "Benutzer"
       },
       "save": {
         "dialog": {

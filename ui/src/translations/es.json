@@ -75,6 +75,7 @@
       "title": "Blueprints"
     },
     "bookmark": "Marcadores",
+    "bulk action async warning": "Esto podría tardar unos momentos.",
     "bulk change state": "¿Está seguro de que desea cambiar el estado de <code>{executionCount}</code> ejecución(es)?",
     "bulk delete": "¿Estás seguro de que quieres eliminar <code>{executionCount}</code> ejecución(es)?",
     "bulk delete backfills": "Eliminar {count} backfill",
@@ -511,16 +512,16 @@
         "contains": "contiene",
         "ends_with": "termina con",
         "greater_than": "mayor que",
+        "greater_than_or_equal_to": "greater than or equal to",
         "in": "en",
         "is": "es",
         "is_not": "no es",
         "is_one_of": "es uno de",
         "less_than": "menos de",
+        "less_than_or_equal_to": "less than or equal to",
         "not_contains": "no contiene",
         "not_in": "no en",
-        "starts_with": "comienza con",
-        "greater_than_or_equal_to": "greater than or equal to",
-        "less_than_or_equal_to": "less than or equal to"
+        "starts_with": "comienza con"
       },
       "empty": "Sin datos.",
       "format": "Escriba el parámetro como 'key:value'",
@@ -531,6 +532,7 @@
         "aggregation": "Agregación",
         "child": "Niño",
         "details": "Detalles",
+        "endDate": "End date",
         "flow": "Flujo",
         "labels": "Etiquetas",
         "level": "Nivel de log",
@@ -540,15 +542,14 @@
         "relative_date": "Fecha relativa",
         "scope": "Ámbito",
         "service_type": "Tipo",
+        "startDate": "Start date",
         "state": "Estado",
         "status": "Estado",
         "task": "Tarea",
         "text": "I'm sorry, but it seems like the text you want me to translate is missing. Could you please provide the text again?",
         "trigger_state": "Estado",
         "type": "Tipo",
-        "user": "Usuario",
-        "startDate": "Start date",
-        "endDate": "End date"
+        "user": "Usuario"
       },
       "save": {
         "dialog": {

@@ -75,6 +75,7 @@
       "title": "Blueprints"
     },
     "bookmark": "Закладки",
+    "bulk action async warning": "Это может занять несколько минут.",
     "bulk change state": "Вы уверены, что хотите изменить состояние выполнения <code>{executionCount}</code>?",
     "bulk delete": "Вы уверены, что хотите удалить <code>{executionCount}</code> выполнение(я)?",
     "bulk delete backfills": "Удалить {count} заполнение",
@@ -511,16 +512,16 @@
         "contains": "содержит",
         "ends_with": "заканчивается на",
         "greater_than": "больше чем",
+        "greater_than_or_equal_to": "greater than or equal to",
         "in": "в",
         "is": "является",
         "is_not": "не является",
         "is_one_of": "является одним из",
         "less_than": "меньше чем",
+        "less_than_or_equal_to": "less than or equal to",
         "not_contains": "не содержит",
         "not_in": "не является одним из",
-        "starts_with": "начинается с",
-        "greater_than_or_equal_to": "greater than or equal to",
-        "less_than_or_equal_to": "less than or equal to"
+        "starts_with": "начинается с"
       },
       "empty": "Нет данных.",
       "format": "Введите параметр в формате 'key:value'",
@@ -531,6 +532,7 @@
         "aggregation": "Агрегация",
         "child": "Дочерний элемент",
         "details": "Детали",
+        "endDate": "End date",
         "flow": "Поток",
         "labels": "Метки",
         "level": "Уровень Log",
@@ -540,15 +542,14 @@
         "relative_date": "Относительная дата",
         "scope": "Область применения",
         "service_type": "Тип",
+        "startDate": "Start date",
         "state": "Состояние",
         "status": "Статус",
         "task": "Задача",
         "text": "I'm sorry, but it seems that the text you want me to translate is missing. Could you please provide the text that needs to be translated?",
         "trigger_state": "Состояние",
         "type": "Тип",
-        "user": "Пользователь",
-        "startDate": "Start date",
-        "endDate": "End date"
+        "user": "Пользователь"
       },
       "save": {
         "dialog": {

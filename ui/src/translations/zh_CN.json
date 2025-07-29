@@ -75,6 +75,7 @@
       "title": "蓝图"
     },
     "bookmark": "书签",
+    "bulk action async warning": "这可能需要一点时间。",
     "bulk change state": "您确定要更改<code>{executionCount}</code>次执行的状态吗？",
     "bulk delete": "确定要删除 <code>{executionCount}</code> 个执行吗？",
     "bulk delete backfills": "删除 {count} 回填",
@@ -511,16 +512,16 @@
         "contains": "包含",
         "ends_with": "以...结束",
         "greater_than": "大于",
+        "greater_than_or_equal_to": "greater than or equal to",
         "in": "在",
         "is": "是",
         "is_not": "不是",
         "is_one_of": "是其中之一",
         "less_than": "小于",
+        "less_than_or_equal_to": "less than or equal to",
         "not_contains": "不包含",
         "not_in": "不在",
-        "starts_with": "以...开始",
-        "greater_than_or_equal_to": "greater than or equal to",
-        "less_than_or_equal_to": "less than or equal to"
+        "starts_with": "以...开始"
       },
       "empty": "无数据。",
       "format": "将参数输入为 'key:value'",
@@ -531,6 +532,7 @@
         "aggregation": "聚合",
         "child": "子节点",
         "details": "详情",
+        "endDate": "End date",
         "flow": "流程",
         "labels": "标签",
         "level": "日志级别",
@@ -540,15 +542,14 @@
         "relative_date": "相对日期",
         "scope": "范围",
         "service_type": "类型",
+        "startDate": "Start date",
         "state": "状态",
         "status": "状态",
         "task": "任务",
         "text": "文本",
         "trigger_state": "状态",
         "type": "类型",
-        "user": "用户",
-        "startDate": "Start date",
-        "endDate": "End date"
+        "user": "用户"
       },
       "save": {
         "dialog": {

@@ -75,6 +75,7 @@
       "title": "Blueprints"
     },
     "bookmark": "बुकमार्क्स",
+    "bulk action async warning": "यह कुछ क्षण लग सकते हैं।",
     "bulk change state": "क्या आप सुनिश्चित हैं कि आप <code>{executionCount}</code> execution(s) की स्थिति बदलना चाहते हैं?",
     "bulk delete": "क्या आप वाकई <code>{executionCount}</code> निष्पादन को हटाना चाहते हैं?",
     "bulk delete backfills": "{count} backfill को हटाएं",
@@ -511,16 +512,16 @@
         "contains": "शामिल है",
         "ends_with": "समाप्त होता है",
         "greater_than": "से अधिक",
+        "greater_than_or_equal_to": "greater than or equal to",
         "in": "में",
         "is": "है",
         "is_not": "नहीं है",
         "is_one_of": "में से एक है",
         "less_than": "से कम",
+        "less_than_or_equal_to": "less than or equal to",
         "not_contains": "नहीं शामिल है",
         "not_in": "में नहीं",
-        "starts_with": "शुरू होता है",
-        "greater_than_or_equal_to": "greater than or equal to",
-        "less_than_or_equal_to": "less than or equal to"
+        "starts_with": "शुरू होता है"
       },
       "empty": "कोई डेटा नहीं।",
       "format": "'key:value' के रूप में पैरामीटर टाइप करें",
@@ -531,6 +532,7 @@
         "aggregation": "संकलन",
         "child": "बच्चा",
         "details": "विवरण",
+        "endDate": "End date",
         "flow": "फ्लो",
         "labels": "लेबल्स",
         "level": "Log स्तर",
@@ -540,15 +542,14 @@
         "relative_date": "सापेक्ष तिथि",
         "scope": "स्कोप",
         "service_type": "प्रकार",
+        "startDate": "Start date",
         "state": "स्थिति",
         "status": "स्थिति",
         "task": "कार्य",
         "text": "मुझे अनुवाद के लिए कोई पाठ नहीं मिला। कृपया अनुवाद के लिए पाठ प्रदान करें।",
         "trigger_state": "स्थिति",
         "type": "प्रकार",
-        "user": "उपयोगकर्ता",
-        "startDate": "Start date",
-        "endDate": "End date"
+        "user": "उपयोगकर्ता"
       },
       "save": {
         "dialog": {

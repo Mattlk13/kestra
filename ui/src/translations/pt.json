@@ -75,6 +75,7 @@
       "title": "Blueprints"
     },
     "bookmark": "Favoritos",
+    "bulk action async warning": "Isso pode levar alguns instantes.",
     "bulk change state": "Tem certeza de que deseja alterar o estado de <code>{executionCount}</code> execução(ões)?",
     "bulk delete": "Tem certeza de que deseja deletar <code>{executionCount}</code> execução(ões)?",
     "bulk delete backfills": "Excluir {count} backfill",
@@ -511,16 +512,16 @@
         "contains": "contém",
         "ends_with": "termina com",
         "greater_than": "maior que",
+        "greater_than_or_equal_to": "greater than or equal to",
         "in": "em",
         "is": "é",
         "is_not": "não é",
         "is_one_of": "é um dos",
         "less_than": "menor que",
+        "less_than_or_equal_to": "less than or equal to",
         "not_contains": "não contém",
         "not_in": "não em",
-        "starts_with": "começa com",
-        "greater_than_or_equal_to": "greater than or equal to",
-        "less_than_or_equal_to": "less than or equal to"
+        "starts_with": "começa com"
       },
       "empty": "Sem dados.",
       "format": "Digite o parâmetro como 'key:value'",
@@ -531,6 +532,7 @@
         "aggregation": "Agregação",
         "child": "Filho",
         "details": "Detalhes",
+        "endDate": "End date",
         "flow": "Fluxo",
         "labels": "Etiquetas",
         "level": "Nível de Log",
@@ -540,15 +542,14 @@
         "relative_date": "Data relativa",
         "scope": "Escopo",
         "service_type": "Tipo",
+        "startDate": "Start date",
         "state": "Estado",
         "status": "Status",
         "task": "Tarefa",
         "text": "Parece que você não forneceu nenhum texto para tradução. Por favor, forneça o texto que deseja que eu traduza para o português.",
         "trigger_state": "Estado",
         "type": "Tipo",
-        "user": "Usuário",
-        "startDate": "Start date",
-        "endDate": "End date"
+        "user": "Usuário"
       },
       "save": {
         "dialog": {

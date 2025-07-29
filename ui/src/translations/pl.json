@@ -75,6 +75,7 @@
       "title": "Blueprints"
     },
     "bookmark": "Zakładki",
+    "bulk action async warning": "To może zająć kilka chwil.",
     "bulk change state": "Czy na pewno chcesz zmienić stan <code>{executionCount}</code> wykonania/wykonań?",
     "bulk delete": "Czy na pewno chcesz usunąć <code>{executionCount}</code> wykonanie(a)?",
     "bulk delete backfills": "Usuń {count} backfill",
@@ -511,16 +512,16 @@
         "contains": "zawiera",
         "ends_with": "kończy się na",
         "greater_than": "większe niż",
+        "greater_than_or_equal_to": "greater than or equal to",
         "in": "w",
         "is": "jest",
         "is_not": "nie jest",
         "is_one_of": "jest jednym z",
         "less_than": "mniej niż",
+        "less_than_or_equal_to": "less than or equal to",
         "not_contains": "nie zawiera",
         "not_in": "nie w",
-        "starts_with": "zaczyna się od",
-        "greater_than_or_equal_to": "greater than or equal to",
-        "less_than_or_equal_to": "less than or equal to"
+        "starts_with": "zaczyna się od"
       },
       "empty": "Brak danych.",
       "format": "Wpisz parametr jako 'key:value'",
@@ -531,6 +532,7 @@
         "aggregation": "Agregacja",
         "child": "Dziecko",
         "details": "Szczegóły",
+        "endDate": "End date",
         "flow": "Flow",
         "labels": "Etykiety",
         "level": "Poziom logowania",
@@ -540,15 +542,14 @@
         "relative_date": "Data względna",
         "scope": "Zakres",
         "service_type": "Typ",
+        "startDate": "Start date",
         "state": "Stan",
         "status": "Status",
         "task": "Zadanie",
         "text": "tekst",
         "trigger_state": "Stan",
         "type": "Typ",
-        "user": "Użytkownik",
-        "startDate": "Start date",
-        "endDate": "End date"
+        "user": "Użytkownik"
       },
       "save": {
         "dialog": {

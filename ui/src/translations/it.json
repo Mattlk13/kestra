@@ -75,6 +75,7 @@
       "title": "Blueprints"
     },
     "bookmark": "Segnalibri",
+    "bulk action async warning": "Questo potrebbe richiedere alcuni istanti.",
     "bulk change state": "Sei sicuro di voler cambiare lo stato di <code>{executionCount}</code> esecuzione/i?",
     "bulk delete": "Sei sicuro di voler eliminare <code>{executionCount}</code> esecuzione/i?",
     "bulk delete backfills": "Elimina {count} backfill",
@@ -511,16 +512,16 @@
         "contains": "contiene",
         "ends_with": "termina con",
         "greater_than": "maggiore di",
+        "greater_than_or_equal_to": "greater than or equal to",
         "in": "nel",
         "is": "è",
         "is_not": "non è",
         "is_one_of": "è uno di",
         "less_than": "minore di",
+        "less_than_or_equal_to": "less than or equal to",
         "not_contains": "non contiene",
         "not_in": "non in",
-        "starts_with": "inizia con",
-        "greater_than_or_equal_to": "greater than or equal to",
-        "less_than_or_equal_to": "less than or equal to"
+        "starts_with": "inizia con"
       },
       "empty": "Nessun dato.",
       "format": "Digita il parametro come 'key:value'",
@@ -531,6 +532,7 @@
         "aggregation": "Aggregazione",
         "child": "Bambino",
         "details": "Dettagli",
+        "endDate": "End date",
         "flow": "Flusso",
         "labels": "Etichette",
         "level": "Livello di Log",
@@ -540,15 +542,14 @@
         "relative_date": "Data relativa",
         "scope": "Ambito",
         "service_type": "Tipo",
+        "startDate": "Start date",
         "state": "Stato",
         "status": "Stato",
         "task": "Compito",
         "text": "I'm sorry, but it seems like the text you want me to translate is missing. Could you please provide the text you would like translated?",
         "trigger_state": "Stato",
         "type": "Tipo",
-        "user": "Utente",
-        "startDate": "Start date",
-        "endDate": "End date"
+        "user": "Utente"
       },
       "save": {
         "dialog": {
