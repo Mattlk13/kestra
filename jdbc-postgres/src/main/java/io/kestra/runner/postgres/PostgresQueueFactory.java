@@ -160,12 +160,4 @@ public class PostgresQueueFactory implements QueueFactoryInterface {
     public QueueInterface<SubflowExecutionEnd> subflowExecutionEnd() {
         return new PostgresQueue<>(SubflowExecutionEnd.class, applicationContext);
     }
-
-    @Override
-    @Singleton
-    @Named(QueueFactoryInterface.EXECUTION_RUNNING_NAMED)
-    @Bean(preDestroy = "close")
-    public QueueInterface<ExecutionRunning> executionRunning() {
-        return new PostgresQueue<>(ExecutionRunning.class, applicationContext);
-    }
 }

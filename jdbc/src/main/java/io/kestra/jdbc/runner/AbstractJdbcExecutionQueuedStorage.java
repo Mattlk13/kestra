@@ -4,7 +4,6 @@ import io.kestra.core.models.executions.Execution;
 import io.kestra.core.runners.ExecutionQueued;
 import io.kestra.core.utils.IdUtils;
 import io.kestra.jdbc.repository.AbstractJdbcRepository;
-import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.impl.DSL;
 
@@ -20,9 +19,9 @@ public abstract class AbstractJdbcExecutionQueuedStorage extends AbstractJdbcRep
         this.jdbcRepository = jdbcRepository;
     }
 
-    public void save(DSLContext dslContext, ExecutionQueued executionQueued) {
+    public void save(ExecutionQueued executionQueued) {
         Map<Field<Object>, Object> fields = this.jdbcRepository.persistFields(executionQueued);
-        this.jdbcRepository.persist(executionQueued, dslContext, fields);
+        this.jdbcRepository.persist(executionQueued, fields);
     }
 
     public void pop(String tenantId, String namespace, String flowId, Consumer<Execution> consumer) {
