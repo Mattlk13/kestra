@@ -87,7 +87,7 @@ jobs:
           fi
 
           if [[ "${{ env.PLUGIN_VERSION }}" == *"-SNAPSHOT" ]]; then
-            echo "plugins=--repositories=https://central.sonatype.com/repository/maven-snapshots/ ${{ matrix.image.plugins }}" >> $GITHUB_OUTPUT;
+            echo "plugins=--repositories=https://central.sonatype.com/repository/maven-snapshots ${{ matrix.image.plugins }}" >> $GITHUB_OUTPUT;
           else
             echo "plugins=${{ matrix.image.plugins }}" >> $GITHUB_OUTPUT
           fi
