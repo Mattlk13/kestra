@@ -188,6 +188,11 @@ export const usePlaygroundStore = defineStore("playground", () => {
         const {nextTasksIds, graph} = await getNextTaskIds(runDownstreamTasks ? undefined : taskId) ?? {};
 
         const {data: execution} = await replayOrTriggerExecution(taskId, runDownstreamTasks ? undefined : nextTasksIds, graph);
+
+        // don't keep taskRunIds from previous executions
+        // because of https://github.com/kestra-io/kestra/issues/10462
+        taskIdToTaskRunIdMap.clear();
+
         executionsStore.execution = execution;
 
         addExecution(execution, graph);
