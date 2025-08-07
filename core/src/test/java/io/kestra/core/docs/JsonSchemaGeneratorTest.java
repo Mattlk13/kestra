@@ -104,8 +104,12 @@ class JsonSchemaGeneratorTest {
             assertThat((String) bash.get("markdownDescription"), containsString("##### Examples"));
             assertThat((String) bash.get("markdownDescription"), containsString("level: DEBUG"));
 
-            var bashType = definitions.get(Log.class.getName());
-            assertThat(bashType, is(notNullValue()));
+            var logType = definitions.get(Log.class.getName());
+            assertThat(logType, is(notNullValue()));
+
+            var requiredWithDefault = definitions.get("io.kestra.core.docs.JsonSchemaGeneratorTest-RequiredWithDefault");
+            assertThat(requiredWithDefault, is(notNullValue()));
+            assertThat((List<String>) requiredWithDefault.get("required"), not(containsInAnyOrder("requiredWithDefault", "anotherRequiredWithDefault")));
 
             var properties = (Map<String, Map<String, Object>>) flow.get("properties");
             var listeners = properties.get("listeners");
@@ -246,7 +250,7 @@ class JsonSchemaGeneratorTest {
     void requiredAreRemovedIfThereIsADefault() {
         Map<String, Object> generate = jsonSchemaGenerator.properties(Task.class, RequiredWithDefault.class);
         assertThat(generate, is(not(nullValue())));
-        assertThat((List<String>) generate.get("required"), not(containsInAnyOrder("requiredWithDefault")));
+        assertThat((List<String>) generate.get("required"), not(containsInAnyOrder("requiredWithDefault", "anotherRequiredWithDefault")));
         assertThat((List<String>) generate.get("required"), containsInAnyOrder("requiredWithNoDefault"));
     }
 
@@ -413,6 +417,11 @@ class JsonSchemaGeneratorTest {
         @NotNull
         @Builder.Default
         private Property<TaskWithEnum.TestClass> requiredWithDefault = Property.of(TaskWithEnum.TestClass.builder().testProperty("test").build());
+
+        @PluginProperty
+        @NotNull
+        @Builder.Default
+        private Property<TaskWithEnum.TestClass> anotherRequiredWithDefault = Property.ofValue(TaskWithEnum.TestClass.builder().testProperty("test2").build());
 
         @PluginProperty
         @NotNull
