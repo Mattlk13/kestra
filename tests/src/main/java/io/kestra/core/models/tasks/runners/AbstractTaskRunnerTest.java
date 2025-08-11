@@ -38,6 +38,10 @@ public abstract class AbstractTaskRunnerTest {
     @Test
     protected void run() throws Exception {
         var runContext = runContext(this.runContextFactory);
+        simpleRun(runContext);
+    }
+
+    private void simpleRun(RunContext runContext) throws Exception {
         var commands = initScriptCommands(runContext);
         Mockito.when(commands.getCommands()).thenReturn(
             Property.of(ScriptService.scriptCommands(List.of("/bin/sh", "-c"), Collections.emptyList(), List.of("echo 'Hello World'")))
@@ -162,6 +166,13 @@ public abstract class AbstractTaskRunnerTest {
         var taskRunner = taskRunner();
         TaskException taskException = assertThrows(TaskException.class, () -> taskRunner.run(runContext, commands, Collections.emptyList()));
         assertThat(taskException.getLogConsumer().getOutputs().get("logOutput"), is("Hello World"));
+    }
+
+    @Test
+    protected void canWorkMultipleTimeInSameWdir() throws Exception {
+        var runContext = runContext(this.runContextFactory);
+        simpleRun(runContext);
+        simpleRun(runContext);
     }
 
     protected RunContext runContext(RunContextFactory runContextFactory) {
