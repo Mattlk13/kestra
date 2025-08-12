@@ -1,20 +1,28 @@
 name: 'Load Kestra Plugin List'
-description: 'Composite action to load list of plugins'
+description: 'Composite action to load list of plugins (from .plugins) and output repositories and GA coordinates'
 inputs:
   plugin-version:
-    description: "Kestra version"
+    description: "Kestra version placeholder to replace LATEST in GA coordinates"
     default: 'LATEST'
     required: true
   plugin-file:
-    description: "File of the plugins"
+    description: "Path to the .plugins file"
     default: './.plugins'
     required: true
+  include:
+    description: "Regex include filter applied on repository names"
+    required: false
+    default: ''
+  exclude:
+    description: "Regex exclude filter applied on repository names"
+    required: false
+    default: ''
 outputs:
   plugins:
-    description: "List of all Kestra plugins"
+    description: "Space-separated list of GA coordinates (group:artifact:version)"
     value: ${{ steps.plugins.outputs.plugins }}
   repositories:
-    description: "List of all Kestra repositories of plugins"
+    description: "Space-separated list of repository names (e.g., plugin-ai plugin-airbyte)"
     value: ${{ steps.plugins.outputs.repositories }}
 runs:
   using: composite
@@ -23,7 +31,35 @@ runs:
       id: plugins
       shell: bash
       run: |
-        PLUGINS=$([ -f ${{ inputs.plugin-file }} ] && cat ${{ inputs.plugin-file }} | grep "io\\.kestra\\." | sed -e '/#/s/^.//' | sed -e "s/LATEST/${{ inputs.plugin-version }}/g" | cut -d':' -f2- | xargs || echo '');
-        REPOSITORIES=$([ -f ${{ inputs.plugin-file }} ] && cat ${{ inputs.plugin-file }} | grep "io\\.kestra\\." | sed -e '/#/s/^.//' | cut -d':' -f1 | uniq | sort | xargs || echo '')
-        echo "plugins=$PLUGINS" >> $GITHUB_OUTPUT
-        echo "repositories=$REPOSITORIES" >> $GITHUB_OUTPUT
+        set -euo pipefail
+
+        # Read only uncommented lines that contain io.kestra.* coordinates.
+        # This avoids the previous approach that 'uncommented' lines by stripping the first char after '#'.
+        if [[ -f "${{ inputs.plugin-file }}" ]]; then
+          ENABLED_LINES=$(grep -E '^\s*[^#]' "${{ inputs.plugin-file }}" | grep "io\.kestra\." || true)
+        else
+          ENABLED_LINES=""
+        fi
+
+        # Build GA coordinates by replacing LATEST with the provided plugin-version (if present)
+        PLUGINS=$(echo "$ENABLED_LINES" \
+          | sed -e "s/LATEST/${{ inputs.plugin-version }}/g" \
+          | cut -d':' -f2- \
+          | xargs || echo '')
+
+        # Extract repository names (first column), unique + sorted
+        REPOSITORIES=$(echo "$ENABLED_LINES" \
+          | cut -d':' -f1 \
+          | uniq | sort \
+          | xargs || echo '')
+
+        # Apply include/exclude filters if provided (POSIX ERE via grep -E)
+        if [ -n "${{ inputs.include }}" ] && [ -n "$REPOSITORIES" ]; then
+          REPOSITORIES=$(echo "$REPOSITORIES" | xargs -n1 | grep -E "${{ inputs.include }}" | xargs || true)
+        fi
+        if [ -n "${{ inputs.exclude }}" ] && [ -n "$REPOSITORIES" ]; then
+          REPOSITORIES=$(echo "$REPOSITORIES" | xargs -n1 | grep -Ev "${{ inputs.exclude }}" | xargs || true)
+        fi
+
+        echo "plugins=$PLUGINS" >> "$GITHUB_OUTPUT"
+        echo "repositories=$REPOSITORIES" >> "$GITHUB_OUTPUT"

@@ -15,24 +15,111 @@ on:
         description: 'Use DRY_RUN mode'
         required: false
         default: 'false'
+        type: choice
+        options: ['false', 'true']
+      repositories:
+        description: 'Space-separated repo names to release (e.g. "plugin-ai plugin-airbyte"). If empty, uses .plugins.'
+        required: false
+        type: string
+      include:
+        description: 'Regex include filter on repo names (applied when using .plugins)'
+        required: false
+        type: string
+      exclude:
+        description: 'Regex exclude filter on repo names (applied when using .plugins)'
+        required: false
+        type: string
+      onlyChanged:
+        description: 'Release only repos changed since last tag (or sinceTag if provided)'
+        required: false
+        default: 'false'
+        type: choice
+        options: ['false', 'true']
+      sinceTag:
+        description: 'Optional tag used as base for change detection (e.g. v0.24.0)'
+        required: false
+        type: string
+
 jobs:
-  release:
-    name: Release plugins
+  prepare:
+    name: Compute target repositories
     runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.compute.outputs.matrix }}
     steps:
-      # Checkout
+      # Checkout the current repo (assumed to contain .plugins and the workflow)
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      # Checkout GitHub Actions
+      # Checkout the kestra-io/actions repo (for setup-build, etc.)
       - uses: actions/checkout@v4
         with:
           repository: kestra-io/actions
           path: actions
           ref: main
 
-      # Setup build
+      - name: Install tools
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      # Load repositories from .plugins (only uncommented lines) with optional include/exclude filters
+      - name: Get Plugins List
+        id: plugins-list
+        uses: ./.github/actions/plugins-list
+        with:
+          plugin-version: 'LATEST'
+          plugin-file: './.plugins'
+          include: ${{ github.event.inputs.include }}
+          exclude: ${{ github.event.inputs.exclude }}
+
+      # Finalize repo list:
+      # - If "repositories" input is provided, it takes precedence.
+      # - Otherwise, use the filtered list from the composite action.
+      - name: Build repo list
+        id: build-list
+        shell: bash
+        env:
+          INP_REPOS: ${{ github.event.inputs.repositories }}
+        run: |
+          set -euo pipefail
+          if [ -n "${INP_REPOS:-}" ]; then
+            LIST="${INP_REPOS}"
+          else
+            LIST="${{ steps.plugins-list.outputs.repositories }}"
+          fi
+          # Convert to JSON array for matrix
+          arr_json=$(printf '%s\n' $LIST | jq -R . | jq -s .)
+          echo "list=$LIST" >> "$GITHUB_OUTPUT"
+          echo "arr_json=$arr_json" >> "$GITHUB_OUTPUT"
+
+      - name: Compute matrix
+        id: compute
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "matrix={\"repo\": ${{ steps.build-list.outputs.arr_json }}}" >> "$GITHUB_OUTPUT"
+
+  release:
+    name: Release ${{ matrix.repo }}
+    needs: [prepare]
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.prepare.outputs.matrix) }}
+    steps:
+      # Checkout the current repo (for dev-tools/release-plugins.sh)
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Checkout the kestra-io/actions repo (for setup-build, etc.)
+      - uses: actions/checkout@v4
+        with:
+          repository: kestra-io/actions
+          path: actions
+          ref: main
+
+      # Build toolchain used by plugin builds
       - uses: ./actions/.github/actions/setup-build
         id: build
         with:
@@ -41,42 +128,45 @@ jobs:
           python-enabled: true
           caches-enabled: true
 
-      # Get Plugins List
-      - name: Get Plugins List
-        uses: ./.github/actions/plugins-list
-        id: plugins-list
-        with:
-          plugin-version: 'LATEST'
-
-      - name: 'Configure Git'
+      - name: Configure Git
         run: |
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
 
-      # Execute
       - name: Run Gradle Release
         if: ${{ github.event.inputs.dryRun == 'false' }}
         env:
           GITHUB_PAT: ${{ secrets.GH_PERSONAL_TOKEN }}
         run: |
-          chmod +x ./dev-tools/release-plugins.sh;
-          
-          ./dev-tools/release-plugins.sh \
-          --release-version=${{github.event.inputs.releaseVersion}} \
-          --next-version=${{github.event.inputs.nextVersion}} \
-          --yes \
-           ${{ steps.plugins-list.outputs.repositories }}
+          chmod +x ./dev-tools/release-plugins.sh
+          ARGS=()
+          ARGS+=(--release-version="${{ github.event.inputs.releaseVersion }}")
+          ARGS+=(--next-version="${{ github.event.inputs.nextVersion }}")
+          ARGS+=(--yes)
+          if [ "${{ github.event.inputs.onlyChanged }}" = "true" ]; then
+            ARGS+=(--only-changed)
+          fi
+          if [ -n "${{ github.event.inputs.sinceTag }}" ]; then
+            ARGS+=(--since-tag="${{ github.event.inputs.sinceTag }}")
+          fi
+          ./dev-tools/release-plugins.sh "${ARGS[@]}" "${{ matrix.repo }}"
 
+      # Dry-run release
       - name: Run Gradle Release (DRY_RUN)
         if: ${{ github.event.inputs.dryRun == 'true' }}
         env:
           GITHUB_PAT: ${{ secrets.GH_PERSONAL_TOKEN }}
         run: |
-          chmod +x ./dev-tools/release-plugins.sh;
-          
-          ./dev-tools/release-plugins.sh \
-          --release-version=${{github.event.inputs.releaseVersion}} \
-          --next-version=${{github.event.inputs.nextVersion}} \
-          --dry-run \
-          --yes \
-          ${{ steps.plugins-list.outputs.repositories }}
+          chmod +x ./dev-tools/release-plugins.sh
+          ARGS=()
+          ARGS+=(--release-version="${{ github.event.inputs.releaseVersion }}")
+          ARGS+=(--next-version="${{ github.event.inputs.nextVersion }}")
+          ARGS+=(--dry-run)
+          ARGS+=(--yes)
+          if [ "${{ github.event.inputs.onlyChanged }}" = "true" ]; then
+            ARGS+=(--only-changed)
+          fi
+          if [ -n "${{ github.event.inputs.sinceTag }}" ]; then
+            ARGS+=(--since-tag="${{ github.event.inputs.sinceTag }}")
+          fi
+          ./dev-tools/release-plugins.sh "${ARGS[@]}" "${{ matrix.repo }}"
