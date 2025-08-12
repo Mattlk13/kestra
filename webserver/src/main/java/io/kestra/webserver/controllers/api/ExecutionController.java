@@ -1390,9 +1390,7 @@ public class ExecutionController {
                 } catch (QueueException e) {
                     sink.error(e);
                 }
-            })
-            // need to consume the inputs in case of error
-            .doOnError(t -> Flux.from(inputs).subscribeOn(Schedulers.boundedElastic()).blockLast());
+            });
     }
 
     protected Pause.Resumed createResumed() {
