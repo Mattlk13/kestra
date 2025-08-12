@@ -334,14 +334,27 @@
                 });
 
                 if (this.input) {
-                    this.editor.addCommand(KeyMod.CtrlCmd | KeyCode.KeyH, () => {});
-                    this.editor.addCommand(KeyCode.F1, () => {});
+                    this.editor.addAction({
+                        id: "prevent-ctrl-h",
+                        label: "Prevent CTRL + H",
+                        keybindings: [KeyMod.CtrlCmd | KeyCode.KeyH],
+                        run: () => {}
+                    });
+
+                    this.editor.addAction({
+                        id: "prevent-f1",
+                        label: "Prevent F1",
+                        keybindings: [KeyCode.F1],
+                        run: () => {}
+                    });
 
                     if (!this.readOnly) {
-                        this.editor.addCommand(
-                            KeyMod.CtrlCmd | KeyCode.KeyF,
-                            () => {},
-                        );
+                        this.editor.addAction({
+                            id: "prevent-ctrl-f",
+                            label: "Prevent CTRL + F",
+                            keybindings: [KeyMod.CtrlCmd | KeyCode.KeyF],
+                            run: () => {}
+                        });
                     }
                 }
 
@@ -501,183 +514,183 @@
 </script>
 
 <style scoped lang="scss">
-@import "../code/styles/code.scss";
+    @import "../code/styles/code.scss";
 </style>
 
 <style lang="scss">
-@import "@kestra-io/ui-libs/src/scss/color-palette.scss";
-@import "../../styles/layout/root-dark.scss";
+    @import "@kestra-io/ui-libs/src/scss/color-palette.scss";
+    @import "../../styles/layout/root-dark.scss";
 
-:not(.namespace-defaults, .el-drawer__body) > .ks-editor {
-    flex-direction: column;
-    height: 100%;
-}
-
-.el-form .ks-editor {
-    display: flex;
-    width: 100%;
-}
-
-.ks-editor {
-    display: flex;
-
-    .top-nav {
-        background-color: var(--ks-background-card);
-        padding: 0.5rem;
-        border-radius: var(--bs-border-radius-lg);
-        border-bottom-left-radius: 0;
-        border-bottom-right-radius: 0;
-
-        html.dark & {
-            background-color: var(--bs-gray-100);
-        }
+    :not(.namespace-defaults, .el-drawer__body) > .ks-editor {
+        flex-direction: column;
+        height: 100%;
     }
 
-    .editor-absolute-container {
-        position: absolute;
-        top: 8px;
-        right: 20px;
-        z-index: 10;
-        color: var(--ks-content-secondary);
-        cursor: pointer;
-    }
-
-    .editor-absolute-container > * {
-        pointer-events: auto;
-    }
-
-    .editor-container {
+    .el-form .ks-editor {
         display: flex;
-        flex-grow: 1;
+        width: 100%;
+    }
 
-        &.single-line {
-            min-height: var(--el-component-size);
-            padding: 1px 11px;
-            background-color: var(
-                --el-input-bg-color,
-                var(--el-fill-color-blank)
-            );
-            border-radius: var(
-                --el-input-border-radius,
-                var(--el-border-radius-base)
-            );
-            transition: var(--el-transition-box-shadow);
-            box-shadow: 0 0 0 1px var(--ks-border-primary) inset;
-            padding-top: 7px;
+    .ks-editor {
+        display: flex;
 
-            &.custom-dark-vs-theme {
-                background-color: var(--ks-background-input);
-            }
+        .top-nav {
+            background-color: var(--ks-background-card);
+            padding: 0.5rem;
+            border-radius: var(--bs-border-radius-lg);
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
 
-            &.theme-light {
-                background-color: $base-white;
+            html.dark & {
+                background-color: var(--bs-gray-100);
             }
         }
 
-        .placeholder {
+        .editor-absolute-container {
             position: absolute;
-            top: -3px;
-            overflow: hidden;
-            padding-left: inherit;
-            padding-right: inherit;
-            cursor: text;
-            user-select: none;
-            color: var(--ks-content-inactive);
+            top: 8px;
+            right: 20px;
+            z-index: 10;
+            color: var(--ks-content-secondary);
+            cursor: pointer;
         }
 
-        .editor-wrapper {
-            min-width: 75%;
-            width: 100%;
+        .editor-absolute-container > * {
+            pointer-events: auto;
+        }
 
-            .monaco-hover-content {
-                h4 {
-                    font-size: var(--font-size-base);
-                    font-weight: bold;
-                    line-height: var(--bs-body-line-height);
+        .editor-container {
+            display: flex;
+            flex-grow: 1;
+
+            &.single-line {
+                min-height: var(--el-component-size);
+                padding: 1px 11px;
+                background-color: var(
+                        --el-input-bg-color,
+                        var(--el-fill-color-blank)
+                );
+                border-radius: var(
+                        --el-input-border-radius,
+                        var(--el-border-radius-base)
+                );
+                transition: var(--el-transition-box-shadow);
+                box-shadow: 0 0 0 1px var(--ks-border-primary) inset;
+                padding-top: 7px;
+
+                &.custom-dark-vs-theme {
+                    background-color: var(--ks-background-input);
                 }
 
-                p {
-                    margin-bottom: 0.5rem;
+                &.theme-light {
+                    background-color: $base-white;
+                }
+            }
 
-                    &:last-child {
-                        display: none;
+            .placeholder {
+                position: absolute;
+                top: -3px;
+                overflow: hidden;
+                padding-left: inherit;
+                padding-right: inherit;
+                cursor: text;
+                user-select: none;
+                color: var(--ks-content-inactive);
+            }
+
+            .editor-wrapper {
+                min-width: 75%;
+                width: 100%;
+
+                .monaco-hover-content {
+                    h4 {
+                        font-size: var(--font-size-base);
+                        font-weight: bold;
+                        line-height: var(--bs-body-line-height);
+                    }
+
+                    p {
+                        margin-bottom: 0.5rem;
+
+                        &:last-child {
+                            display: none;
+                        }
+                    }
+
+                    *:nth-last-child(2n) {
+                        margin-bottom: 0;
                     }
                 }
+            }
 
-                *:nth-last-child(2n) {
-                    margin-bottom: 0;
+            .bottom-right {
+                bottom: 0px;
+                right: 0px;
+
+                ul {
+                    display: flex;
+                    list-style: none;
+                    padding: 0;
+                    margin: 0;
+                    //gap: .5rem;
                 }
             }
         }
+    }
 
-        .bottom-right {
-            bottom: 0px;
-            right: 0px;
+    .custom-dark-vs-theme {
+        .monaco-editor,
+        .monaco-editor-background {
+            outline: none;
+            background-color: var(--ks-background-input);
+            --vscode-editor-background: var(--ks-background-input);
+            --vscode-breadcrumb-background: var(--ks-background-input);
+            --vscode-editorGutter-background: var(--ks-background-input);
+        }
 
-            ul {
-                display: flex;
-                list-style: none;
-                padding: 0;
-                margin: 0;
-                //gap: .5rem;
+        .monaco-editor .margin {
+            background-color: var(--ks-background-input);
+            --vscode-editorGutter-background: var(--ks-background-input);
+            --vscode-editorLineNumber-activeForeground: var(--ks-content-secondary);
+            --vscode-editorLineNumber-foreground: var(--ks-content-secondary);
+            --vscode-editorLineNumber-rangeHighlightBackground: var(--ks-content-secondary);
+        }
+    }
+
+    .highlight-text {
+        cursor: pointer;
+        font-weight: 700;
+        box-shadow: 0 19px 44px rgba(157, 29, 236, 0.31);
+
+        html.dark & {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+    }
+
+    .highlight-pebble {
+        color: #977100 !important;
+
+        html.dark & {
+            color: #ffca16 !important;
+        }
+    }
+
+    .disable-text {
+        color: var(--ks-content-inactive) !important;
+    }
+
+    div.img {
+        min-height: 130px;
+        height: 100%;
+
+        &.get-started {
+            background: url("../../assets/onboarding/onboarding-doc-light.svg")
+            no-repeat center;
+
+            html.dark & {
+                background: url("../../assets/onboarding/onboarding-doc-dark.svg")
+                no-repeat center;
             }
         }
     }
-}
-
-.custom-dark-vs-theme {
-    .monaco-editor,
-    .monaco-editor-background {
-        outline: none;
-        background-color: var(--ks-background-input);
-        --vscode-editor-background: var(--ks-background-input);
-        --vscode-breadcrumb-background: var(--ks-background-input);
-        --vscode-editorGutter-background: var(--ks-background-input);
-    }
-
-    .monaco-editor .margin {
-        background-color: var(--ks-background-input);
-        --vscode-editorGutter-background: var(--ks-background-input);
-        --vscode-editorLineNumber-activeForeground: var(--ks-content-secondary);
-        --vscode-editorLineNumber-foreground: var(--ks-content-secondary);
-        --vscode-editorLineNumber-rangeHighlightBackground: var(--ks-content-secondary);
-    }
-}
-
-.highlight-text {
-    cursor: pointer;
-    font-weight: 700;
-    box-shadow: 0 19px 44px rgba(157, 29, 236, 0.31);
-
-    html.dark & {
-        background-color: rgba(255, 255, 255, 0.2);
-    }
-}
-
-.highlight-pebble {
-    color: #977100 !important;
-
-    html.dark & {
-        color: #ffca16 !important;
-    }
-}
-
-.disable-text {
-    color: var(--ks-content-inactive) !important;
-}
-
-div.img {
-    min-height: 130px;
-    height: 100%;
-
-    &.get-started {
-        background: url("../../assets/onboarding/onboarding-doc-light.svg")
-            no-repeat center;
-
-        html.dark & {
-            background: url("../../assets/onboarding/onboarding-doc-dark.svg")
-                no-repeat center;
-        }
-    }
-}
 </style>

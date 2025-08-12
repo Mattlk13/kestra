@@ -72,7 +72,7 @@
     import {computed, getCurrentInstance, ref, Ref, watch} from "vue";
     import Utils, {useTheme} from "../../utils/utils";
     import {Buttons, Property, Shown} from "./utils/types";
-    import {editor} from "monaco-editor/esm/vs/editor/editor.api";
+    import * as monaco from "monaco-editor";
     import Items from "./segments/Items.vue";
     import {cssVariable} from "@kestra-io/ui-libs";
     import {LocationQuery, useRoute, useRouter} from "vue-router";
@@ -370,7 +370,7 @@
     };
 
     const theme = useTheme();
-    const themeComputed: Ref<Omit<Partial<editor.IStandaloneThemeData>, "base"> & { base: ThemeBase }> = ref({
+    const themeComputed: Ref<Omit<Partial<monaco.editor.IStandaloneThemeData>, "base"> & { base: ThemeBase }> = ref({
         base: Utils.getTheme()!,
         colors: {
             "editor.background": cssVariable("--ks-background-input")!
@@ -392,7 +392,7 @@
 
     }, {immediate: true});
 
-    const options: editor.IStandaloneEditorConstructionOptions = {
+    const options: monaco.editor.IStandaloneEditorConstructionOptions = {
         lineNumbers: "off",
         folding: false,
         renderLineHighlight: "none",
@@ -436,52 +436,87 @@
 
     const monacoEditor = ref<typeof MonacoEditor>();
 
-    const editorDidMount = (mountedEditor: editor.IStandaloneCodeEditor) => {
-        mountedEditor.onDidContentSizeChange((e) => {
-            if (monacoEditor.value === undefined) {
-                return;
-            }
-            monacoEditor.value.$el.style.height =
-                e.contentHeight + "px";
-        });
-
-        mountedEditor.onDidChangeModelContent(e => {
-            if (e.changes.length === 1 && (e.changes[0].text === " " || e.changes[0].text === "\n")) {
-                if (mountedEditor.getModel()?.getValue().charAt(e.changes[0].rangeOffset - 1) === ",") {
-                    mountedEditor.executeEdits("", [
-                        {
-                            range: {
-                                ...e.changes[0].range,
-                                startColumn: e.changes[0].range.startColumn - 1,
-                                endColumn: e.changes[0].range.startColumn
-                            },
-                            text: "",
-                            forceMoveMarkers: true
-                        }
-                    ]);
-                }
-            }
-        });
-    };
-
-    watchDebounced(filterQueryString, () => {
+    const updateQuery = () => {
         const newQuery = {
             ...Object.fromEntries(queryParamsToKeep.value.map(key => {
                 return [
                     key,
                     route.query[key]
-                ];
+                ]
             })),
             ...filterQueryString.value
         };
         if (_isEqual(route.query, newQuery)) {
+            props.buttons.refresh?.callback?.();
             return; // Skip if the query hasn't changed
         }
         skipRouteWatcherOnce.value = true;
         router.push({
             query: newQuery
         });
-    }, {immediate: true, debounce: 1000});
+    };
+
+    const editorDidMount = (mountedEditor: monaco.editor.IStandaloneCodeEditor) => {        mountedEditor.onDidContentSizeChange((e) => {
+                                                                                                if (monacoEditor.value === undefined) {
+                                                                                                    return;
+                                                                                                }
+                                                                                                monacoEditor.value.$el.style.height =
+                                                                                                    e.contentHeight + "px";
+                                                                                            });
+
+                                                                                            mountedEditor.addAction({
+                                                                                                id: "accept_kestra_filter",
+                                                                                                label: "Accept Kestra Filter",
+                                                                                                keybindingContext: "!suggestWidgetVisible",
+                                                                                                keybindings: [monaco.KeyCode.Enter],
+                                                                                                run: () => {
+                                                                                                    const model = mountedEditor.getModel();
+                                                                                                    if (!model) return;
+                                                                                                    const currentValue = model.getValue();
+                                                                                                    if (currentValue.trim().length > 0) {
+                                                                                                        const position = mountedEditor.getPosition();
+                                                                                                        const endPosition = model.getPositionAt(currentValue.length);
+                                                                                                        if (
+                                                                                                            position &&
+                                                                                                            position.lineNumber === endPosition.lineNumber &&
+                                                                                                            position.column === endPosition.column &&
+                                                                                                            !currentValue.endsWith(" ")
+                                                                                                        ) {
+                                                                                                            mountedEditor.executeEdits("", [
+                                                                                                                {
+                                                                                                                    range: new monaco.Range(position.lineNumber, position.column, position.lineNumber, position.column),
+                                                                                                                    text: " ",
+                                                                                                                    forceMoveMarkers: true
+                                                                                                                }
+                                                                                                            ]);
+
+                                                                                                            mountedEditor.trigger("enterPressed", "editor.action.triggerSuggest", {});
+                                                                                                        }
+                                                                                                    }
+                                                                                                    updateQuery();
+                                                                                                }
+                                                                                            });
+
+                                                                                            mountedEditor.onDidChangeModelContent(e => {
+                                                                                                if (e.changes.length === 1 && (e.changes[0].text === " " || e.changes[0].text === "\n")) {
+                                                                                                    if (mountedEditor.getModel()?.getValue().charAt(e.changes[0].rangeOffset - 1) === ",") {
+                                                                                                        mountedEditor.executeEdits("", [
+                                                                                                            {
+                                                                                                                range: {
+                                                                                                                    ...e.changes[0].range,
+                                                                                                                    startColumn: e.changes[0].range.startColumn - 1,
+                                                                                                                    endColumn: e.changes[0].range.startColumn
+                                                                                                                },
+                                                                                                                text: "",
+                                                                                                                forceMoveMarkers: true
+                                                                                                            }
+                                                                                                        ]);
+                                                                                                    }
+                                                                                                }
+                                                                                            });
+    };
+
+    watchDebounced(filterQueryString, updateQuery, {immediate: true, debounce: 1000});
 </script>
 
 <style lang="scss" scoped>
@@ -495,18 +530,18 @@
         border-bottom-right-radius: var(--el-border-radius-base);
         min-width: 0;
 
-        .mtk25 {
+        .mtk25, .mtk28 {
             background-color: var(--ks-badge-background);
             padding: 2px 6px;
             border-radius: var(--el-border-radius-base);
 
-            &:has(+ .mtk25) {
+            &:has(+ .mtk25), &:has(+ .mtk28) {
                 padding-right: 0;
                 border-top-right-radius: 0;
                 border-bottom-right-radius: 0;
             }
 
-            + .mtk25 {
+            + .mtk25, + .mtk28 {
                 padding-left: 0;
                 border-top-left-radius: 0;
                 border-bottom-left-radius: 0;
