@@ -1,7 +1,12 @@
 package io.kestra.webserver.controllers.api;
 
 import io.kestra.core.junit.annotations.KestraTest;
+import io.kestra.core.models.executions.Execution;
 import io.kestra.core.models.executions.LogEntry;
+import io.kestra.core.models.executions.TaskRun;
+import io.kestra.core.models.executions.TaskRunAttempt;
+import io.kestra.core.models.flows.State;
+import io.kestra.core.repositories.ExecutionRepositoryInterface;
 import io.kestra.core.repositories.LogRepositoryInterface;
 import io.kestra.core.utils.IdUtils;
 import io.kestra.jdbc.JdbcTestUtils;
@@ -19,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.event.Level;
 
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 
 import static io.micronaut.http.HttpRequest.GET;
@@ -29,6 +35,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @KestraTest
 class LogControllerTest {
+
+    @Inject
+    private ExecutionRepositoryInterface executionRepository;
 
     @Inject
     private LogRepositoryInterface logRepository;
@@ -113,6 +122,25 @@ class LogControllerTest {
     @Test
     void download() {
         LogEntry log1 = logEntry(Level.INFO);
+        executionRepository.save(Execution.builder()
+            .id(log1.getExecutionId())
+            .namespace("io.kestra.unittest")
+            .flowId("full")
+            .flowRevision(1)
+            .state(new State().withState(State.Type.RUNNING).withState(State.Type.SUCCESS))
+            .taskRunList(Collections.singletonList(
+                TaskRun.builder()
+                    .id(IdUtils.create())
+                    .namespace("io.kestra.unittest")
+                    .flowId("full")
+                    .state(new State().withState(State.Type.RUNNING).withState(State.Type.SUCCESS))
+                    .attempts(Collections.singletonList(
+                        TaskRunAttempt.builder()
+                            .build()
+                    ))
+                    .build()
+            ))
+            .build());
         LogEntry log2 = log1.toBuilder().message("another message").build();
         LogEntry log3 = logEntry(Level.DEBUG);
         logRepository.save(log1);

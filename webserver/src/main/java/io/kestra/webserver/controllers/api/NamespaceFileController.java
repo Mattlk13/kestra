@@ -6,8 +6,8 @@ import io.kestra.core.storages.NamespaceFile;
 import io.kestra.core.storages.StorageInterface;
 import io.kestra.core.tenant.TenantService;
 import io.kestra.core.utils.Rethrow;
-import io.kestra.core.utils.WindowsUtils;
 import io.micronaut.core.annotation.Nullable;
+import io.micronaut.http.HttpHeaders;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.*;
@@ -69,7 +69,7 @@ public class NamespaceFileController {
     @ExecuteOn(TaskExecutors.IO)
     @Get(uri = "{namespace}/files", produces = MediaType.APPLICATION_OCTET_STREAM)
     @Operation(tags = {"Files"}, summary = "Get namespace file content")
-    public StreamedFile file(
+    public HttpResponse<StreamedFile> file(
         @Parameter(description = "The namespace id") @PathVariable String namespace,
         @Parameter(description = "The internal storage uri") @QueryValue String path
     ) throws IOException, URISyntaxException {
@@ -80,7 +80,7 @@ public class NamespaceFileController {
         forbiddenPathsGuard(encodedPath);
 
         InputStream fileHandler = storageInterface.get(tenantService.resolveTenant(), namespace, NamespaceFile.of(namespace, encodedPath).uri());
-        return new StreamedFile(fileHandler, MediaType.APPLICATION_OCTET_STREAM_TYPE);
+        return HttpResponse.ok(new StreamedFile(fileHandler, MediaType.APPLICATION_OCTET_STREAM_TYPE)).header(HttpHeaders.CACHE_CONTROL, "no-cache");
     }
 
     @ExecuteOn(TaskExecutors.IO)
@@ -206,7 +206,7 @@ public class NamespaceFileController {
     @Operation(tags = {"Files"}, summary = "Export namespace files as a ZIP")
     public HttpResponse<byte[]> export(
         @Parameter(description = "The namespace id") @PathVariable String namespace
-        ) throws IOException {
+    ) throws IOException {
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
              ZipOutputStream archive = new ZipOutputStream(bos)) {
 
