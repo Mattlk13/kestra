@@ -21,7 +21,6 @@
             }"
             :dashboards="{shown: route.name === 'home'}"
             @dashboard="(value) => load(value)"
-            :key="chartSectionKey"
         />
     </section>
 
@@ -29,7 +28,7 @@
 </template>
 
 <script setup>
-    import {computed, onBeforeMount, ref} from "vue";
+    import {computed, nextTick, onBeforeMount, ref} from "vue";
     import {useRoute, useRouter} from "vue-router";
     import {useStore} from "vuex";
     import {useI18n} from "vue-i18n";
@@ -48,7 +47,6 @@
     import YAML_MAIN from "../../assets/dashboard/default_main_definition.yaml?raw";
     import YAML_FLOW from "../../assets/dashboard/default_flow_definition.yaml?raw";
     import YAML_NAMESPACE from "../../assets/dashboard/default_namespace_definition.yaml?raw";
-    import Utils from "../../utils/utils.js";
 
     const router = useRouter();
     const route = useRoute();
@@ -77,19 +75,18 @@
 
     const dashboard = ref({});
     const charts = ref([]);
-    // We use a key to force re-rendering of the ChartsSection when the refresh button is clicked
-    const chartSectionKey = ref(Utils.uid());
 
     const loadCharts = async (allCharts) => {
         charts.value = [];
-        for (const chart of allCharts) {
-            charts.value.push({...chart, content: yaml.stringify(chart), raw: chart});
-        }
+        await nextTick(() => {
+            for (const chart of allCharts) {
+                charts.value.push({...chart, content: yaml.stringify(chart), raw: chart});
+            }
+        });
     };
 
     const refresh = () => {
-        chartSectionKey.value = Utils.uid();
-        loadCharts();
+        loadCharts(dashboard.value.charts);
     }
 
     const load = async (id = "default", defaultYAML = YAML_MAIN) => {

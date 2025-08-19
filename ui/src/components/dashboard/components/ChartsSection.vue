@@ -2,7 +2,7 @@
     <section id="charts" :class="fullSize ? '' : 'charts-padding'">
         <el-row :gutter="16">
             <el-col
-                v-for="(chart, index) in props.charts"
+                v-for="(chart, index) in charts"
                 :key="`${chart.id}__${index}`"
                 :xs="24"
                 :sm="(chart.chartOptions?.width || 6) * 4"
@@ -25,7 +25,7 @@
                             :default="route.params.id === 'default'"
                             :source="chart.content"
                             :chart="chart"
-                            :show-default="props.showDefault"
+                            :show-default="showDefault"
                             :default-filters="defaultFilters"
                         />
                     </div>
@@ -59,7 +59,7 @@
 
     const defaultFilters = ref([])
 
-    const props = defineProps({
+    defineProps({
         charts: {type: Array, required: true, default: () => []},
         showDefault: {type: Boolean, default: false},
         fullSize: {type: Boolean, default: false},
