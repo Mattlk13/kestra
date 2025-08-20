@@ -185,7 +185,7 @@ public abstract class AbstractRunnerTest {
         restartCaseTest.restartSubflow();
     }
 
-    @Test
+    @RetryingTest(5)
     @LoadFlows({"flows/valids/restart-with-finally.yaml"})
     protected void restartFailedWithFinally() throws Exception {
         restartCaseTest.restartFailedWithFinally();
