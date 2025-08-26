@@ -49,7 +49,7 @@ on:
         required: true
 
 env:
-  PLUGIN_VERSION: ${{ inputs.plugin-version != null && inputs.plugin-version || 'LATEST' }}
+  PLUGIN_VERSION: ${{ inputs.plugin-version != '' && inputs.plugin-version || 'LATEST' }}
 jobs:
   plugins:
     name: List Plugins
