@@ -355,6 +355,8 @@ public class ExecutionService {
                         } else {
                             newTaskRun = newTaskRun.withState(newState);
                         }
+                    } else if (newState == State.Type.FAILED) {
+                        newTaskRun = newTaskRun.withState(newState);
                     } else {
                         // we should set the state to RUNNING so that subtasks are executed
                         newTaskRun = newTaskRun.withState(State.Type.RUNNING);
