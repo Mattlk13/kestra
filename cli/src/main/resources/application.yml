@@ -83,6 +83,18 @@ micronaut:
       core-pool-size: 1
 
   metrics:
+    binders:
+      retry:
+        enabled: true
+      netty:
+        queues:
+          enabled: true
+        bytebuf-allocators:
+          enabled: true
+        channels:
+          enabled: true
+
+    # Disable OpenTelemetry metrics by default, users that need it must enable it and configure the collector URL.
     export:
       otlp:
         enabled: false
