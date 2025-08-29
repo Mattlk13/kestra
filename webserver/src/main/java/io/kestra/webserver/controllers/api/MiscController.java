@@ -65,6 +65,9 @@ public class MiscController {
     @io.micronaut.context.annotation.Value("${kestra.anonymous-usage-report.enabled}")
     protected Boolean isAnonymousUsageEnabled;
 
+    @io.micronaut.context.annotation.Value("${kestra.ui-anonymous-usage-report.enabled}")
+    protected Boolean isUiAnonymousUsageEnabled;
+
     @io.micronaut.context.annotation.Value("${kestra.environment.name}")
     @Nullable
     protected String environmentName;
@@ -94,12 +97,14 @@ public class MiscController {
         Configuration.ConfigurationBuilder<?, ?> builder = Configuration
             .builder()
             .uuid(instanceService.fetch())
+            .edition(Edition.OSS)
             .version(versionProvider.getVersion())
             .commitId(versionProvider.getRevision())
             .commitDate(versionProvider.getDate())
             .isCustomDashboardsEnabled(dashboardRepository.isEnabled())
             .isTaskRunEnabled(executionRepository.isTaskRunEnabled())
             .isAnonymousUsageEnabled(this.isAnonymousUsageEnabled)
+            .isUiAnonymousUsageEnabled(this.isUiAnonymousUsageEnabled)
             .isTemplateEnabled(templateRepository.isPresent())
             .preview(Preview.builder()
                 .initial(this.initialPreviewRows)
@@ -122,6 +127,11 @@ public class MiscController {
         }
 
         return builder.build();
+    }
+
+    public enum Edition {
+        OSS,
+        EE
     }
 
     @Get("/{tenant}/usages/all")
@@ -158,6 +168,8 @@ public class MiscController {
 
         String version;
 
+        Edition edition;
+
         String commitId;
 
         ZonedDateTime commitDate;
@@ -170,6 +182,9 @@ public class MiscController {
 
         @JsonInclude
         Boolean isAnonymousUsageEnabled;
+
+        @JsonInclude
+        Boolean isUiAnonymousUsageEnabled;
 
         @JsonInclude
         Boolean isTemplateEnabled;
