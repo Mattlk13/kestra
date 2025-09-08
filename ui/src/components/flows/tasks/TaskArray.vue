@@ -95,7 +95,9 @@
     );
 
     const handleInput = (value: string, index: number) => {
-        emits("update:modelValue", [...items.value].splice(index, 1, value));
+        const itemsValue = Array.isArray(items.value) ? [...items.value] : [];
+        itemsValue.splice(index, 1, value);
+        emits("update:modelValue", itemsValue);
     };
 
     const newEmptyValue = computed(() => {
