@@ -84,11 +84,13 @@
                 : val; // Handle null values
 
 
-        const currentFlow = parsedFlow.value;
+        const updatedFlow = YAML_UTILS.replaceBlockWithPath({
+            source: lastValidFlowYaml.value,
+            path: key,
+            newContent: JSON.stringify(realValue),
+        });
 
-        currentFlow[key] = realValue;
-
-        editorUpdate(YAML_UTILS.stringify(currentFlow));
+        editorUpdate(updatedFlow);
     }
 
     const lastValidFlowYaml = computed<string>(
@@ -105,7 +107,6 @@
     const {
         fieldsFromSchemaTop,
         fieldsFromSchemaRest,
-        parsedFlow,
     } = useFlowFields(lastValidFlowYaml)
 
     useKeyboardSave(lastValidFlowYaml)
