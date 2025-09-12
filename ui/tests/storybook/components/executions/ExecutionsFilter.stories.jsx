@@ -14,6 +14,19 @@ import {
     refreshMonacoFilter
 } from "../../utils/monacoUtils.js";
 
+function maybeAddTimeRangeFilter(to) {
+    const dateTimeKeys = ["startDate", "endDate", "timeRange"];
+
+    // Default to the last 7 days if no time range is set
+    if (!Object.keys(to.query).some((key) => dateTimeKeys.some((dateTimeKey) => key.includes(dateTimeKey)))) {
+        to.query["filters[timeRange][EQUALS]"] = "PT168H";
+
+        return true;
+    }
+
+    return false;
+}
+
 function getDecorators(executionsSearchData) {
     return [
         () => {
@@ -88,6 +101,18 @@ function getDecorators(executionsSearchData) {
                     path: "/executions/:id?/:flowId?",
                     name: "executions/list",
                     component: {template: "<div>executions</div>"},
+                    beforeEnter: (to, from, next) => {
+                        if (maybeAddTimeRangeFilter(to)) {
+                            next({
+                                name: to.name,
+                                params: to.params,
+                                query: to.query,
+                            });
+                            return;
+                        }
+
+                        next();
+                    }
                 },
             ],
             {
