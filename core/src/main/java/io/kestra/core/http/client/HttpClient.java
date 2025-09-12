@@ -190,7 +190,7 @@ public class HttpClient implements Closeable {
     }
 
     public <T> HttpResponse<T> request(HttpRequest request, Class<T> cls) throws HttpClientException, IllegalVariableEvaluationException {
-        var httpClientContext = this.clientContext(request);
+        var httpClientContext = this.clientContext();
         return this.request(request, httpClientContext, r -> {
             T body = bodyHandler(cls, r.getEntity());
             return HttpResponse.from(r, body, request, httpClientContext);
@@ -198,7 +198,7 @@ public class HttpClient implements Closeable {
     }
 
     public HttpResponse<Void> request(HttpRequest request, Consumer<HttpResponse<InputStream>> consumer) throws HttpClientException, IllegalVariableEvaluationException {
-        var httpClientContext = this.clientContext(request);
+        var httpClientContext = this.clientContext();
         return this.request(request, httpClientContext, r -> {
             var from = HttpResponse.from(r, r.getEntity() != null ? r.getEntity().getContent() : null, request, httpClientContext);
             consumer.accept(from);
@@ -207,7 +207,7 @@ public class HttpClient implements Closeable {
     }
 
     public <T> HttpResponse<T> request(HttpRequest request) throws HttpClientException, IllegalVariableEvaluationException {
-        var httpClientContext = this.clientContext(request);
+        var httpClientContext = this.clientContext();
         return this.request(request, httpClientContext, response -> {
             T body = JacksonMapper.ofJson().readValue(response.getEntity().getContent(), new TypeReference<>() {
             });
@@ -215,7 +215,7 @@ public class HttpClient implements Closeable {
         });
     }
 
-    private HttpClientContext clientContext(HttpRequest request) {
+    private HttpClientContext clientContext() {
         var contextBuilder = ContextBuilder.create();
         return contextBuilder.build();
     }
@@ -241,9 +241,10 @@ public class HttpClient implements Closeable {
                 () -> {
                     try {
                         return this.client.execute(request.to(runContext), httpClientContext, responseHandler);
-                    } catch (SocketException | SSLHandshakeException e) {
-                        throw new HttpClientRequestException(e.getMessage(), request, e);
-                    } catch (IOException e) {
+                    } catch (org.apache.hc.client5.http.ClientProtocolException e) {
+                        if (e.getCause() instanceof HttpClientException ex) {
+                            throw ex;
+                        }
                         throw new RuntimeException(e);
                     }
                 }

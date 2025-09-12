@@ -60,8 +60,8 @@ public class HttpConfiguration {
     @Schema(title = "Retry strategy for HTTP requests.")
     @Builder.Default
     private AbstractRetry retry = Exponential.builder()
-        .interval(Duration.ofMillis(100))
-        .maxInterval(Duration.ofSeconds(2))
+        .interval(Duration.ofMillis(1000))
+        .maxInterval(Duration.ofSeconds(30))
         .maxAttempts(3)
         .build();
 
