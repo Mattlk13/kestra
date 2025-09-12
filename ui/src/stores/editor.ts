@@ -1,5 +1,6 @@
 import {defineStore} from "pinia"
 import {trackFileOpen} from "../utils/tabTracking";
+import {useNamespacesStore} from "../override/stores/namespaces";
 
 export interface EditorTabProps {
     name: string;
@@ -24,14 +25,15 @@ export const useEditorStore = defineStore("editor", {
     }),
     actions: {
         saveAllTabs({namespace}: {namespace: string}) {
+            const namespaceStore = useNamespacesStore();
             return Promise.all(
                 this.tabs.map(async (tab) => {
-                    if(tab.flow) return;
-                    await this.vuexStore.dispatch("namespace/createFile", {
+                    if(tab.flow || !tab.content) return;
+                    await namespaceStore.createFile( {
                         namespace,
                         path: tab.path ?? tab.name,
                         content: tab.content,
-                    }, {root: true});
+                    });
                     this.setTabDirty({
                         name: tab.name,
                         path: tab.path,
@@ -55,7 +57,7 @@ export const useEditorStore = defineStore("editor", {
             if (index === -1) {
                 this.tabs.push({name, extension, persistent, path, flow});
                 isDirty = false;
-                
+
                 if (path && !flow) {
                     const fileName = name || path.split("/").pop() || "";
                     trackFileOpen(fileName);

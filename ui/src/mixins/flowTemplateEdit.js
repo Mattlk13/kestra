@@ -165,10 +165,9 @@ export default {
                     .then(message => {
                         this.$toast()
                             .confirm(message, () => {
-                                // TODO: When flow store is migrated to Pinia, this will be simplified:
                                 const deletePromise = this.dataType === "template"
                                     ? this.templateStore.deleteTemplate(item)
-                                    : this.$store.dispatch(`${this.dataType}/delete${this.dataType.capitalize()}`, item);
+                                    : this.flowStore.deleteFlow(item);
 
                                 return deletePromise
                                     .then(() => {
@@ -249,7 +248,7 @@ export default {
                 // TODO: When flow store is migrated to Pinia, this will be simplified:
                 const createPromise = this.dataType === "template"
                     ? this.templateStore.createTemplate({template: this.content})
-                    : this.$store.dispatch(`${this.dataType}/create${this.dataType.capitalize()}`, {[this.dataType]: this.content});
+                    : this.flowStore.createFlow({flow: this.content});
 
                 createPromise
                     .then((data) => {
