@@ -1,7 +1,7 @@
 <template>
-    <side-bar :generate-menu="generateMenu" :show-link="showLink" @menu-collapse="onCollapse">
+    <side-bar v-if="menu" :menu :show-link="showLink" @menu-collapse="onCollapse">
         <template #footer>
-            <auth />    
+            <auth />
         </template>
     </side-bar>
 </template>
@@ -19,22 +19,22 @@
         $emit("menu-collapse", folded);
     }
 
-    const {generateMenu} = useLeftMenu();
+    const {menu} = useLeftMenu();
 </script>
 
 <style lang="scss" scoped>
-#side-menu {
-    .el-select {
-        padding: 0 30px;
-        padding-bottom: 15px;
-        transition: all 0.2s ease;
-        background-color: transparent;
-    }
-    &.vsm_collapsed {
+    #side-menu {
         .el-select {
-            padding-left: 5px;
-            padding-right: 5px;
+            padding: 0 30px;
+            padding-bottom: 15px;
+            transition: all 0.2s ease;
+            background-color: transparent;
+        }
+        &.vsm_collapsed {
+            .el-select {
+                padding-left: 5px;
+                padding-right: 5px;
+            }
         }
     }
-}
 </style>
