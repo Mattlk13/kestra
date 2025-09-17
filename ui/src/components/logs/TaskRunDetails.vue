@@ -81,8 +81,9 @@
                                     :key="index"
                                     :level="level"
                                     :log="item"
+
                                     :exclude-metas="excludeMetas"
-                                    v-else-if="filter === '' || item.message?.toLowerCase().includes(filter)"
+                                    v-else-if="filter === '' || item.message?.toLowerCase().includes(filter.toLowerCase())"
                                 />
                                 <TaskRunDetails
                                     v-if="!taskRunId && isSubflow(currentTaskRun) && shouldDisplaySubflow(index, currentTaskRun) && currentTaskRun.outputs?.executionId"
@@ -351,7 +352,7 @@
                 logFilesWrappers.forEach(logFileWrapper => this.fetchAndStoreLogFileSize(logFileWrapper.logFile))
 
                 const indexedLogs = [...this.filteredLogs, ...logFilesWrappers]
-                    .filter(logLine => logLine.logFile !== undefined || (this.filter === "" || logLine?.message.toLowerCase().includes(this.filter) || this.isSubflow(this.taskRunById[logLine.taskRunId])))
+                    .filter(logLine => logLine.logFile !== undefined || (this.filter === "" || logLine?.message.toLowerCase().includes(this.filter.toLowerCase()) || this.isSubflow(this.taskRunById[logLine.taskRunId])))
                     .map((logLine, index) => ({...logLine, index}));
 
                 return _groupBy(indexedLogs, indexedLog => this.attemptUid(indexedLog.taskRunId, indexedLog.attemptNumber));
