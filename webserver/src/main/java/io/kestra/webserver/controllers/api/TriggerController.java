@@ -207,8 +207,8 @@ public class TriggerController {
     public MutableHttpResponse<?> unlockTriggersByQuery(
         @Parameter(description = "Filters") @QueryFilterFormat List<QueryFilter> filters,
 
-        @Deprecated @Parameter(description = "A string filter") @Nullable @QueryValue(value = "q") String query,
-        @Deprecated @Parameter(description = "A namespace filter prefix") @Nullable @QueryValue String namespace
+        @Parameter(description = "A string filter", deprecated = true) @Nullable @QueryValue(value = "q") String query,
+        @Parameter(description = "A namespace filter prefix", deprecated = true) @Nullable @QueryValue String namespace
     ) {
         filters = RequestUtils.getFiltersOrDefaultToLegacyMapping(
             filters,
@@ -394,8 +394,8 @@ public class TriggerController {
     public MutableHttpResponse<?> pauseBackfillByQuery(
         @Parameter(description = "Filters") @QueryFilterFormat List<QueryFilter> filters,
 
-        @Deprecated @Parameter(description = "A string filter") @Nullable @QueryValue(value = "q") String query,
-        @Deprecated @Parameter(description = "A namespace filter prefix") @Nullable @QueryValue String namespace
+        @Parameter(description = "A string filter", deprecated = true) @Nullable @QueryValue(value = "q") String query,
+        @Parameter(description = "A namespace filter prefix", deprecated = true) @Nullable @QueryValue String namespace
     ) throws QueueException {
         // Updating the backfill within the flux does not works
         List<Trigger> triggers = triggerRepository
@@ -433,8 +433,8 @@ public class TriggerController {
     public MutableHttpResponse<?> unpauseBackfillByQuery(
         @Parameter(description = "Filters") @QueryFilterFormat List<QueryFilter> filters,
 
-        @Deprecated @Parameter(description = "A string filter") @Nullable @QueryValue(value = "q") String query,
-        @Deprecated @Parameter(description = "A namespace filter prefix") @Nullable @QueryValue String namespace
+        @Parameter(description = "A string filter", deprecated = true) @Nullable @QueryValue(value = "q") String query,
+        @Parameter(description = "A namespace filter prefix", deprecated = true) @Nullable @QueryValue String namespace
     ) throws QueueException {
         filters = RequestUtils.getFiltersOrDefaultToLegacyMapping(
             filters,
@@ -502,8 +502,8 @@ public class TriggerController {
     public MutableHttpResponse<?> deleteBackfillByQuery(
         @Parameter(description = "Filters") @QueryFilterFormat List<QueryFilter> filters,
 
-        @Deprecated @Parameter(description = "A string filter") @Nullable @QueryValue(value = "q") String query,
-        @Deprecated @Parameter(description = "A namespace filter prefix") @Nullable @QueryValue String namespace
+        @Parameter(description = "A string filter", deprecated = true) @Nullable @QueryValue(value = "q") String query,
+        @Parameter(description = "A namespace filter prefix", deprecated = true) @Nullable @QueryValue String namespace
     ) throws QueueException {
         filters = RequestUtils.getFiltersOrDefaultToLegacyMapping(
             filters,
@@ -546,8 +546,8 @@ public class TriggerController {
     public MutableHttpResponse<?> disabledTriggersByQuery(
         @Parameter(description = "Filters") @QueryFilterFormat List<QueryFilter> filters,
 
-        @Deprecated @Parameter(description = "A string filter") @Nullable @QueryValue(value = "q") String query,
-        @Deprecated @Parameter(description = "A namespace filter prefix") @Nullable @QueryValue String namespace,
+        @Parameter(description = "A string filter", deprecated = true) @Nullable @QueryValue(value = "q") String query,
+        @Parameter(description = "A namespace filter prefix", deprecated = true) @Nullable @QueryValue String namespace,
 
         @Parameter(description = "The disabled state") @QueryValue(defaultValue = "true") Boolean disabled
     ) throws QueueException {

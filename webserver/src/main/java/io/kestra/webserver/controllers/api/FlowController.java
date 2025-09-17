@@ -231,10 +231,10 @@ public class FlowController {
         @Parameter(description = "The sort of current page") @Nullable @QueryValue List<String> sort,
         @Parameter(description = "Filters") @QueryFilterFormat() List<QueryFilter> filters,
         // Deprecated params
-        @Deprecated @Parameter(description = "A string filter", deprecated = true) @Nullable @QueryValue(value = "q") String query,
-        @Deprecated @Parameter(description = "The scope of the flows to include", deprecated = true) @Nullable @QueryValue List<FlowScope> scope,
-        @Deprecated @Parameter(description = "A namespace filter prefix", deprecated = true) @Nullable @QueryValue String namespace,
-        @Deprecated @Parameter(description = "A labels filter as a list of 'key:value'", deprecated = true) @Nullable @QueryValue @Format("MULTI") List<String> labels
+         @Parameter(description = "A string filter", deprecated = true) @Nullable @QueryValue(value = "q") String query,
+         @Parameter(description = "The scope of the flows to include", deprecated = true) @Nullable @QueryValue List<FlowScope> scope,
+         @Parameter(description = "A namespace filter prefix", deprecated = true) @Nullable @QueryValue String namespace,
+         @Parameter(description = "A labels filter as a list of 'key:value'", deprecated = true) @Nullable @QueryValue @Format("MULTI") List<String> labels
 
     ) throws HttpStatusException {
         filters = mapLegacyQueryParamsToNewFilters(filters, query, scope, namespace, labels);
@@ -263,7 +263,7 @@ public class FlowController {
         @Parameter(description = "The current page") @QueryValue(defaultValue = "1") @Min(1) int page,
         @Parameter(description = "The current page size") @QueryValue(defaultValue = "10") @Min(1) int size,
         @Parameter(description = "The sort of current page") @Nullable @QueryValue List<String> sort,
-        @Parameter(description = "A string filter") @Nullable @QueryValue(value = "q") String query,
+        @Parameter(description = "A string filter", deprecated = true) @Nullable @QueryValue(value = "q") String query,
         @Parameter(description = "A namespace filter prefix") @Nullable @QueryValue String namespace
     ) throws HttpStatusException {
         return PagedResults.of(flowRepository.findSourceCode(PageableUtils.from(page, size, sort), query, tenantService.resolveTenant(), namespace));
@@ -587,7 +587,7 @@ public class FlowController {
     @Get(uri = "distinct-namespaces")
     @Operation(tags = {"Flows"}, summary = "List all distinct namespaces")
     public List<String> listDistinctNamespaces(
-        @Parameter(description = "A string filter") @Nullable @QueryValue(value = "q") String query
+        @Parameter(description = "A string filter", deprecated = true) @Nullable @QueryValue(value = "q") String query
     ) {
         return flowRepository.findDistinctNamespace(tenantService.resolveTenant(), query);
     }
@@ -711,10 +711,10 @@ public class FlowController {
     public HttpResponse<byte[]> exportFlowsByQuery(
         @Parameter(description = "Filters") @QueryFilterFormat() List<QueryFilter> filters,
 
-        @Deprecated @Parameter(description = "A string filter") @Nullable @QueryValue(value = "q") String query,
-        @Deprecated @Parameter(description = "The scope of the flows to include") @Nullable @QueryValue List<FlowScope> scope,
-        @Deprecated @Parameter(description = "A namespace filter prefix") @Nullable @QueryValue String namespace,
-        @Deprecated @Parameter(description = "A labels filter as a list of 'key:value'") @Nullable @QueryValue @Format("MULTI") List<String> labels
+        @Parameter(description = "A string filter", deprecated = true) @Nullable @QueryValue(value = "q") String query,
+        @Parameter(description = "The scope of the flows to include") @Nullable @QueryValue List<FlowScope> scope,
+        @Parameter(description = "A namespace filter prefix", deprecated = true) @Nullable @QueryValue String namespace,
+        @Parameter(description = "A labels filter as a list of 'key:value'", deprecated = true) @Nullable @QueryValue @Format("MULTI") List<String> labels
     ) throws IOException {
         filters = mapLegacyQueryParamsToNewFilters(filters, query, scope, namespace, labels);
 
@@ -749,10 +749,10 @@ public class FlowController {
     public HttpResponse<BulkResponse> deleteFlowsByQuery(
         @Parameter(description = "Filters") @QueryFilterFormat() List<QueryFilter> filters,
 
-        @Deprecated @Parameter(description = "A string filter") @Nullable @QueryValue(value = "q") String query,
-        @Deprecated @Parameter(description = "The scope of the flows to include") @Nullable @QueryValue List<FlowScope> scope,
-        @Deprecated @Parameter(description = "A namespace filter prefix") @Nullable @QueryValue String namespace,
-        @Deprecated @Parameter(description = "A labels filter as a list of 'key:value'") @Nullable @QueryValue @Format("MULTI") List<String> labels
+        @Parameter(description = "A string filter", deprecated = true) @Nullable @QueryValue(value = "q") String query,
+        @Parameter(description = "The scope of the flows to include") @Nullable @QueryValue List<FlowScope> scope,
+        @Parameter(description = "A namespace filter prefix", deprecated = true) @Nullable @QueryValue String namespace,
+        @Parameter(description = "A labels filter as a list of 'key:value'", deprecated = true) @Nullable @QueryValue @Format("MULTI") List<String> labels
     ) {
         filters = mapLegacyQueryParamsToNewFilters(filters, query, scope, namespace, labels);
 
@@ -792,10 +792,10 @@ public class FlowController {
     public HttpResponse<BulkResponse> disableFlowsByQuery(
         @Parameter(description = "Filters") @QueryFilterFormat() List<QueryFilter> filters,
 
-        @Deprecated @Parameter(description = "A string filter") @Nullable @QueryValue(value = "q") String query,
-        @Deprecated @Parameter(description = "The scope of the flows to include") @Nullable @QueryValue List<FlowScope> scope,
-        @Deprecated @Parameter(description = "A namespace filter prefix") @Nullable @QueryValue String namespace,
-        @Deprecated @Parameter(description = "A labels filter as a list of 'key:value'") @Nullable @QueryValue @Format("MULTI") List<String> labels
+        @Parameter(description = "A string filter", deprecated = true) @Nullable @QueryValue(value = "q") String query,
+        @Parameter(description = "The scope of the flows to include") @Nullable @QueryValue List<FlowScope> scope,
+        @Parameter(description = "A namespace filter prefix", deprecated = true) @Nullable @QueryValue String namespace,
+        @Parameter(description = "A labels filter as a list of 'key:value'", deprecated = true) @Nullable @QueryValue @Format("MULTI") List<String> labels
     ) {
         filters = mapLegacyQueryParamsToNewFilters(filters, query, scope, namespace, labels);
 
@@ -824,10 +824,10 @@ public class FlowController {
     public HttpResponse<BulkResponse> enableFlowsByQuery(
         @Parameter(description = "Filters") @QueryFilterFormat() List<QueryFilter> filters,
 
-        @Deprecated @Parameter(description = "A string filter") @Nullable @QueryValue(value = "q") String query,
-        @Deprecated @Parameter(description = "The scope of the flows to include") @Nullable @QueryValue List<FlowScope> scope,
-        @Deprecated @Parameter(description = "A namespace filter prefix") @Nullable @QueryValue String namespace,
-        @Deprecated @Parameter(description = "A labels filter as a list of 'key:value'") @Nullable @QueryValue @Format("MULTI") List<String> labels
+         @Parameter(description = "A string filter", deprecated = true) @Nullable @QueryValue(value = "q") String query,
+         @Parameter(description = "The scope of the flows to include") @Nullable @QueryValue List<FlowScope> scope,
+         @Parameter(description = "A namespace filter prefix", deprecated = true) @Nullable @QueryValue String namespace,
+         @Parameter(description = "A labels filter as a list of 'key:value'", deprecated = true) @Nullable @QueryValue @Format("MULTI") List<String> labels
     ) {
         filters = mapLegacyQueryParamsToNewFilters(filters, query, scope, namespace, labels);
 
