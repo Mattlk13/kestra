@@ -1161,7 +1161,7 @@ public class ExecutorService {
             }
         }
 
-        return taskRuns.size() > execution.getTaskRunList().size() ? execution.withTaskRunList(taskRuns) : null;
+        return taskRuns.size() > ListUtils.emptyOnNull(execution.getTaskRunList()).size() ? execution.withTaskRunList(taskRuns) : null;
     }
 
     public boolean canBePurged(final Executor executor) {
