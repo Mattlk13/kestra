@@ -759,12 +759,12 @@ public abstract class AbstractScheduler implements Scheduler {
         var newExecution = execution.withTenantId(trigger.getTenantId());
         try {
             this.executionQueue.emit(newExecution);
-            this.executionEventPublisher.publishEvent(new CrudEvent<>(newExecution, CrudEventType.CREATE));
+            this.executionEventPublisher.publishEvent(CrudEvent.delete(newExecution));
         } catch (QueueException e) {
             try {
                 Execution failedExecution = newExecution.failedExecutionFromExecutor(e).getExecution().withState(State.Type.FAILED);
                 this.executionQueue.emit(failedExecution);
-                this.executionEventPublisher.publishEvent(new CrudEvent<>(failedExecution, CrudEventType.CREATE));
+                this.executionEventPublisher.publishEvent(CrudEvent.create(failedExecution));
             } catch (QueueException ex) {
                 log.error("Unable to emit the execution", ex);
             }
