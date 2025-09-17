@@ -4,7 +4,6 @@ import io.kestra.core.events.CrudEvent;
 import io.kestra.core.events.CrudEventType;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.models.templates.Template;
-import io.kestra.core.repositories.AbstractFlowRepositoryTest.FlowListener;
 import io.kestra.core.utils.Await;
 import io.kestra.core.utils.TestsUtils;
 import io.kestra.plugin.core.debug.Return;
@@ -26,6 +25,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -138,8 +139,10 @@ public abstract class AbstractTemplateRepositoryTest {
         templateRepository.delete(template3);
     }
 
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractTemplateRepositoryTest.class);
+
     @Test
-    void delete() throws TimeoutException {
+    protected void delete() throws TimeoutException {
         String tenant = TestsUtils.randomTenant(this.getClass().getSimpleName());
         Template template = builder(tenant).build();
 
@@ -148,8 +151,11 @@ public abstract class AbstractTemplateRepositoryTest {
 
         assertThat(templateRepository.findById(tenant, template.getNamespace(), template.getId()).isPresent()).isFalse();
 
-        Await.until(() -> FlowListener.filterByTenant(tenant)
-            .size() == 2, Duration.ofMillis(100), Duration.ofSeconds(5));
+        Await.until(() -> {
+            LOG.info("-------------> number of event: {}", TemplateListener.getEmits(tenant).size());
+            return TemplateListener.getEmits(tenant).size() == 2;
+
+        }, Duration.ofMillis(100), Duration.ofSeconds(5));
         assertThat(TemplateListener.getEmits(tenant).stream().filter(r -> r.getType() == CrudEventType.CREATE).count()).isEqualTo(1L);
         assertThat(TemplateListener.getEmits(tenant).stream().filter(r -> r.getType() == CrudEventType.DELETE).count()).isEqualTo(1L);
     }
