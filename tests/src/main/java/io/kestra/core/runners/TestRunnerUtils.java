@@ -41,27 +41,27 @@ public class TestRunnerUtils {
     @Inject
     private ExecutionService executionService;
 
-    public Execution runOne(String tenantId, String namespace, String flowId) throws TimeoutException, QueueException {
+    public Execution runOne(String tenantId, String namespace, String flowId) throws TimeoutException {
         return this.runOne(tenantId, namespace, flowId, null, null, null, null);
     }
 
-    public Execution runOne(String tenantId, String namespace, String flowId, Integer revision) throws TimeoutException, QueueException {
+    public Execution runOne(String tenantId, String namespace, String flowId, Integer revision) throws TimeoutException {
         return this.runOne(tenantId, namespace, flowId, revision, null, null, null);
     }
 
-    public Execution runOne(String tenantId, String namespace, String flowId, Integer revision, BiFunction<FlowInterface, Execution, Map<String, Object>> inputs) throws TimeoutException, QueueException {
+    public Execution runOne(String tenantId, String namespace, String flowId, Integer revision, BiFunction<FlowInterface, Execution, Map<String, Object>> inputs) throws TimeoutException {
         return this.runOne(tenantId, namespace, flowId, revision, inputs, null, null);
     }
 
-    public Execution runOne(String tenantId, String namespace, String flowId, Duration duration) throws TimeoutException, QueueException {
+    public Execution runOne(String tenantId, String namespace, String flowId, Duration duration) throws TimeoutException {
         return this.runOne(tenantId, namespace, flowId, null, null, duration, null);
     }
 
-    public Execution runOne(String tenantId, String namespace, String flowId, Integer revision, BiFunction<FlowInterface, Execution, Map<String, Object>> inputs, Duration duration) throws TimeoutException, QueueException {
+    public Execution runOne(String tenantId, String namespace, String flowId, Integer revision, BiFunction<FlowInterface, Execution, Map<String, Object>> inputs, Duration duration) throws TimeoutException {
         return this.runOne(tenantId, namespace, flowId, revision, inputs, duration, null);
     }
 
-    public Execution runOne(String tenantId, String namespace, String flowId, Integer revision, BiFunction<FlowInterface, Execution, Map<String, Object>> inputs, Duration duration, List<Label> labels) throws TimeoutException, QueueException {
+    public Execution runOne(String tenantId, String namespace, String flowId, Integer revision, BiFunction<FlowInterface, Execution, Map<String, Object>> inputs, Duration duration, List<Label> labels) throws TimeoutException {
         return this.runOne(
             flowRepository
                 .findById(tenantId, namespace, flowId, revision != null ? Optional.of(revision) : Optional.empty())
@@ -71,15 +71,15 @@ public class TestRunnerUtils {
             labels);
     }
 
-    public Execution runOne(Flow flow, BiFunction<FlowInterface, Execution, Map<String, Object>> inputs) throws TimeoutException, QueueException {
+    public Execution runOne(Flow flow, BiFunction<FlowInterface, Execution, Map<String, Object>> inputs) throws TimeoutException {
         return this.runOne(flow, inputs, null, null);
     }
 
-    public Execution runOne(Flow flow, BiFunction<FlowInterface, Execution, Map<String, Object>> inputs, Duration duration) throws TimeoutException, QueueException {
+    public Execution runOne(Flow flow, BiFunction<FlowInterface, Execution, Map<String, Object>> inputs, Duration duration) throws TimeoutException {
         return this.runOne(flow, inputs, duration, null);
     }
 
-    public Execution runOne(Flow flow, BiFunction<FlowInterface, Execution, Map<String, Object>> inputs, Duration duration, List<Label> labels) throws TimeoutException, QueueException {
+    public Execution runOne(Flow flow, BiFunction<FlowInterface, Execution, Map<String, Object>> inputs, Duration duration, List<Label> labels) throws TimeoutException {
         if (duration == null) {
             duration = Duration.ofSeconds(15);
         }
@@ -89,15 +89,15 @@ public class TestRunnerUtils {
         return runOne(execution, flow, duration);
     }
 
-    public Execution runOne(Execution execution, Flow flow, Duration duration) throws TimeoutException, QueueException {
+    public Execution runOne(Execution execution, Flow flow, Duration duration) throws TimeoutException {
         return this.emitAndAwaitExecution(isTerminatedExecution(execution, flow),  execution, duration);
     }
 
-    public Execution runOneUntilPaused(String tenantId, String namespace, String flowId) throws TimeoutException, QueueException {
+    public Execution runOneUntilPaused(String tenantId, String namespace, String flowId) throws TimeoutException {
         return this.runOneUntilPaused(tenantId, namespace, flowId, null, null, null);
     }
 
-    public Execution runOneUntilPaused(String tenantId, String namespace, String flowId, Integer revision, BiFunction<FlowInterface, Execution, Map<String, Object>> inputs, Duration duration) throws TimeoutException, QueueException {
+    public Execution runOneUntilPaused(String tenantId, String namespace, String flowId, Integer revision, BiFunction<FlowInterface, Execution, Map<String, Object>> inputs, Duration duration) throws TimeoutException {
         return this.runOneUntilPaused(
             flowRepository
                 .findById(tenantId, namespace, flowId, revision != null ? Optional.of(revision) : Optional.empty())
@@ -107,7 +107,7 @@ public class TestRunnerUtils {
         );
     }
 
-    public Execution runOneUntilPaused(Flow flow, BiFunction<FlowInterface, Execution, Map<String, Object>> inputs, Duration duration) throws TimeoutException, QueueException {
+    public Execution runOneUntilPaused(Flow flow, BiFunction<FlowInterface, Execution, Map<String, Object>> inputs, Duration duration) throws TimeoutException {
         if (duration == null) {
             duration = DEFAULT_MAX_WAIT_DURATION;
         }
@@ -117,11 +117,11 @@ public class TestRunnerUtils {
         return this.emitAndAwaitExecution(isPausedExecution(execution), execution, duration);
     }
 
-    public Execution runOneUntilRunning(String tenantId, String namespace, String flowId) throws TimeoutException, QueueException {
+    public Execution runOneUntilRunning(String tenantId, String namespace, String flowId) throws TimeoutException {
         return this.runOneUntilRunning(tenantId, namespace, flowId, null, null, null);
     }
 
-    public Execution runOneUntilRunning(String tenantId, String namespace, String flowId, Integer revision, BiFunction<FlowInterface, Execution, Map<String, Object>> inputs, Duration duration) throws TimeoutException, QueueException {
+    public Execution runOneUntilRunning(String tenantId, String namespace, String flowId, Integer revision, BiFunction<FlowInterface, Execution, Map<String, Object>> inputs, Duration duration) throws TimeoutException {
         return this.runOneUntilRunning(
             flowRepository
                 .findById(tenantId, namespace, flowId, revision != null ? Optional.of(revision) : Optional.empty())
@@ -131,7 +131,7 @@ public class TestRunnerUtils {
         );
     }
 
-    public Execution runOneUntilRunning(Flow flow, BiFunction<FlowInterface, Execution, Map<String, Object>> inputs, Duration duration) throws TimeoutException, QueueException {
+    public Execution runOneUntilRunning(Flow flow, BiFunction<FlowInterface, Execution, Map<String, Object>> inputs, Duration duration) throws TimeoutException{
         if (duration == null) {
             duration = DEFAULT_MAX_WAIT_DURATION;
         }

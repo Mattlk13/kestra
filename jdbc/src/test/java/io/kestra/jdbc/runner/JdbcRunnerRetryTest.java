@@ -4,15 +4,16 @@ import io.kestra.core.junit.annotations.ExecuteFlow;
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.junit.annotations.LoadFlows;
 import io.kestra.core.models.executions.Execution;
-import io.kestra.core.queues.QueueException;
 import io.kestra.plugin.core.flow.RetryCaseTest;
 import jakarta.inject.Inject;
-import java.util.concurrent.TimeoutException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
+import java.util.concurrent.TimeoutException;
+
 @KestraTest(startRunner = true)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS) // must be per-class to allow calling once init() which took a lot of time
+@org.junit.jupiter.api.parallel.Execution(org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT)
 public abstract class JdbcRunnerRetryTest {
 
     @Inject
@@ -55,27 +56,27 @@ public abstract class JdbcRunnerRetryTest {
     }
 
     @Test
-    @LoadFlows({"flows/valids/retry-new-execution-task-duration.yml"})
-    void retryNewExecutionTaskDuration() throws TimeoutException, QueueException {
-        retryCaseTest.retryNewExecutionTaskDuration();
+    @LoadFlows(value = {"flows/valids/retry-new-execution-task-duration.yml"}, tenantId = "retrynewexecutiontaskdurationtenant")
+    void retryNewExecutionTaskDuration() throws TimeoutException {
+        retryCaseTest.retryNewExecutionTaskDuration("retrynewexecutiontaskdurationtenant");
     }
 
     @Test
-    @LoadFlows({"flows/valids/retry-new-execution-task-attempts.yml"})
-    void retryNewExecutionTaskAttempts() throws TimeoutException, QueueException {
-        retryCaseTest.retryNewExecutionTaskAttempts();
+    @LoadFlows(value = {"flows/valids/retry-new-execution-task-attempts.yml"}, tenantId = "retrynewexecutiontaskattempts")
+    void retryNewExecutionTaskAttempts() throws TimeoutException {
+        retryCaseTest.retryNewExecutionTaskAttempts("retrynewexecutiontaskattempts");
     }
 
     @Test
-    @LoadFlows({"flows/valids/retry-new-execution-flow-duration.yml"})
-    void retryNewExecutionFlowDuration() throws TimeoutException, QueueException {
-        retryCaseTest.retryNewExecutionFlowDuration();
+    @LoadFlows(value = {"flows/valids/retry-new-execution-flow-duration.yml"}, tenantId = "retrynewexecutionflowdurationtenant")
+    void retryNewExecutionFlowDuration() throws TimeoutException {
+        retryCaseTest.retryNewExecutionFlowDuration("retrynewexecutionflowdurationtenant");
     }
 
     @Test
-    @LoadFlows({"flows/valids/retry-new-execution-flow-attempts.yml"})
-    void retryNewExecutionFlowAttempts() throws TimeoutException, QueueException {
-        retryCaseTest.retryNewExecutionFlowAttempts();
+    @LoadFlows(value = {"flows/valids/retry-new-execution-flow-attempts.yml"}, tenantId = "retrynewexecutionflowattemptstenant")
+    void retryNewExecutionFlowAttempts() throws TimeoutException {
+        retryCaseTest.retryNewExecutionFlowAttempts("retrynewexecutionflowattemptstenant");
     }
 
     @Test
