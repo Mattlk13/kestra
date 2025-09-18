@@ -41,27 +41,33 @@ public class TestRunnerUtils {
     @Inject
     private ExecutionService executionService;
 
-    public Execution runOne(String tenantId, String namespace, String flowId) throws TimeoutException {
+    public Execution runOne(String tenantId, String namespace, String flowId)
+        throws TimeoutException, QueueException {
         return this.runOne(tenantId, namespace, flowId, null, null, null, null);
     }
 
-    public Execution runOne(String tenantId, String namespace, String flowId, Integer revision) throws TimeoutException {
+    public Execution runOne(String tenantId, String namespace, String flowId, Integer revision)
+        throws TimeoutException, QueueException {
         return this.runOne(tenantId, namespace, flowId, revision, null, null, null);
     }
 
-    public Execution runOne(String tenantId, String namespace, String flowId, Integer revision, BiFunction<FlowInterface, Execution, Map<String, Object>> inputs) throws TimeoutException {
+    public Execution runOne(String tenantId, String namespace, String flowId, Integer revision, BiFunction<FlowInterface, Execution, Map<String, Object>> inputs)
+        throws TimeoutException, QueueException {
         return this.runOne(tenantId, namespace, flowId, revision, inputs, null, null);
     }
 
-    public Execution runOne(String tenantId, String namespace, String flowId, Duration duration) throws TimeoutException {
+    public Execution runOne(String tenantId, String namespace, String flowId, Duration duration)
+        throws TimeoutException, QueueException {
         return this.runOne(tenantId, namespace, flowId, null, null, duration, null);
     }
 
-    public Execution runOne(String tenantId, String namespace, String flowId, Integer revision, BiFunction<FlowInterface, Execution, Map<String, Object>> inputs, Duration duration) throws TimeoutException {
+    public Execution runOne(String tenantId, String namespace, String flowId, Integer revision, BiFunction<FlowInterface, Execution, Map<String, Object>> inputs, Duration duration)
+        throws TimeoutException, QueueException {
         return this.runOne(tenantId, namespace, flowId, revision, inputs, duration, null);
     }
 
-    public Execution runOne(String tenantId, String namespace, String flowId, Integer revision, BiFunction<FlowInterface, Execution, Map<String, Object>> inputs, Duration duration, List<Label> labels) throws TimeoutException {
+    public Execution runOne(String tenantId, String namespace, String flowId, Integer revision, BiFunction<FlowInterface, Execution, Map<String, Object>> inputs, Duration duration, List<Label> labels)
+        throws TimeoutException, QueueException {
         return this.runOne(
             flowRepository
                 .findById(tenantId, namespace, flowId, revision != null ? Optional.of(revision) : Optional.empty())
@@ -71,15 +77,18 @@ public class TestRunnerUtils {
             labels);
     }
 
-    public Execution runOne(Flow flow, BiFunction<FlowInterface, Execution, Map<String, Object>> inputs) throws TimeoutException {
+    public Execution runOne(Flow flow, BiFunction<FlowInterface, Execution, Map<String, Object>> inputs)
+        throws TimeoutException, QueueException {
         return this.runOne(flow, inputs, null, null);
     }
 
-    public Execution runOne(Flow flow, BiFunction<FlowInterface, Execution, Map<String, Object>> inputs, Duration duration) throws TimeoutException {
+    public Execution runOne(Flow flow, BiFunction<FlowInterface, Execution, Map<String, Object>> inputs, Duration duration)
+        throws TimeoutException, QueueException {
         return this.runOne(flow, inputs, duration, null);
     }
 
-    public Execution runOne(Flow flow, BiFunction<FlowInterface, Execution, Map<String, Object>> inputs, Duration duration, List<Label> labels) throws TimeoutException {
+    public Execution runOne(Flow flow, BiFunction<FlowInterface, Execution, Map<String, Object>> inputs, Duration duration, List<Label> labels)
+        throws TimeoutException, QueueException {
         if (duration == null) {
             duration = Duration.ofSeconds(15);
         }
@@ -89,15 +98,18 @@ public class TestRunnerUtils {
         return runOne(execution, flow, duration);
     }
 
-    public Execution runOne(Execution execution, Flow flow, Duration duration) throws TimeoutException {
+    public Execution runOne(Execution execution, Flow flow, Duration duration)
+        throws TimeoutException, QueueException {
         return this.emitAndAwaitExecution(isTerminatedExecution(execution, flow),  execution, duration);
     }
 
-    public Execution runOneUntilPaused(String tenantId, String namespace, String flowId) throws TimeoutException {
+    public Execution runOneUntilPaused(String tenantId, String namespace, String flowId)
+        throws QueueException {
         return this.runOneUntilPaused(tenantId, namespace, flowId, null, null, null);
     }
 
-    public Execution runOneUntilPaused(String tenantId, String namespace, String flowId, Integer revision, BiFunction<FlowInterface, Execution, Map<String, Object>> inputs, Duration duration) throws TimeoutException {
+    public Execution runOneUntilPaused(String tenantId, String namespace, String flowId, Integer revision, BiFunction<FlowInterface, Execution, Map<String, Object>> inputs, Duration duration)
+        throws QueueException {
         return this.runOneUntilPaused(
             flowRepository
                 .findById(tenantId, namespace, flowId, revision != null ? Optional.of(revision) : Optional.empty())
@@ -107,7 +119,8 @@ public class TestRunnerUtils {
         );
     }
 
-    public Execution runOneUntilPaused(Flow flow, BiFunction<FlowInterface, Execution, Map<String, Object>> inputs, Duration duration) throws TimeoutException {
+    public Execution runOneUntilPaused(Flow flow, BiFunction<FlowInterface, Execution, Map<String, Object>> inputs, Duration duration)
+        throws QueueException {
         if (duration == null) {
             duration = DEFAULT_MAX_WAIT_DURATION;
         }
@@ -117,11 +130,13 @@ public class TestRunnerUtils {
         return this.emitAndAwaitExecution(isPausedExecution(execution), execution, duration);
     }
 
-    public Execution runOneUntilRunning(String tenantId, String namespace, String flowId) throws TimeoutException {
+    public Execution runOneUntilRunning(String tenantId, String namespace, String flowId)
+        throws TimeoutException, QueueException {
         return this.runOneUntilRunning(tenantId, namespace, flowId, null, null, null);
     }
 
-    public Execution runOneUntilRunning(String tenantId, String namespace, String flowId, Integer revision, BiFunction<FlowInterface, Execution, Map<String, Object>> inputs, Duration duration) throws TimeoutException {
+    public Execution runOneUntilRunning(String tenantId, String namespace, String flowId, Integer revision, BiFunction<FlowInterface, Execution, Map<String, Object>> inputs, Duration duration)
+        throws TimeoutException, QueueException {
         return this.runOneUntilRunning(
             flowRepository
                 .findById(tenantId, namespace, flowId, revision != null ? Optional.of(revision) : Optional.empty())
@@ -131,7 +146,8 @@ public class TestRunnerUtils {
         );
     }
 
-    public Execution runOneUntilRunning(Flow flow, BiFunction<FlowInterface, Execution, Map<String, Object>> inputs, Duration duration) throws TimeoutException{
+    public Execution runOneUntilRunning(Flow flow, BiFunction<FlowInterface, Execution, Map<String, Object>> inputs, Duration duration)
+        throws QueueException {
         if (duration == null) {
             duration = DEFAULT_MAX_WAIT_DURATION;
         }
@@ -168,7 +184,7 @@ public class TestRunnerUtils {
                 execution.getId());
             if (byId.isPresent()) {
                 Execution exec = byId.get();
-                throw new RuntimeException("Execution %s is currently at the stat %s which is not the awaited one".formatted(exec.getId(), exec.getState().getCurrent()));
+                throw new RuntimeException("Execution %s is currently at the status %s which is not the awaited one".formatted(exec.getId(), exec.getState().getCurrent()));
             } else {
                 throw new RuntimeException("Execution %s doesn't exist in the database".formatted(execution.getId()));
             }
@@ -184,10 +200,11 @@ public class TestRunnerUtils {
         }
     }
 
-//    @VisibleForTesting
-//    public Execution awaitChildExecution(Flow flow, Execution parentExecution, Runnable executionEmitter, Duration duration) throws TimeoutException {
-//        return this.awaitExecution(isTerminatedChildExecution(parentExecution, flow), executionEmitter, duration);
-//    }
+    @VisibleForTesting
+    public Execution awaitChildExecution(Flow flow, Execution parentExecution, Execution execution, Duration duration)
+        throws QueueException {
+        return this.emitAndAwaitExecution(isTerminatedChildExecution(parentExecution, flow), execution, duration);
+    }
 
     private Predicate<Execution> isTerminatedExecution(Execution execution, Flow flow) {
         return e -> e.getId().equals(execution.getId()) && executionService.isTerminated(flow, e);
