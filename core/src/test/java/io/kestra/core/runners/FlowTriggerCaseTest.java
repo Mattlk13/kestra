@@ -29,7 +29,7 @@ public class FlowTriggerCaseTest {
     protected QueueInterface<Execution> executionQueue;
 
     @Inject
-    protected RunnerUtils runnerUtils;
+    protected TestRunnerUtils runnerUtils;
 
     public void trigger() throws InterruptedException, TimeoutException, QueueException {
         CountDownLatch countDownLatch = new CountDownLatch(3);

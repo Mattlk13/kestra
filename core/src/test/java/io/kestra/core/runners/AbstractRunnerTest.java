@@ -30,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public abstract class AbstractRunnerTest {
 
     @Inject
-    protected RunnerUtils runnerUtils;
+    protected TestRunnerUtils runnerUtils;
 
     @Inject
     @Named(QueueFactoryInterface.WORKERTASKLOG_NAMED)
@@ -318,35 +318,35 @@ public abstract class AbstractRunnerTest {
         workingDirectoryTest.cache(runnerUtils);
     }
 
-//    @Test // flaky on MySQL
-//    @LoadFlows({"flows/valids/pause-test.yaml"})
-//    public void pauseRun() throws Exception {
-//        pauseTest.run(runnerUtils);
-//    }
-//
-//    @Test
-//    @LoadFlows({"flows/valids/pause-delay.yaml"})
-//    public void pauseRunDelay() throws Exception {
-//        pauseTest.runDelay(runnerUtils);
-//    }
-//
-//    @Test
-//    @LoadFlows({"flows/valids/pause-duration-from-input.yaml"})
-//    public void pauseRunDurationFromInput() throws Exception {
-//        pauseTest.runDurationFromInput(runnerUtils);
-//    }
-//
-//    @Test
-//    @LoadFlows({"flows/valids/each-parallel-pause.yml"})
-//    public void pauseRunParallelDelay() throws Exception {
-//        pauseTest.runParallelDelay(runnerUtils);
-//    }
-//
-//    @Test
-//    @LoadFlows({"flows/valids/pause-timeout.yaml"})
-//    public void pauseRunTimeout() throws Exception {
-//        pauseTest.runTimeout(runnerUtils);
-//    }
+    @Test // flaky on MySQL
+    @LoadFlows({"flows/valids/pause-test.yaml"})
+    public void pauseRun() throws Exception {
+        pauseTest.run(runnerUtils);
+    }
+
+    @Test
+    @LoadFlows({"flows/valids/pause-delay.yaml"})
+    public void pauseRunDelay() throws Exception {
+        pauseTest.runDelay(runnerUtils);
+    }
+
+    @Test
+    @LoadFlows({"flows/valids/pause-duration-from-input.yaml"})
+    public void pauseRunDurationFromInput() throws Exception {
+        pauseTest.runDurationFromInput(runnerUtils);
+    }
+
+    @Test
+    @LoadFlows({"flows/valids/each-parallel-pause.yml"})
+    public void pauseRunParallelDelay() throws Exception {
+        pauseTest.runParallelDelay(runnerUtils);
+    }
+
+    @Test
+    @LoadFlows({"flows/valids/pause-timeout.yaml"})
+    public void pauseRunTimeout() throws Exception {
+        pauseTest.runTimeout(runnerUtils);
+    }
 
     @Test
     @LoadFlows({"flows/valids/minimal.yaml"})

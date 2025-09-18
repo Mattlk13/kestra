@@ -6,8 +6,8 @@ import io.kestra.core.models.executions.Execution;
 import io.kestra.core.models.flows.State;
 import io.kestra.core.queues.QueueFactoryInterface;
 import io.kestra.core.queues.QueueInterface;
-import io.kestra.core.runners.RunnerUtils;
 
+import io.kestra.core.runners.TestRunnerUtils;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +31,7 @@ public class FlowCaseTest {
     QueueInterface<Execution> executionQueue;
 
     @Inject
-    protected RunnerUtils runnerUtils;
+    protected TestRunnerUtils runnerUtils;
 
     public void waitSuccess() throws Exception {
         this.run("OK", State.Type.SUCCESS, State.Type.SUCCESS, 2, "default > amazing", true);

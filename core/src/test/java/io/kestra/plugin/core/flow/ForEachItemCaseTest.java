@@ -7,7 +7,7 @@ import io.kestra.core.queues.QueueException;
 import io.kestra.core.queues.QueueFactoryInterface;
 import io.kestra.core.queues.QueueInterface;
 import io.kestra.core.runners.FlowInputOutput;
-import io.kestra.core.runners.RunnerUtils;
+import io.kestra.core.runners.TestRunnerUtils;
 import io.kestra.core.services.ExecutionService;
 import io.kestra.core.storages.StorageInterface;
 import io.kestra.core.utils.Await;
@@ -41,7 +41,6 @@ import java.util.stream.IntStream;
 
 import static io.kestra.core.models.flows.State.Type.FAILED;
 import static io.kestra.core.tenant.TenantService.MAIN_TENANT;
-import static io.kestra.core.utils.Rethrow.throwRunnable;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -58,7 +57,7 @@ public class ForEachItemCaseTest {
     private StorageInterface storageInterface;
 
     @Inject
-    protected RunnerUtils runnerUtils;
+    protected TestRunnerUtils runnerUtils;
 
     @Inject
     private FlowInputOutput flowIO;
@@ -311,9 +310,9 @@ public class ForEachItemCaseTest {
         });
 
         Execution restarted = executionService.restart(failedExecution, null);
-        final Execution successExecution = runnerUtils.awaitExecution(
+        final Execution successExecution = runnerUtils.emitAndAwaitExecution(
             e -> e.getState().getCurrent() == State.Type.SUCCESS && e.getFlowId().equals("restart-for-each-item"),
-            throwRunnable(() -> executionQueue.emit(restarted)),
+            restarted,
             Duration.ofSeconds(20)
         );
         assertThat(successExecution.getTaskRunList()).hasSize(4);

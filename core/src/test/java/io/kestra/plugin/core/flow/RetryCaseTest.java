@@ -5,7 +5,7 @@ import io.kestra.core.models.flows.State;
 import io.kestra.core.queues.QueueException;
 import io.kestra.core.queues.QueueFactoryInterface;
 import io.kestra.core.queues.QueueInterface;
-import io.kestra.core.runners.RunnerUtils;
+import io.kestra.core.runners.TestRunnerUtils;
 import io.kestra.core.utils.Await;
 import io.kestra.core.utils.TestsUtils;
 import jakarta.inject.Inject;
@@ -33,7 +33,7 @@ public class RetryCaseTest {
     private QueueInterface<Execution> executionQueue;
 
     @Inject
-    protected RunnerUtils runnerUtils;
+    protected TestRunnerUtils runnerUtils;
 
     public void retrySuccess(Execution execution) {
         assertThat(execution.getState().getCurrent()).isEqualTo(State.Type.WARNING);

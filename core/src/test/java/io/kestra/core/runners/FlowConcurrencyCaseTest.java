@@ -28,7 +28,6 @@ import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.IntStream;
 
@@ -42,7 +41,7 @@ public class FlowConcurrencyCaseTest {
     private StorageInterface storageInterface;
 
     @Inject
-    protected RunnerUtils runnerUtils;
+    protected TestRunnerUtils runnerUtils;
 
     @Inject
     private FlowInputOutput flowIO;
@@ -278,7 +277,7 @@ public class FlowConcurrencyCaseTest {
         assertThat(executionIds).hasSize(1);
         receive.blockLast();
 
-        Execution terminated = runnerUtils.awaitExecution(e -> e.getId().equals(forEachItem.getId()) && e.getState().isTerminated(), () -> {}, Duration.ofSeconds(10));
+        Execution terminated = runnerUtils.awaitExecution(e -> e.getId().equals(forEachItem.getId()) && e.getState().isTerminated(),forEachItem, Duration.ofSeconds(10));
         assertThat(terminated.getState().getCurrent()).isEqualTo(Type.SUCCESS);
     }
 

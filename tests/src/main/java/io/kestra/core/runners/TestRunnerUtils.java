@@ -154,27 +154,36 @@ public class TestRunnerUtils {
     }
 
     public Execution awaitExecution(Predicate<Execution> predicate, Execution execution,
-        Duration duration) throws TimeoutException {
+        Duration duration) {
         AtomicReference<Execution> receive = new AtomicReference<>();
         try {
 
+            if (duration == null){
+                duration = Duration.ofSeconds(20);
+            }
             Await.until(() -> {
-                tmpMethod(predicate, receive, execution);
+                testExecution(predicate, receive, execution);
                 return receive.get() != null;
             }, Duration.ofMillis(10), duration);
 
-        } catch (RuntimeException e) {
-            throw new RuntimeException(e);
+        } catch (TimeoutException e) {
+            Optional<Execution> byId = executionRepository.findById(execution.getTenantId(),
+                execution.getId());
+            if (byId.isPresent()) {
+                Execution exec = byId.get();
+                throw new RuntimeException("Execution %s is currently at the stat %s which is not the awaited one".formatted(exec.getId(), exec.getState().getCurrent()));
+            } else {
+                throw new RuntimeException("Execution %s doesn't exist in the database".formatted(execution.getId()));
+            }
         }
 
         return receive.get();
     }
 
-    private void tmpMethod(Predicate<Execution> predicate, AtomicReference<Execution> receive, Execution execution){
-        Execution exec = executionRepository.findById(execution.getTenantId(),
-            execution.getId()).get();
-        if (predicate.test(exec)) {
-            receive.set(exec);
+    private void testExecution(Predicate<Execution> predicate, AtomicReference<Execution> receive, Execution execution){
+        Optional<Execution> exec = executionRepository.findById(execution.getTenantId(), execution.getId());
+        if (exec.isPresent() && predicate.test(exec.get())) {
+            receive.set(exec.get());
         }
     }
 

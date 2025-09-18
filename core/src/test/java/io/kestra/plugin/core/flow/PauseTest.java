@@ -26,12 +26,8 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 import jakarta.validation.ConstraintViolationException;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -54,17 +50,6 @@ public class PauseTest {
     TestRunnerUtils runnerUtils;
     @Inject
     Suite suite;
-
-    private static final Logger LOG = LoggerFactory.getLogger(PauseTest.class);
-    @BeforeEach
-    void init() {
-        LOG.info("--------> start test");
-    }
-
-    @AfterEach
-    void close(){
-        LOG.info("--------> end test");
-    }
 
     @Test
     @LoadFlows({"flows/valids/pause-test.yaml"})
