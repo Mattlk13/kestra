@@ -4,6 +4,7 @@ import io.kestra.core.junit.annotations.ExecuteFlow;
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.junit.annotations.LoadFlows;
 import io.kestra.core.models.executions.Execution;
+import io.kestra.core.queues.QueueException;
 import io.kestra.plugin.core.flow.RetryCaseTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
@@ -57,25 +58,25 @@ public abstract class JdbcRunnerRetryTest {
 
     @Test
     @LoadFlows(value = {"flows/valids/retry-new-execution-task-duration.yml"}, tenantId = "retrynewexecutiontaskdurationtenant")
-    void retryNewExecutionTaskDuration() throws TimeoutException {
+    void retryNewExecutionTaskDuration() throws TimeoutException, QueueException {
         retryCaseTest.retryNewExecutionTaskDuration("retrynewexecutiontaskdurationtenant");
     }
 
     @Test
     @LoadFlows(value = {"flows/valids/retry-new-execution-task-attempts.yml"}, tenantId = "retrynewexecutiontaskattempts")
-    void retryNewExecutionTaskAttempts() throws TimeoutException {
+    void retryNewExecutionTaskAttempts() throws TimeoutException, QueueException {
         retryCaseTest.retryNewExecutionTaskAttempts("retrynewexecutiontaskattempts");
     }
 
     @Test
     @LoadFlows(value = {"flows/valids/retry-new-execution-flow-duration.yml"}, tenantId = "retrynewexecutionflowdurationtenant")
-    void retryNewExecutionFlowDuration() throws TimeoutException {
+    void retryNewExecutionFlowDuration() throws TimeoutException, QueueException {
         retryCaseTest.retryNewExecutionFlowDuration("retrynewexecutionflowdurationtenant");
     }
 
     @Test
     @LoadFlows(value = {"flows/valids/retry-new-execution-flow-attempts.yml"}, tenantId = "retrynewexecutionflowattemptstenant")
-    void retryNewExecutionFlowAttempts() throws TimeoutException {
+    void retryNewExecutionFlowAttempts() throws TimeoutException, QueueException {
         retryCaseTest.retryNewExecutionFlowAttempts("retrynewexecutionflowattemptstenant");
     }
 

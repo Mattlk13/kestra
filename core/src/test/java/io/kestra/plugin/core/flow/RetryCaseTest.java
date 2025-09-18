@@ -3,6 +3,7 @@ package io.kestra.plugin.core.flow;
 import io.kestra.core.models.executions.Execution;
 import io.kestra.core.models.flows.Flow;
 import io.kestra.core.models.flows.State;
+import io.kestra.core.queues.QueueException;
 import io.kestra.core.repositories.ExecutionRepositoryInterface;
 import io.kestra.core.repositories.FlowRepositoryInterface;
 import io.kestra.core.runners.TestRunnerUtils;
@@ -66,35 +67,35 @@ public class RetryCaseTest {
 
     }
 
-    public void retryNewExecutionTaskDuration(String tenant) throws TimeoutException {
+    public void retryNewExecutionTaskDuration(String tenant) throws TimeoutException, QueueException {
         var flow = flowRepository
             .findById(tenant, "io.kestra.tests", "retry-new-execution-task-duration")
             .orElseThrow();
         runAndAssertThereWasTwoRetriesAndFinishedFailed(flow);
     }
 
-    public void retryNewExecutionTaskAttempts(String tenant) throws TimeoutException {
+    public void retryNewExecutionTaskAttempts(String tenant) throws TimeoutException, QueueException {
         var flow = flowRepository
             .findById(tenant, "io.kestra.tests", "retry-new-execution-task-attempts")
             .orElseThrow();
         runAndAssertThereWasTwoRetriesAndFinishedFailed(flow);
     }
 
-    public void retryNewExecutionFlowDuration(String tenant) throws TimeoutException {
+    public void retryNewExecutionFlowDuration(String tenant) throws TimeoutException, QueueException {
         var flow = flowRepository
             .findById(tenant, "io.kestra.tests", "retry-new-execution-flow-duration")
             .orElseThrow();
         runAndAssertThereWasTwoRetriesAndFinishedFailed(flow);
     }
 
-    public void retryNewExecutionFlowAttempts(String tenant) throws TimeoutException {
+    public void retryNewExecutionFlowAttempts(String tenant) throws TimeoutException, QueueException {
         var flow = flowRepository
             .findById(tenant, "io.kestra.tests", "retry-new-execution-flow-attempts")
             .orElseThrow();
         runAndAssertThereWasTwoRetriesAndFinishedFailed(flow);
     }
 
-    private void runAndAssertThereWasTwoRetriesAndFinishedFailed(Flow flow) throws TimeoutException {
+    private void runAndAssertThereWasTwoRetriesAndFinishedFailed(Flow flow) throws TimeoutException, QueueException {
         runnerUtils.runOne(
             Execution.newExecution(flow, null),
             flow,
