@@ -10,6 +10,7 @@ import io.kestra.core.models.HasSource;
 import io.kestra.core.models.HasUID;
 import io.kestra.core.models.Label;
 import io.kestra.core.models.TenantInterface;
+import io.kestra.core.models.flows.lineage.Lineage;
 import io.kestra.core.models.flows.sla.SLA;
 import io.kestra.core.models.tasks.WorkerGroup;
 import io.kestra.core.serializers.JacksonMapper;
@@ -53,6 +54,10 @@ public interface FlowInterface extends FlowId, DeletedInterface, TenantInterface
 
     default List<SLA> getSla() {
         return List.of();
+    }
+
+    default Lineage getLineage() {
+        return null;
     }
 
     String getSource();

@@ -9,6 +9,7 @@ import com.google.common.annotations.VisibleForTesting;
 import io.kestra.core.exceptions.DeserializationException;
 import io.kestra.core.models.HasUID;
 import io.kestra.core.models.Label;
+import io.kestra.core.models.flows.lineage.Lineage;
 import io.kestra.core.models.flows.sla.SLA;
 import io.kestra.core.models.tasks.GenericTask;
 import io.kestra.core.models.triggers.GenericTrigger;
@@ -44,6 +45,8 @@ public class GenericFlow extends AbstractFlow implements HasUID {
     private List<SLA> sla;
 
     private Concurrency concurrency;
+
+    Lineage lineage;
 
     private List<GenericTask> tasks;
 

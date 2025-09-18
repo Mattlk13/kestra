@@ -43,6 +43,7 @@ public class FlowWithSource extends Flow {
             .concurrency(this.concurrency)
             .retry(this.retry)
             .sla(this.sla)
+            .lineage(this.lineage)
             .build();
     }
 
@@ -85,6 +86,7 @@ public class FlowWithSource extends Flow {
             .concurrency(flow.concurrency)
             .retry(flow.retry)
             .sla(flow.sla)
+            .lineage(flow.lineage)
             .build();
     }
 }

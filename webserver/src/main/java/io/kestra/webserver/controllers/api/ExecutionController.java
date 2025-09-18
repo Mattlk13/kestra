@@ -6,6 +6,9 @@ import io.kestra.core.events.CrudEvent;
 import io.kestra.core.events.CrudEventType;
 import io.kestra.core.exceptions.IllegalVariableEvaluationException;
 import io.kestra.core.exceptions.InternalException;
+import io.kestra.core.lineage.events.LineageEvent;
+import io.kestra.core.lineage.events.LineageEventType;
+import io.kestra.core.lineage.events.RunEvent;
 import io.kestra.core.models.Label;
 import io.kestra.core.models.QueryFilter;
 import io.kestra.core.models.executions.*;
@@ -117,7 +120,6 @@ import static io.kestra.core.utils.Rethrow.throwConsumer;
 import static io.kestra.core.utils.Rethrow.throwFunction;
 
 @Slf4j
-@Validated
 @Controller("/api/v1/{tenant}/executions")
 public class ExecutionController {
     @Nullable
@@ -179,6 +181,9 @@ public class ExecutionController {
     private ApplicationEventPublisher<CrudEvent<Execution>> eventPublisher;
 
     @Inject
+    private ApplicationEventPublisher<LineageEvent> lineageEventPublisher;
+
+    @Inject
     private RunContextFactory runContextFactory;
 
     @Value("${kestra.server.preview.initial-rows:100}")
@@ -195,8 +200,6 @@ public class ExecutionController {
 
     @Inject
     private Optional<OpenTelemetry> openTelemetry;
-    @Inject
-    private ExecutionStreamingService executionStreamingService;
 
     @Inject
     private LocalPathFactory localPathFactory;
@@ -600,6 +603,9 @@ public class ExecutionController {
 
             executionQueue.emit(result);
             eventPublisher.publishEvent(new CrudEvent<>(result, CrudEventType.CREATE));
+            if (flow.getLineage() != null) {
+                lineageEventPublisher.publishEvent(new RunEvent(result, LineageEventType.CREATE));
+            }
 
             if (webhook.get().getWait()) {
                 var subscriberId = UUID.randomUUID().toString();
@@ -704,6 +710,9 @@ public class ExecutionController {
 
                     executionQueue.emit(executionWithInputs);
                     eventPublisher.publishEvent(new CrudEvent<>(executionWithInputs, CrudEventType.CREATE));
+                    if (flow.getLineage() != null) {
+                        lineageEventPublisher.publishEvent(new RunEvent(executionWithInputs, LineageEventType.CREATE));
+                    }
 
                     if (!wait) {
                         return Mono.just(ExecutionResponse.fromExecution(
