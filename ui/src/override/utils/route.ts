@@ -16,7 +16,7 @@ export const baseUrl = createBaseUrl().replace(/\/$/, "")
 export const basePath = () => "/api/v1/main"
 export const basePathWithoutTenant = () => "/api/v1"
 
-export const apiUrl = (_: Store<any>): string => {
+export const apiUrl = (_?: Store<any>): string => {
     return `${baseUrl}${basePath()}`;
 }
 
