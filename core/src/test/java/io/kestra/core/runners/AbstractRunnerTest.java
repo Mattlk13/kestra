@@ -197,12 +197,12 @@ public abstract class AbstractRunnerTest {
     }
 
     @Test
-    @LoadFlows({"flows/valids/trigger-flow-listener-no-inputs.yaml",
+    @LoadFlows(value = {"flows/valids/trigger-flow-listener-no-inputs.yaml",
         "flows/valids/trigger-flow-listener.yaml",
         "flows/valids/trigger-flow-listener-namespace-condition.yaml",
-        "flows/valids/trigger-flow.yaml"})
+        "flows/valids/trigger-flow.yaml"}, tenantId = "listener-tenant")
     void flowTrigger() throws Exception {
-        flowTriggerCaseTest.trigger();
+        flowTriggerCaseTest.trigger("listener-tenant");
     }
 
     @Test // flaky on CI but never fail locally
@@ -212,13 +212,11 @@ public abstract class AbstractRunnerTest {
         flowTriggerCaseTest.triggerWithPause();
     }
 
-    @FlakyTest
-    @Disabled
     @Test
-    @LoadFlows({"flows/valids/trigger-flow-listener-with-concurrency-limit.yaml",
-        "flows/valids/trigger-flow-with-concurrency-limit.yaml"})
+    @LoadFlows(value = {"flows/valids/trigger-flow-listener-with-concurrency-limit.yaml",
+        "flows/valids/trigger-flow-with-concurrency-limit.yaml"}, tenantId = "trigger-tenant")
     void flowTriggerWithConcurrencyLimit() throws Exception {
-        flowTriggerCaseTest.triggerWithConcurrencyLimit();
+        flowTriggerCaseTest.triggerWithConcurrencyLimit("trigger-tenant");
     }
 
     @Test
@@ -232,9 +230,9 @@ public abstract class AbstractRunnerTest {
     @Test // Flaky on CI but never locally even with 100 repetitions
     @LoadFlows(value = {"flows/valids/trigger-flow-listener-namespace-condition.yaml",
         "flows/valids/trigger-multiplecondition-flow-c.yaml",
-        "flows/valids/trigger-multiplecondition-flow-d.yaml"}, tenantId = TENANT_1)
+        "flows/valids/trigger-multiplecondition-flow-d.yaml"}, tenantId = "condition-tenant")
     void multipleConditionTriggerFailed() throws Exception {
-        multipleConditionTriggerCaseTest.failed(TENANT_1);
+        multipleConditionTriggerCaseTest.failed("condition-tenant");
     }
 
     @Test

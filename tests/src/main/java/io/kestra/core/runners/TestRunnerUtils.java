@@ -235,6 +235,46 @@ public class TestRunnerUtils {
         return receive.get();
     }
 
+    public List<Execution> awaitFlowExecutionNumber(int number, String tenantId, String namespace, String flowId) {
+        return awaitFlowExecutionNumber(number, tenantId, namespace, flowId, null);
+    }
+
+    public List<Execution> awaitFlowExecutionNumber(int number, String tenantId, String namespace, String flowId, Duration duration) {
+        AtomicReference<List<Execution>> receive = new AtomicReference<>();
+        Flow flow = flowRepository
+            .findById(tenantId, namespace, flowId, Optional.empty())
+            .orElseThrow(
+                () -> new IllegalArgumentException("Unable to find flow '" + flowId + "'"));
+        try {
+            if (duration == null){
+                duration = Duration.ofSeconds(20);
+            }
+            Await.until(() -> {
+                ArrayListTotal<Execution> byFlowId = executionRepository.findByFlowId(
+                    tenantId, namespace, flowId, Pageable.UNPAGED);
+                if (byFlowId.size() == number
+                        && byFlowId.stream()
+                            .filter(e -> executionService.isTerminated(flow, e))
+                            .toList().size() == number) {
+                    receive.set(byFlowId);
+                    return true;
+                }
+                return false;
+            }, Duration.ofMillis(50), duration);
+
+        } catch (TimeoutException e) {
+            ArrayListTotal<Execution> byFlowId = executionRepository.findByFlowId(
+                tenantId, namespace, flowId, Pageable.UNPAGED);
+            if (!byFlowId.isEmpty()) {
+                throw new RuntimeException("%d Execution found for flow %s, but %d where awaited".formatted(byFlowId.size(), flowId, number));
+            } else {
+                throw new RuntimeException("No execution for flow %s exist in the database".formatted(flowId));
+            }
+        }
+
+        return receive.get();
+    }
+
     @VisibleForTesting
     public Execution awaitChildExecution(Flow flow, Execution parentExecution, Execution execution, Duration duration)
         throws QueueException {

@@ -32,7 +32,7 @@ public class ChangeStateTestCase {
     private QueueInterface<Execution> executionQueue;
 
     @Inject
-    private RunnerUtils runnerUtils;
+    private TestRunnerUtils runnerUtils;
 
     public void changeStateShouldEndsInSuccess(Execution execution) throws Exception {
         assertThat(execution.getState().getCurrent()).isEqualTo(State.Type.FAILED);

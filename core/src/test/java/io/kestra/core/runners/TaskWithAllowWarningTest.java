@@ -34,7 +34,7 @@ public class TaskWithAllowWarningTest {
     private FlowInputOutput flowIO;
 
     @Inject
-    private RunnerUtils runnerUtils;
+    private TestRunnerUtils runnerUtils;
 
     @Test
     @ExecuteFlow("flows/valids/task-allow-warning-runnable.yml")

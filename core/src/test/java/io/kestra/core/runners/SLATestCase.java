@@ -16,7 +16,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Singleton
 public class SLATestCase {
     @Inject
-    private RunnerUtils runnerUtils;
+    private TestRunnerUtils runnerUtils;
 
     public void maxDurationSLAShouldFail() throws QueueException, TimeoutException {
         Execution execution = runnerUtils.runOne(MAIN_TENANT, "io.kestra.tests", "sla-max-duration-fail");
