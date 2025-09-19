@@ -13,8 +13,6 @@ import org.junit.jupiter.api.TestInstance;
 import java.util.concurrent.TimeoutException;
 
 @KestraTest(startRunner = true)
-@TestInstance(TestInstance.Lifecycle.PER_CLASS) // must be per-class to allow calling once init() which took a lot of time
-@org.junit.jupiter.api.parallel.Execution(org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT)
 public abstract class JdbcRunnerRetryTest {
 
     @Inject
