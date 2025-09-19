@@ -4,13 +4,12 @@ import io.kestra.core.context.TestRunContextFactory;
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.kv.KVType;
 import io.kestra.core.models.property.Property;
+import io.kestra.core.models.tasks.VoidOutput;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.storages.kv.KVEntry;
-import io.kestra.core.storages.kv.KVMetadata;
 import io.kestra.core.storages.kv.KVStore;
 import io.kestra.core.storages.kv.KVStoreException;
 import io.kestra.core.storages.kv.KVValue;
-import io.kestra.core.storages.kv.KVValueAndMetadata;
 import io.kestra.core.utils.TestsUtils;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Assertions;
@@ -185,9 +184,21 @@ class SetTest {
 
         // When - Then
         //set key a first:
-        runContext.namespaceKv(runContext.flowInfo().namespace()).put("existing_key", new KVValueAndMetadata(new KVMetadata("unused", Duration.ofMinutes(1)), value));
+        Set.builder()
+            .id(Set.class.getSimpleName())
+            .type(Set.class.getName())
+            .key(new Property<>("{{ inputs.key }}"))
+            .value(new Property<>("{{ inputs.value }}"))
+            .overwrite(Property.ofValue(true))
+            .build().run(runContext);
         //fail because key is already set
-        KVStoreException exception = Assertions.assertThrows(KVStoreException.class, () -> set.run(runContext));
+        KVStoreException exception = Assertions.assertThrows(KVStoreException.class, () -> Set.builder()
+            .id(Set.class.getSimpleName())
+            .type(Set.class.getName())
+            .key(new Property<>("{{ inputs.key }}"))
+            .value(new Property<>("{{ inputs.value }}"))
+            .overwrite(Property.ofValue(false))
+            .build().run(runContext));
         assertThat(exception.getMessage()).isEqualTo("Cannot set value for key 'existing_key'. Key already exists and `overwrite` is set to `false`.");
     }
 

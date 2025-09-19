@@ -8,6 +8,8 @@ import io.kestra.core.repositories.ExecutionRepositoryInterface;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
+import java.time.Instant;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
@@ -79,10 +81,13 @@ public class FlowTriggerCaseTest {
             "trigger-flow-listener-with-pause");
 
         assertThat(triggeredExec.size()).isEqualTo(4);
-        assertThat(triggeredExec.get(0).getOutputs().get("status")).isEqualTo("RUNNING");
-        assertThat(triggeredExec.get(1).getOutputs().get("status")).isEqualTo("PAUSED");
-        assertThat(triggeredExec.get(2).getOutputs().get("status")).isEqualTo("RUNNING");
-        assertThat(triggeredExec.get(3).getOutputs().get("status")).isEqualTo("SUCCESS");
+        List<Execution> sortedExecs = triggeredExec.stream()
+            .sorted(Comparator.comparing(e -> e.getState().getEndDate().orElse(Instant.now())))
+            .toList();
+        assertThat(sortedExecs.get(0).getOutputs().get("status")).isEqualTo("RUNNING");
+        assertThat(sortedExecs.get(1).getOutputs().get("status")).isEqualTo("PAUSED");
+        assertThat(sortedExecs.get(2).getOutputs().get("status")).isEqualTo("RUNNING");
+        assertThat(sortedExecs.get(3).getOutputs().get("status")).isEqualTo("SUCCESS");
     }
 
     public void triggerWithConcurrencyLimit(String tenantId) throws QueueException, TimeoutException {

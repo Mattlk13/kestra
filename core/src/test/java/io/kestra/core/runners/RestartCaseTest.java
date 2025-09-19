@@ -4,6 +4,7 @@ import io.kestra.core.models.executions.Execution;
 import io.kestra.core.models.executions.TaskRun;
 import io.kestra.core.models.flows.Flow;
 import io.kestra.core.models.flows.State;
+import io.kestra.core.models.flows.State.Type;
 import io.kestra.core.queues.QueueException;
 import io.kestra.core.queues.QueueFactoryInterface;
 import io.kestra.core.queues.QueueInterface;
@@ -40,9 +41,9 @@ public class RestartCaseTest {
     @Inject
     private ExecutionService executionService;
 
-    @Inject
-    @Named(QueueFactoryInterface.EXECUTION_NAMED)
-    private QueueInterface<Execution> executionQueue;
+//    @Inject
+//    @Named(QueueFactoryInterface.EXECUTION_NAMED)
+//    private QueueInterface<Execution> executionQueue;
 
     public void restartFailedThenSuccess() throws Exception {
         Flow flow = flowRepository.findById(MAIN_TENANT, "io.kestra.tests", "restart_last_failed").orElseThrow();
@@ -206,30 +207,14 @@ public class RestartCaseTest {
     }
 
     public void restartSubflow() throws Exception {
-        CountDownLatch countDownLatch = new CountDownLatch(1);
-        Flux<Execution> receiveSubflows = TestsUtils.receive(executionQueue, either -> {
-            Execution subflowExecution = either.getLeft();
-            if (subflowExecution.getFlowId().equals("restart-child") && subflowExecution.getState().getCurrent().isFailed()) {
-                countDownLatch.countDown();
-            }
-        });
-
         Execution execution = runnerUtils.runOne(MAIN_TENANT, "io.kestra.tests", "restart-parent");
         assertThat(execution.getTaskRunList()).hasSize(3);
         assertThat(execution.getState().getCurrent()).isEqualTo(State.Type.FAILED);
 
         // here we must have 1 failed subflows
-        assertTrue(countDownLatch.await(1, TimeUnit.MINUTES));
-        receiveSubflows.blockLast();
+        runnerUtils.awaitFlowExecution(e -> e.getState().getCurrent().isFailed(), MAIN_TENANT, "io.kestra.tests", "restart-child");
 
         // there is 3 values so we must restart it 3 times to end the 3 subflows
-        CountDownLatch successLatch = new CountDownLatch(3);
-        receiveSubflows = TestsUtils.receive(executionQueue, either -> {
-            Execution subflowExecution = either.getLeft();
-            if (subflowExecution.getFlowId().equals("restart-child") && subflowExecution.getState().getCurrent().isSuccess()) {
-                successLatch.countDown();
-            }
-        });
         Execution restarted1 = executionService.restart(execution, null);
         execution = runnerUtils.emitAndAwaitExecution(
             e -> e.getState().getCurrent() == State.Type.FAILED && e.getFlowId().equals("restart-parent"),
@@ -249,8 +234,11 @@ public class RestartCaseTest {
             Duration.ofSeconds(10)
         );
         assertThat(execution.getTaskRunList()).hasSize(6);
-        assertTrue(successLatch.await(1, TimeUnit.MINUTES));
-        receiveSubflows.blockLast();
+
+        List<Execution> childExecutions = runnerUtils.awaitFlowExecutionNumber(3, MAIN_TENANT, "io.kestra.tests", "restart-child");
+        List<Execution> successfulRestart = childExecutions.stream()
+            .filter(e -> e.getState().getCurrent().equals(Type.SUCCESS)).toList();
+        assertThat(successfulRestart).hasSize(3);
     }
 
     public void restartFailedWithFinally() throws Exception {
