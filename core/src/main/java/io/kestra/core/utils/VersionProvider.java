@@ -35,7 +35,7 @@ public class VersionProvider {
     private Optional<SettingRepositoryInterface> settingRepository; // repositories are not always there on unit tests
 
     @PostConstruct
-    public void start() {
+    public synchronized void start() {
         final Optional<PropertySource> gitProperties = new PropertiesPropertySourceLoader()
             .load("classpath:git", environment);
 
@@ -46,16 +46,20 @@ public class VersionProvider {
         this.date = loadTime(gitProperties);
         this.version = loadVersion(buildProperties, gitProperties);
 
-        // check the version in the settings and update if needed, we did't use it would allow us to detect incompatible update later if needed
+        // check the version in the settings and update if needed, we didn't use it would allow us to detect incompatible update later if needed
         if (settingRepository.isPresent()) {
-            Optional<Setting> versionSetting = settingRepository.get().findByKey(Setting.INSTANCE_VERSION);
-            if (versionSetting.isEmpty() || !versionSetting.get().getValue().equals(this.version)) {
-                settingRepository.get().save(Setting.builder()
-                    .key(Setting.INSTANCE_VERSION)
-                    .value(this.version)
-                    .build()
-                );
-            }
+            persistVersion(settingRepository.get(), version);
+        }
+    }
+
+    private static synchronized void persistVersion(SettingRepositoryInterface settingRepositoryInterface, String version) {
+        Optional<Setting> versionSetting = settingRepositoryInterface.findByKey(Setting.INSTANCE_VERSION);
+        if (versionSetting.isEmpty() || !versionSetting.get().getValue().equals(version)) {
+            settingRepositoryInterface.save(Setting.builder()
+                .key(Setting.INSTANCE_VERSION)
+                .value(version)
+                .build()
+            );
         }
     }
 

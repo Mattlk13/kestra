@@ -31,9 +31,9 @@ public class ScheduleDateCaseTest {
     @Named(QueueFactoryInterface.EXECUTION_NAMED)
     protected QueueInterface<Execution> executionQueue;
 
-    public void shouldScheduleOnDate() throws QueueException, InterruptedException {
+    public void shouldScheduleOnDate(String tenantId) throws QueueException, InterruptedException {
         ZonedDateTime scheduleOn = ZonedDateTime.now().plusSeconds(1);
-        Flow flow = flowRepository.findById(MAIN_TENANT, "io.kestra.tests", "minimal").orElseThrow();
+        Flow flow = flowRepository.findById(tenantId, "io.kestra.tests", "minimal").orElseThrow();
         Execution execution = Execution.newExecution(flow, null, null, Optional.of(scheduleOn));
         this.executionQueue.emit(execution);
 
@@ -43,7 +43,7 @@ public class ScheduleDateCaseTest {
         CountDownLatch latch1 = new CountDownLatch(1);
 
         Flux<Execution> receive = TestsUtils.receive(executionQueue, e -> {
-            if (e.getLeft().getId().equals(execution.getId())) {
+            if (e.getLeft().getId().equals(execution.getId()) && tenantId.equals(e.getLeft().getTenantId())) {
                 if (e.getLeft().getState().getCurrent() == State.Type.SUCCESS) {
                     latch1.countDown();
                 }

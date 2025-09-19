@@ -17,7 +17,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static io.kestra.core.tenant.TenantService.MAIN_TENANT;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Singleton
@@ -62,20 +61,20 @@ public class ChangeStateTestCase {
         assertThat(lastExecution.get().getTaskRunList().getFirst().getState().getCurrent()).isEqualTo(State.Type.SUCCESS);
     }
 
-    public void changeStateInSubflowShouldEndsParentFlowInSuccess() throws Exception {
+    public void changeStateInSubflowShouldEndsParentFlowInSuccess(String tenantId) throws Exception {
         // await for the subflow execution
         CountDownLatch latch = new CountDownLatch(1);
         AtomicReference<Execution> lastExecution = new AtomicReference<>();
         Flux<Execution> receivedExecutions = TestsUtils.receive(executionQueue, either -> {
             Execution exec = either.getLeft();
-            if ("failed-first".equals(exec.getFlowId()) && exec.getState().getCurrent() == State.Type.FAILED) {
+            if ("failed-first".equals(exec.getFlowId()) && tenantId.equals(exec.getTenantId()) && exec.getState().getCurrent() == State.Type.FAILED) {
                 lastExecution.set(exec);
                 latch.countDown();
             }
         });
 
         // run the parent flow
-        Execution execution = runnerUtils.runOne(MAIN_TENANT, "io.kestra.tests", "subflow-parent-of-failed");
+        Execution execution = runnerUtils.runOne(tenantId, "io.kestra.tests", "subflow-parent-of-failed");
         assertThat(execution.getState().getCurrent()).isEqualTo(State.Type.FAILED);
         assertThat(execution.getTaskRunList()).hasSize(1);
         assertThat(execution.getTaskRunList().getFirst().getState().getCurrent()).isEqualTo(State.Type.FAILED);
@@ -92,7 +91,7 @@ public class ChangeStateTestCase {
         AtomicReference<Execution> lastParentExecution = new AtomicReference<>();
         receivedExecutions = TestsUtils.receive(executionQueue, either -> {
             Execution exec = either.getLeft();
-            if (execution.getId().equals(exec.getId()) && exec.getState().isTerminated()) {
+            if (execution.getId().equals(exec.getId()) && tenantId.equals(exec.getTenantId()) && exec.getState().isTerminated()) {
                 lastParentExecution.set(exec);
                 parentLatch.countDown();
             }

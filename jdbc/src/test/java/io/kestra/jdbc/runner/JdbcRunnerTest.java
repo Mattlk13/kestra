@@ -6,9 +6,11 @@ import io.kestra.core.models.executions.LogEntry;
 import io.kestra.core.models.flows.State;
 import io.kestra.core.queues.MessageTooBigException;
 import io.kestra.core.queues.QueueException;
+import io.kestra.core.repositories.ExecutionRepositoryInterface;
 import io.kestra.core.runners.AbstractRunnerTest;
 import io.kestra.core.runners.InputsTest;
 import io.kestra.core.utils.TestsUtils;
+import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 import org.junitpioneer.jupiter.RetryingTest;
 import org.slf4j.event.Level;
@@ -62,7 +64,7 @@ public abstract class JdbcRunnerTest extends AbstractRunnerTest {
     }
 
     @Test
-    @LoadFlows({"flows/valids/inputs-large.yaml"})
+    @LoadFlows(value = {"flows/valids/inputs-large.yaml"}, tenantId = TENANT_1)
     void queueMessageTooLarge() {
         char[] chars = new char[1100000];
         Arrays.fill(chars, 'a');
@@ -71,7 +73,7 @@ public abstract class JdbcRunnerTest extends AbstractRunnerTest {
         inputs.put("string", new String(chars));
 
         var exception = assertThrows(QueueException.class, () -> runnerUtils.runOne(
-            MAIN_TENANT,
+            TENANT_1,
             NAMESPACE,
             "inputs-large",
             null,

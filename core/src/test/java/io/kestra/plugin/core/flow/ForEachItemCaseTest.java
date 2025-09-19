@@ -40,6 +40,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.IntStream;
 
 import static io.kestra.core.models.flows.State.Type.FAILED;
+import static io.kestra.core.models.flows.State.Type.terminatedTypes;
 import static io.kestra.core.tenant.TenantService.MAIN_TENANT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -78,7 +79,7 @@ public class ForEachItemCaseTest {
             }
         });
 
-        URI file = storageUpload();
+        URI file = storageUpload(MAIN_TENANT);
         Map<String, Object> inputs = Map.of("file", file.toString(), "batch", 4);
         Execution execution = runnerUtils.runOne(MAIN_TENANT, TEST_NAMESPACE, "for-each-item", null,
             (flow, execution1) -> flowIO.readExecutionInputs(flow, execution1, inputs),
@@ -111,10 +112,10 @@ public class ForEachItemCaseTest {
         assertThat(correlationId.get().value()).isEqualTo(execution.getId());
     }
 
-    public void forEachItemEmptyItems() throws TimeoutException, URISyntaxException, IOException, QueueException {
-        URI file = emptyItems();
+    public void forEachItemEmptyItems(String tenantId) throws TimeoutException, URISyntaxException, IOException, QueueException {
+        URI file = emptyItems(tenantId);
         Map<String, Object> inputs = Map.of("file", file.toString(), "batch", 4);
-        Execution execution = runnerUtils.runOne(MAIN_TENANT, TEST_NAMESPACE, "for-each-item", null,
+        Execution execution = runnerUtils.runOne(tenantId, TEST_NAMESPACE, "for-each-item", null,
             (flow, execution1) -> flowIO.readExecutionInputs(flow, execution1, inputs),
             Duration.ofSeconds(30));
 
@@ -140,7 +141,7 @@ public class ForEachItemCaseTest {
             }
         });
 
-        URI file = storageUpload();
+        URI file = storageUpload(MAIN_TENANT);
         Map<String, Object> inputs = Map.of("file", file.toString());
         Execution execution = runnerUtils.runOne(MAIN_TENANT, TEST_NAMESPACE, "for-each-item-no-wait", null,
             (flow, execution1) -> flowIO.readExecutionInputs(flow, execution1, inputs),
@@ -187,7 +188,7 @@ public class ForEachItemCaseTest {
             }
         });
 
-        URI file = storageUpload();
+        URI file = storageUpload(MAIN_TENANT);
         Map<String, Object> inputs = Map.of("file", file.toString());
         Execution execution = runnerUtils.runOne(MAIN_TENANT, TEST_NAMESPACE, "for-each-item-failed", null,
             (flow, execution1) -> flowIO.readExecutionInputs(flow, execution1, inputs),
@@ -230,7 +231,7 @@ public class ForEachItemCaseTest {
             }
         });
 
-        URI file = storageUpload();
+        URI file = storageUpload(MAIN_TENANT);
         Map<String, Object> inputs = Map.of("file", file.toString());
         Execution execution = runnerUtils.runOne(MAIN_TENANT, TEST_NAMESPACE, "for-each-item-outputs", null,
             (flow, execution1) -> flowIO.readExecutionInputs(flow, execution1, inputs),
@@ -271,18 +272,18 @@ public class ForEachItemCaseTest {
         }
     }
 
-    public void restartForEachItem() throws Exception {
+    public void restartForEachItem(String tenantId) throws Exception {
         CountDownLatch countDownLatch = new CountDownLatch(6);
         Flux<Execution> receiveSubflows = TestsUtils.receive(executionQueue, either -> {
             Execution subflowExecution = either.getLeft();
-            if (subflowExecution.getFlowId().equals("restart-child") && subflowExecution.getState().getCurrent().isFailed()) {
+            if (subflowExecution.getFlowId().equals("restart-child") && tenantId.equals(subflowExecution.getTenantId()) && subflowExecution.getState().getCurrent().isFailed()) {
                 countDownLatch.countDown();
             }
         });
 
-        URI file = storageUpload();
+        URI file = storageUpload(tenantId);
         Map<String, Object> inputs = Map.of("file", file.toString(), "batch", 20);
-        final Execution failedExecution = runnerUtils.runOne(MAIN_TENANT, TEST_NAMESPACE, "restart-for-each-item", null,
+        final Execution failedExecution = runnerUtils.runOne(tenantId, TEST_NAMESPACE, "restart-for-each-item", null,
             (flow, execution1) -> flowIO.readExecutionInputs(flow, execution1, inputs),
             Duration.ofSeconds(30));
         assertThat(failedExecution.getTaskRunList()).hasSize(3);
@@ -294,7 +295,7 @@ public class ForEachItemCaseTest {
 
         Await.until(
             () -> "first FAILED run of flow should have been persisted",
-            () -> getPersistedExecution(MAIN_TENANT, failedExecution.getId())
+            () -> getPersistedExecution(tenantId, failedExecution.getId())
                 .map(exec -> exec.getState().getCurrent() == FAILED)
                 .orElse(false),
             Duration.of(100, TimeUnit.MILLISECONDS.toChronoUnit()),
@@ -304,7 +305,7 @@ public class ForEachItemCaseTest {
         CountDownLatch successLatch = new CountDownLatch(6);
         receiveSubflows = TestsUtils.receive(executionQueue, either -> {
             Execution subflowExecution = either.getLeft();
-            if (subflowExecution.getFlowId().equals("restart-child") && subflowExecution.getState().getCurrent().isSuccess()) {
+            if (subflowExecution.getFlowId().equals("restart-child") && tenantId.equals(subflowExecution.getTenantId()) && subflowExecution.getState().getCurrent().isSuccess()) {
                 successLatch.countDown();
             }
         });
@@ -328,21 +329,21 @@ public class ForEachItemCaseTest {
         }
     }
 
-    public void forEachItemInIf() throws TimeoutException, InterruptedException, URISyntaxException, IOException, QueueException {
+    public void forEachItemInIf(String tenantId) throws TimeoutException, InterruptedException, URISyntaxException, IOException, QueueException {
         CountDownLatch countDownLatch = new CountDownLatch(26);
         AtomicReference<Execution> triggered = new AtomicReference<>();
 
         Flux<Execution> receive = TestsUtils.receive(executionQueue, either -> {
             Execution execution = either.getLeft();
-            if (execution.getFlowId().equals("for-each-item-subflow") && execution.getState().getCurrent().isTerminated()) {
+            if (execution.getFlowId().equals("for-each-item-subflow") && tenantId.equals(execution.getTenantId()) && execution.getState().getCurrent().isTerminated()) {
                 triggered.set(execution);
                 countDownLatch.countDown();
             }
         });
 
-        URI file = storageUpload();
+        URI file = storageUpload(tenantId);
         Map<String, Object> inputs = Map.of("file", file.toString(), "batch", 4);
-        Execution execution = runnerUtils.runOne(MAIN_TENANT, TEST_NAMESPACE, "for-each-item-in-if", null,
+        Execution execution = runnerUtils.runOne(tenantId, TEST_NAMESPACE, "for-each-item-in-if", null,
             (flow, execution1) -> flowIO.readExecutionInputs(flow, execution1, inputs),
             Duration.ofSeconds(30));
 
@@ -383,7 +384,7 @@ public class ForEachItemCaseTest {
             }
         });
 
-        URI file = storageUpload();
+        URI file = storageUpload(MAIN_TENANT);
         Map<String, Object> inputs = Map.of("file", file.toString(), "batch", 4);
         Execution execution = runnerUtils.runOne(MAIN_TENANT, TEST_NAMESPACE, "for-each-item-after-execution", null,
             (flow, execution1) -> flowIO.readExecutionInputs(flow, execution1, inputs),
@@ -416,24 +417,24 @@ public class ForEachItemCaseTest {
         assertThat(correlationId.get().value()).isEqualTo(execution.getId());
     }
 
-    private URI storageUpload() throws URISyntaxException, IOException {
+    private URI storageUpload(String tenantId) throws URISyntaxException, IOException {
         File tempFile = File.createTempFile("file", ".txt");
 
         Files.write(tempFile.toPath(), content());
 
         return storageInterface.put(
-            MAIN_TENANT,
+            tenantId,
             null,
             new URI("/file/storage/file.txt"),
             new FileInputStream(tempFile)
         );
     }
 
-    private URI emptyItems() throws URISyntaxException, IOException {
+    private URI emptyItems(String tenantId) throws URISyntaxException, IOException {
         File tempFile = File.createTempFile("file", ".txt");
 
         return storageInterface.put(
-            MAIN_TENANT,
+            tenantId,
             null,
             new URI("/file/storage/file.txt"),
             new FileInputStream(tempFile)

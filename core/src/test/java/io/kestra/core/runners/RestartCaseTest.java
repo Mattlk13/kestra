@@ -35,7 +35,7 @@ public class RestartCaseTest {
     private FlowRepositoryInterface flowRepository;
 
     @Inject
-    private RunnerUtils runnerUtils;
+    private TestRunnerUtils runnerUtils;
 
     @Inject
     private ExecutionService executionService;
@@ -47,25 +47,22 @@ public class RestartCaseTest {
     public void restartFailedThenSuccess() throws Exception {
         Flow flow = flowRepository.findById(MAIN_TENANT, "io.kestra.tests", "restart_last_failed").orElseThrow();
 
-        Execution firstExecution = runnerUtils.runOne(MAIN_TENANT, flow.getNamespace(), flow.getId(), Duration.ofSeconds(60));
+        Execution firstExecution = runnerUtils.runOne(MAIN_TENANT, flow.getNamespace(), flow.getId());
 
         assertThat(firstExecution.getState().getCurrent()).isEqualTo(State.Type.FAILED);
         assertThat(firstExecution.getTaskRunList()).hasSize(3);
         assertThat(firstExecution.getTaskRunList().get(2).getState().getCurrent()).isEqualTo(State.Type.FAILED);
 
         // wait
-        Execution finishedRestartedExecution = runnerUtils.awaitExecution(
+        Execution restartedExec = executionService.restart(firstExecution, null);
+        assertThat(restartedExec).isNotNull();
+        assertThat(restartedExec.getId()).isEqualTo(firstExecution.getId());
+        assertThat(restartedExec.getParentId()).isNull();
+        assertThat(restartedExec.getTaskRunList().size()).isEqualTo(3);
+        assertThat(restartedExec.getState().getCurrent()).isEqualTo(State.Type.RESTARTED);
+        Execution finishedRestartedExecution = runnerUtils.emitAndAwaitExecution(
             execution -> execution.getState().getCurrent() == State.Type.SUCCESS && execution.getId().equals(firstExecution.getId()),
-            throwRunnable(() -> {
-                Execution restartedExec = executionService.restart(firstExecution, null);
-                assertThat(restartedExec).isNotNull();
-                assertThat(restartedExec.getId()).isEqualTo(firstExecution.getId());
-                assertThat(restartedExec.getParentId()).isNull();
-                assertThat(restartedExec.getTaskRunList().size()).isEqualTo(3);
-                assertThat(restartedExec.getState().getCurrent()).isEqualTo(State.Type.RESTARTED);
-
-                executionQueue.emit(restartedExec);
-            }),
+            restartedExec,
             Duration.ofSeconds(60)
         );
 
@@ -93,18 +90,16 @@ public class RestartCaseTest {
         assertThat(firstExecution.getTaskRunList().getFirst().getState().getCurrent()).isEqualTo(State.Type.FAILED);
 
         // wait
-        Execution finishedRestartedExecution = runnerUtils.awaitExecution(
-            execution -> execution.getState().getCurrent() == State.Type.FAILED && execution.getTaskRunList().getFirst().getAttempts().size() == 2,
-            throwRunnable(() -> {
-                Execution restartedExec = executionService.restart(firstExecution, null);
-                executionQueue.emit(restartedExec);
+        Execution restartedExec = executionService.restart(firstExecution, null);
 
-                assertThat(restartedExec).isNotNull();
-                assertThat(restartedExec.getId()).isEqualTo(firstExecution.getId());
-                assertThat(restartedExec.getParentId()).isNull();
-                assertThat(restartedExec.getTaskRunList().size()).isEqualTo(1);
-                assertThat(restartedExec.getState().getCurrent()).isEqualTo(State.Type.RESTARTED);
-            }),
+        assertThat(restartedExec).isNotNull();
+        assertThat(restartedExec.getId()).isEqualTo(firstExecution.getId());
+        assertThat(restartedExec.getParentId()).isNull();
+        assertThat(restartedExec.getTaskRunList().size()).isEqualTo(1);
+        assertThat(restartedExec.getState().getCurrent()).isEqualTo(State.Type.RESTARTED);
+        Execution finishedRestartedExecution = runnerUtils.emitAndAwaitExecution(
+            execution -> execution.getState().getCurrent() == State.Type.FAILED && execution.getTaskRunList().getFirst().getAttempts().size() == 2,
+            restartedExec,
             Duration.ofSeconds(60)
         );
 
@@ -128,18 +123,16 @@ public class RestartCaseTest {
         assertThat(firstExecution.getTaskRunList().get(3).getState().getCurrent()).isEqualTo(State.Type.FAILED);
 
         // wait
-        Execution finishedRestartedExecution = runnerUtils.awaitExecution(
-            execution -> execution.getState().getCurrent() == State.Type.FAILED && execution.findTaskRunsByTaskId("failStep").stream().findFirst().get().getAttempts().size() == 2,
-            throwRunnable(() -> {
-                Execution restartedExec = executionService.restart(firstExecution, null);
-                executionQueue.emit(restartedExec);
+        Execution restartedExec = executionService.restart(firstExecution, null);
 
-                assertThat(restartedExec).isNotNull();
-                assertThat(restartedExec.getId()).isEqualTo(firstExecution.getId());
-                assertThat(restartedExec.getParentId()).isNull();
-                assertThat(restartedExec.getTaskRunList().size()).isEqualTo(4);
-                assertThat(restartedExec.getState().getCurrent()).isEqualTo(State.Type.RESTARTED);
-            }),
+        assertThat(restartedExec).isNotNull();
+        assertThat(restartedExec.getId()).isEqualTo(firstExecution.getId());
+        assertThat(restartedExec.getParentId()).isNull();
+        assertThat(restartedExec.getTaskRunList().size()).isEqualTo(4);
+        assertThat(restartedExec.getState().getCurrent()).isEqualTo(State.Type.RESTARTED);
+        Execution finishedRestartedExecution = runnerUtils.emitAndAwaitExecution(
+            execution -> execution.getState().getCurrent() == State.Type.FAILED && execution.findTaskRunsByTaskId("failStep").stream().findFirst().get().getAttempts().size() == 2,
+            restartedExec,
             Duration.ofSeconds(60)
         );
 
@@ -163,21 +156,19 @@ public class RestartCaseTest {
         assertThat(firstExecution.getState().getCurrent()).isEqualTo(State.Type.SUCCESS);
 
         // wait
+        Execution restartedExec = executionService.replay(firstExecution, firstExecution.findTaskRunByTaskIdAndValue("2_end", List.of()).getId(), null);
+
+        assertThat(restartedExec.getState().getCurrent()).isEqualTo(State.Type.RESTARTED);
+        assertThat(restartedExec.getState().getHistories()).hasSize(4);
+        assertThat(restartedExec.getTaskRunList()).hasSize(20);
+        assertThat(restartedExec.getTaskRunList().get(19).getState().getCurrent()).isEqualTo(State.Type.RESTARTED);
+
+        assertThat(restartedExec.getId()).isNotEqualTo(firstExecution.getId());
+        assertThat(restartedExec.getTaskRunList().get(1).getId()).isNotEqualTo(firstExecution.getTaskRunList().get(1).getId());
         Execution finishedRestartedExecution = runnerUtils.awaitChildExecution(
             flow,
             firstExecution,
-            throwRunnable(() -> {
-                Execution restartedExec = executionService.replay(firstExecution, firstExecution.findTaskRunByTaskIdAndValue("2_end", List.of()).getId(), null);
-                executionQueue.emit(restartedExec);
-
-                assertThat(restartedExec.getState().getCurrent()).isEqualTo(State.Type.RESTARTED);
-                assertThat(restartedExec.getState().getHistories()).hasSize(4);
-                assertThat(restartedExec.getTaskRunList()).hasSize(20);
-                assertThat(restartedExec.getTaskRunList().get(19).getState().getCurrent()).isEqualTo(State.Type.RESTARTED);
-
-                assertThat(restartedExec.getId()).isNotEqualTo(firstExecution.getId());
-                assertThat(restartedExec.getTaskRunList().get(1).getId()).isNotEqualTo(firstExecution.getTaskRunList().get(1).getId());
-            }),
+            restartedExec,
             Duration.ofSeconds(60)
         );
 
@@ -195,9 +186,9 @@ public class RestartCaseTest {
         Execution restart = executionService.restart(execution, null);
         assertThat(restart.getState().getCurrent()).isEqualTo(State.Type.RESTARTED);
 
-        Execution restartEnded = runnerUtils.awaitExecution(
+        Execution restartEnded = runnerUtils.emitAndAwaitExecution(
             e -> e.getState().getCurrent() == State.Type.FAILED,
-            throwRunnable(() -> executionQueue.emit(restart)),
+            restart,
             Duration.ofSeconds(120)
         );
 
@@ -205,9 +196,9 @@ public class RestartCaseTest {
 
         Execution newRestart = executionService.restart(restartEnded, null);
 
-        restartEnded = runnerUtils.awaitExecution(
+        restartEnded = runnerUtils.emitAndAwaitExecution(
             e -> e.getState().getCurrent() == State.Type.FAILED,
-            throwRunnable(() -> executionQueue.emit(newRestart)),
+            newRestart,
             Duration.ofSeconds(120)
         );
 
@@ -240,21 +231,21 @@ public class RestartCaseTest {
             }
         });
         Execution restarted1 = executionService.restart(execution, null);
-        execution = runnerUtils.awaitExecution(
+        execution = runnerUtils.emitAndAwaitExecution(
             e -> e.getState().getCurrent() == State.Type.FAILED && e.getFlowId().equals("restart-parent"),
-            throwRunnable(() -> executionQueue.emit(restarted1)),
+            restarted1,
             Duration.ofSeconds(10)
         );
         Execution restarted2 = executionService.restart(execution, null);
-        execution = runnerUtils.awaitExecution(
+        execution = runnerUtils.emitAndAwaitExecution(
             e -> e.getState().getCurrent() == State.Type.FAILED && e.getFlowId().equals("restart-parent"),
-            throwRunnable(() -> executionQueue.emit(restarted2)),
+            restarted2,
             Duration.ofSeconds(10)
         );
         Execution restarted3 = executionService.restart(execution, null);
-        execution = runnerUtils.awaitExecution(
+        execution = runnerUtils.emitAndAwaitExecution(
             e -> e.getState().getCurrent() == State.Type.SUCCESS && e.getFlowId().equals("restart-parent"),
-            throwRunnable(() -> executionQueue.emit(restarted3)),
+            restarted3,
             Duration.ofSeconds(10)
         );
         assertThat(execution.getTaskRunList()).hasSize(6);
@@ -272,18 +263,15 @@ public class RestartCaseTest {
         assertThat(firstExecution.getTaskRunList().get(1).getState().getCurrent()).isEqualTo(State.Type.FAILED);
 
         // wait
-        Execution finishedRestartedExecution = runnerUtils.awaitExecution(
+        Execution restartedExec = executionService.restart(firstExecution, null);
+        assertThat(restartedExec).isNotNull();
+        assertThat(restartedExec.getId()).isEqualTo(firstExecution.getId());
+        assertThat(restartedExec.getParentId()).isNull();
+        assertThat(restartedExec.getTaskRunList().size()).isEqualTo(2);
+        assertThat(restartedExec.getState().getCurrent()).isEqualTo(State.Type.RESTARTED);
+        Execution finishedRestartedExecution = runnerUtils.emitAndAwaitExecution(
             execution -> executionService.isTerminated(flow, execution) && execution.getState().isSuccess() && execution.getId().equals(firstExecution.getId()),
-            throwRunnable(() -> {
-                Execution restartedExec = executionService.restart(firstExecution, null);
-                assertThat(restartedExec).isNotNull();
-                assertThat(restartedExec.getId()).isEqualTo(firstExecution.getId());
-                assertThat(restartedExec.getParentId()).isNull();
-                assertThat(restartedExec.getTaskRunList().size()).isEqualTo(2);
-                assertThat(restartedExec.getState().getCurrent()).isEqualTo(State.Type.RESTARTED);
-
-                executionQueue.emit(restartedExec);
-            }),
+            restartedExec,
             Duration.ofSeconds(60)
         );
 
@@ -309,18 +297,15 @@ public class RestartCaseTest {
         assertThat(firstExecution.getTaskRunList().get(1).getState().getCurrent()).isEqualTo(State.Type.FAILED);
 
         // wait
-        Execution finishedRestartedExecution = runnerUtils.awaitExecution(
+        Execution restartedExec = executionService.restart(firstExecution, null);
+        assertThat(restartedExec).isNotNull();
+        assertThat(restartedExec.getId()).isEqualTo(firstExecution.getId());
+        assertThat(restartedExec.getParentId()).isNull();
+        assertThat(restartedExec.getTaskRunList().size()).isEqualTo(2);
+        assertThat(restartedExec.getState().getCurrent()).isEqualTo(State.Type.RESTARTED);
+        Execution finishedRestartedExecution = runnerUtils.emitAndAwaitExecution(
             execution -> executionService.isTerminated(flow, execution) && execution.getState().isSuccess() && execution.getId().equals(firstExecution.getId()),
-            throwRunnable(() -> {
-                Execution restartedExec = executionService.restart(firstExecution, null);
-                assertThat(restartedExec).isNotNull();
-                assertThat(restartedExec.getId()).isEqualTo(firstExecution.getId());
-                assertThat(restartedExec.getParentId()).isNull();
-                assertThat(restartedExec.getTaskRunList().size()).isEqualTo(2);
-                assertThat(restartedExec.getState().getCurrent()).isEqualTo(State.Type.RESTARTED);
-
-                executionQueue.emit(restartedExec);
-            }),
+            restartedExec,
             Duration.ofSeconds(60)
         );
 

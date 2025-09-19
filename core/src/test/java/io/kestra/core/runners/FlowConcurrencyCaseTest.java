@@ -258,19 +258,21 @@ public class FlowConcurrencyCaseTest {
         assertThat(secondExecutionResult.get().getState().getHistories().get(1).getState()).isEqualTo(State.Type.CANCELLED);
     }
 
-    public void flowConcurrencyWithForEachItem() throws TimeoutException, QueueException, InterruptedException, URISyntaxException, IOException {
-        URI file = storageUpload();
-        Map<String, Object> inputs = Map.of("file", file.toString(), "batch", 4);
-        Execution forEachItem = runnerUtils.runOneUntilRunning(MAIN_TENANT, "io.kestra.tests", "flow-concurrency-for-each-item", null,
-        (flow, execution1) -> flowIO.readExecutionInputs(flow, execution1, inputs), Duration.ofSeconds(5));
-        assertThat(forEachItem.getState().getCurrent()).isEqualTo(Type.RUNNING);
-
+    public void flowConcurrencyWithForEachItem(String tenantId) throws TimeoutException, QueueException, InterruptedException, URISyntaxException, IOException {
         Set<String> executionIds = new HashSet<>();
         Flux<Execution> receive = TestsUtils.receive(executionQueue, e -> {
-            if ("flow-concurrency-queue".equals(e.getLeft().getFlowId()) && e.getLeft().getState().isRunning()) {
+            if ("flow-concurrency-queue".equals(e.getLeft().getFlowId())
+                && tenantId.equals(e.getLeft().getTenantId())
+                && e.getLeft().getState().isRunning()) {
                 executionIds.add(e.getLeft().getId());
             }
         });
+        URI file = storageUpload(tenantId);
+        Map<String, Object> inputs = Map.of("file", file.toString(), "batch", 4);
+        Execution forEachItem = runnerUtils.runOneUntilRunning(tenantId, "io.kestra.tests", "flow-concurrency-for-each-item", null,
+        (flow, execution1) -> flowIO.readExecutionInputs(flow, execution1, inputs), Duration.ofSeconds(5));
+        assertThat(forEachItem.getState().getCurrent()).isEqualTo(Type.RUNNING);
+
 
         // wait a little to be sure there are not too many executions started
         Thread.sleep(500);
@@ -391,11 +393,11 @@ public class FlowConcurrencyCaseTest {
         assertThat(executionResult2.get().getState().getHistories().get(2).getState()).isEqualTo(State.Type.RUNNING);
     }
 
-    public void flowConcurrencySubflow() throws TimeoutException, QueueException, InterruptedException {
+    public void flowConcurrencySubflow(String tenantId) throws TimeoutException, QueueException, InterruptedException {
         CountDownLatch successLatch = new CountDownLatch(1);
         CountDownLatch canceledLatch = new CountDownLatch(1);
         Flux<Execution> receive = TestsUtils.receive(executionQueue, e -> {
-            if (e.getLeft().getFlowId().equals("flow-concurrency-cancel")) {
+            if (e.getLeft().getFlowId().equals("flow-concurrency-cancel") && tenantId.equals(e.getLeft().getTenantId())) {
                 if (e.getLeft().getState().getCurrent() == State.Type.SUCCESS) {
                     successLatch.countDown();
                 }
@@ -407,8 +409,8 @@ public class FlowConcurrencyCaseTest {
             // FIXME we should fail if we receive the cancel execution again but on Kafka it happens
         });
 
-        Execution execution1 = runnerUtils.runOneUntilRunning(MAIN_TENANT, "io.kestra.tests", "flow-concurrency-subflow", null, null, Duration.ofSeconds(30));
-        Execution execution2 = runnerUtils.runOne(MAIN_TENANT, "io.kestra.tests", "flow-concurrency-subflow");
+        Execution execution1 = runnerUtils.runOneUntilRunning(tenantId, "io.kestra.tests", "flow-concurrency-subflow", null, null, Duration.ofSeconds(30));
+        Execution execution2 = runnerUtils.runOne(tenantId, "io.kestra.tests", "flow-concurrency-subflow");
 
         assertThat(execution1.getState().isRunning()).isTrue();
         assertThat(execution2.getState().getCurrent()).isEqualTo(Type.SUCCESS);
@@ -421,7 +423,7 @@ public class FlowConcurrencyCaseTest {
         // run another execution to be sure that everything work (purge is correctly done)
         CountDownLatch newSuccessLatch = new CountDownLatch(1);
         Flux<Execution> secondReceive = TestsUtils.receive(executionQueue, e -> {
-            if (e.getLeft().getFlowId().equals("flow-concurrency-cancel")) {
+            if (e.getLeft().getFlowId().equals("flow-concurrency-cancel") && e.getLeft().getTenantId().equals(tenantId)) {
                 if (e.getLeft().getState().getCurrent() == State.Type.SUCCESS) {
                     newSuccessLatch.countDown();
                 }
@@ -429,7 +431,7 @@ public class FlowConcurrencyCaseTest {
 
             // FIXME we should fail if we receive the cancel execution again but on Kafka it happens
         });
-        Execution execution3 = runnerUtils.runOne(MAIN_TENANT, "io.kestra.tests", "flow-concurrency-subflow");
+        Execution execution3 = runnerUtils.runOne(tenantId, "io.kestra.tests", "flow-concurrency-subflow");
         assertThat(execution3.getState().getCurrent()).isEqualTo(Type.SUCCESS);
 
         // assert we have two successful subflow
@@ -437,13 +439,13 @@ public class FlowConcurrencyCaseTest {
         secondReceive.blockLast();
     }
 
-    private URI storageUpload() throws URISyntaxException, IOException {
+    private URI storageUpload(String tenantId) throws URISyntaxException, IOException {
         File tempFile = File.createTempFile("file", ".txt");
 
         Files.write(tempFile.toPath(), content());
 
         return storageInterface.put(
-            MAIN_TENANT,
+            tenantId,
             null,
             new URI("/file/storage/file.txt"),
             new FileInputStream(tempFile)

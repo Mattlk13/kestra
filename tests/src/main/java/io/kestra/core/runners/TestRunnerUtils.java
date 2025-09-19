@@ -8,10 +8,12 @@ import io.kestra.core.models.flows.FlowInterface;
 import io.kestra.core.queues.QueueException;
 import io.kestra.core.queues.QueueFactoryInterface;
 import io.kestra.core.queues.QueueInterface;
+import io.kestra.core.repositories.ArrayListTotal;
 import io.kestra.core.repositories.ExecutionRepositoryInterface;
 import io.kestra.core.repositories.FlowRepositoryInterface;
 import io.kestra.core.services.ExecutionService;
 import io.kestra.core.utils.Await;
+import io.micronaut.data.model.Pageable;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.inject.Singleton;
@@ -166,8 +168,7 @@ public class TestRunnerUtils {
         return awaitExecution(predicate, execution, duration);
     }
 
-    public Execution awaitExecution(Predicate<Execution> predicate, Execution execution,
-        Duration duration) {
+    public Execution awaitExecution(Predicate<Execution> predicate, Execution execution, Duration duration) {
         AtomicReference<Execution> receive = new AtomicReference<>();
         try {
 
@@ -177,11 +178,10 @@ public class TestRunnerUtils {
             Await.until(() -> {
                 testExecution(predicate, receive, execution);
                 return receive.get() != null;
-            }, Duration.ofMillis(10), duration);
+            }, Duration.ofMillis(50), duration);
 
         } catch (TimeoutException e) {
-            Optional<Execution> byId = executionRepository.findById(execution.getTenantId(),
-                execution.getId());
+            Optional<Execution> byId = executionRepository.findById(execution.getTenantId(), execution.getId());
             if (byId.isPresent()) {
                 Execution exec = byId.get();
                 throw new RuntimeException("Execution %s is currently at the status %s which is not the awaited one".formatted(exec.getId(), exec.getState().getCurrent()));
@@ -198,6 +198,41 @@ public class TestRunnerUtils {
         if (exec.isPresent() && predicate.test(exec.get())) {
             receive.set(exec.get());
         }
+    }
+
+    public Execution awaitFlowExecution(Predicate<Execution> predicate, String tenantId, String namespace, String flowId) {
+        return awaitFlowExecution(predicate, tenantId, namespace, flowId, null);
+    }
+
+    public Execution awaitFlowExecution(Predicate<Execution> predicate, String tenantId, String namespace, String flowId, Duration duration) {
+        AtomicReference<Execution> receive = new AtomicReference<>();
+        try {
+
+            if (duration == null){
+                duration = Duration.ofSeconds(20);
+            }
+            Await.until(() -> {
+                ArrayListTotal<Execution> byFlowId = executionRepository.findByFlowId(
+                    tenantId, namespace, flowId, Pageable.UNPAGED);
+                if (!byFlowId.isEmpty()) {
+                    testExecution(predicate, receive, byFlowId.getLast());
+                    return receive.get() != null;
+                }
+                return false;
+            }, Duration.ofMillis(50), duration);
+
+        } catch (TimeoutException e) {
+            ArrayListTotal<Execution> byFlowId = executionRepository.findByFlowId(
+                tenantId, namespace, flowId, Pageable.UNPAGED);
+            if (!byFlowId.isEmpty()) {
+                Execution exec = byFlowId.getLast();
+                throw new RuntimeException("Execution %s is currently at the status %s which is not the awaited one".formatted(exec.getId(), exec.getState().getCurrent()));
+            } else {
+                throw new RuntimeException("No execution for flow %s exist in the database".formatted(flowId));
+            }
+        }
+
+        return receive.get();
     }
 
     @VisibleForTesting

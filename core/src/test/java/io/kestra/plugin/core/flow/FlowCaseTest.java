@@ -37,16 +37,16 @@ public class FlowCaseTest {
         this.run("OK", State.Type.SUCCESS, State.Type.SUCCESS, 2, "default > amazing", true);
     }
 
-    public void waitFailed() throws Exception {
-        this.run("THIRD", State.Type.FAILED, State.Type.FAILED, 4, "Error Trigger ! error-t1", true);
+    public void waitFailed(String tenantId) throws Exception {
+        this.run("THIRD", State.Type.FAILED, State.Type.FAILED, 4, "Error Trigger ! error-t1", true, tenantId);
     }
 
-    public void invalidOutputs() throws Exception {
-        this.run("FIRST", State.Type.FAILED, State.Type.SUCCESS, 2, null, true);
+    public void invalidOutputs(String tenantId) throws Exception {
+        this.run("FIRST", State.Type.FAILED, State.Type.SUCCESS, 2, null, true, tenantId);
     }
 
-    public void noLabels() throws Exception {
-        this.run("OK", State.Type.SUCCESS, State.Type.SUCCESS, 2, "default > amazing", false);
+    public void noLabels(String tenantId) throws Exception {
+        this.run("OK", State.Type.SUCCESS, State.Type.SUCCESS, 2, "default > amazing", false, tenantId);
     }
 
     public void oldTaskName() throws Exception {
@@ -79,21 +79,28 @@ public class FlowCaseTest {
         assertThat(triggered.get().getTrigger().getVariables().get("namespace")).isEqualTo(execution.getNamespace());
     }
 
+    void run(String input, State.Type fromState, State.Type triggerState, int count, String outputs, boolean testInherited)
+        throws Exception {
+        run(input, fromState, triggerState, count, outputs, testInherited, MAIN_TENANT);
+    }
+
     @SuppressWarnings({"ResultOfMethodCallIgnored", "unchecked"})
-    void run(String input, State.Type fromState, State.Type triggerState, int count, String outputs, boolean testInherited) throws Exception {
+    void run(String input, State.Type fromState, State.Type triggerState, int count, String outputs, boolean testInherited, String tenantId) throws Exception {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         AtomicReference<Execution> triggered = new AtomicReference<>();
 
         Flux<Execution> receive = TestsUtils.receive(executionQueue, either -> {
             Execution execution = either.getLeft();
-            if (execution.getFlowId().equals("switch") && execution.getState().getCurrent().isTerminated()) {
+            if (execution.getFlowId().equals("switch")
+                && tenantId.equals(execution.getTenantId())
+                && execution.getState().getCurrent().isTerminated()) {
                 triggered.set(execution);
                 countDownLatch.countDown();
             }
         });
 
         Execution execution = runnerUtils.runOne(
-            MAIN_TENANT,
+            tenantId,
             "io.kestra.tests",
             testInherited ? "task-flow" : "task-flow-inherited-labels",
             null,

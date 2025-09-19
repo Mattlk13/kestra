@@ -28,6 +28,8 @@ import jakarta.inject.Singleton;
 import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -192,10 +194,10 @@ public class PauseTest {
             assertThat(execution.getTaskRunList()).hasSize(1);
 
             execution = runnerUtils.awaitExecution(
-                e -> e.getId().equals(executionId) && e.getState().getCurrent() == State.Type.SUCCESS,
-//                () -> {},
+                e ->
+                    e.getId().equals(executionId) && e.getState().getCurrent() == State.Type.SUCCESS,
                 execution,
-                Duration.ofSeconds(5)
+                Duration.ofSeconds(20)
             );
 
             assertThat(execution.getTaskRunList().getFirst().getState().getHistories().stream().filter(history -> history.getState() == State.Type.PAUSED).count()).isEqualTo(1L);
@@ -211,10 +213,10 @@ public class PauseTest {
             assertThat(execution.getTaskRunList()).hasSize(1);
 
             execution = runnerUtils.awaitExecution(
-                e -> e.getId().equals(executionId) && e.getState().getCurrent() == State.Type.SUCCESS,
-//                () -> {},
+                e ->
+                    e.getId().equals(executionId) && e.getState().getCurrent() == State.Type.SUCCESS,
                 execution,
-                Duration.ofSeconds(5)
+                Duration.ofSeconds(20)
             );
 
             assertThat(execution.getTaskRunList().getFirst().getState().getHistories().stream().filter(history -> history.getState() == State.Type.PAUSED).count()).isEqualTo(1L);

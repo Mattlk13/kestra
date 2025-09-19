@@ -29,6 +29,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 // must be per-class to allow calling once init() which took a lot of time
 public abstract class AbstractRunnerTest {
 
+    public static final String TENANT_1 = "tenant1";
+    public static final String TENANT_2 = "tenant2";
     @Inject
     protected TestRunnerUtils runnerUtils;
 
@@ -37,7 +39,7 @@ public abstract class AbstractRunnerTest {
     protected QueueInterface<LogEntry> logsQueue;
 
     @Inject
-    private RestartCaseTest restartCaseTest;
+    protected RestartCaseTest restartCaseTest;
 
     @Inject
     protected FlowTriggerCaseTest flowTriggerCaseTest;
@@ -55,7 +57,7 @@ public abstract class AbstractRunnerTest {
     private WorkingDirectoryTest.Suite workingDirectoryTest;
 
     @Inject
-    private PauseTest.Suite pauseTest;
+    protected PauseTest.Suite pauseTest;
 
     @Inject
     private SkipExecutionCaseTest skipExecutionCaseTest;
@@ -228,11 +230,11 @@ public abstract class AbstractRunnerTest {
     }
 
     @Test // Flaky on CI but never locally even with 100 repetitions
-    @LoadFlows({"flows/valids/trigger-flow-listener-namespace-condition.yaml",
+    @LoadFlows(value = {"flows/valids/trigger-flow-listener-namespace-condition.yaml",
         "flows/valids/trigger-multiplecondition-flow-c.yaml",
-        "flows/valids/trigger-multiplecondition-flow-d.yaml"})
+        "flows/valids/trigger-multiplecondition-flow-d.yaml"}, tenantId = TENANT_1)
     void multipleConditionTriggerFailed() throws Exception {
-        multipleConditionTriggerCaseTest.failed();
+        multipleConditionTriggerCaseTest.failed(TENANT_1);
     }
 
     @Test
@@ -245,11 +247,11 @@ public abstract class AbstractRunnerTest {
 
     @Disabled
     @Test
-    @LoadFlows({"flows/valids/flow-trigger-preconditions-flow-listen.yaml",
+    @LoadFlows(value = {"flows/valids/flow-trigger-preconditions-flow-listen.yaml",
         "flows/valids/flow-trigger-preconditions-flow-a.yaml",
-        "flows/valids/flow-trigger-preconditions-flow-b.yaml"})
+        "flows/valids/flow-trigger-preconditions-flow-b.yaml"}, tenantId = TENANT_1)
     void flowTriggerPreconditionsMergeOutputs() throws Exception {
-        multipleConditionTriggerCaseTest.flowTriggerPreconditionsMergeOutputs();
+        multipleConditionTriggerCaseTest.flowTriggerPreconditionsMergeOutputs(TENANT_1);
     }
 
     @Test
@@ -279,19 +281,19 @@ public abstract class AbstractRunnerTest {
     }
 
     @Test
-    @LoadFlows({"flows/valids/switch.yaml",
+    @LoadFlows(value = {"flows/valids/switch.yaml",
         "flows/valids/task-flow.yaml",
-        "flows/valids/task-flow-inherited-labels.yaml"})
+        "flows/valids/task-flow-inherited-labels.yaml"}, tenantId = TENANT_1)
     void flowWaitFailed() throws Exception {
-        flowCaseTest.waitFailed();
+        flowCaseTest.waitFailed(TENANT_1);
     }
 
     @Test
-    @LoadFlows({"flows/valids/switch.yaml",
+    @LoadFlows(value = {"flows/valids/switch.yaml",
         "flows/valids/task-flow.yaml",
-        "flows/valids/task-flow-inherited-labels.yaml"})
+        "flows/valids/task-flow-inherited-labels.yaml"}, tenantId = TENANT_2)
     public void invalidOutputs() throws Exception {
-        flowCaseTest.invalidOutputs();
+        flowCaseTest.invalidOutputs(TENANT_2);
     }
 
     @Test
@@ -301,9 +303,9 @@ public abstract class AbstractRunnerTest {
     }
 
     @Test
-    @LoadFlows(value = {"flows/valids/working-directory.yaml"}, tenantId = "tenant1")
+    @LoadFlows(value = {"flows/valids/working-directory.yaml"}, tenantId = TENANT_1)
     public void workerFailed() throws Exception {
-        workingDirectoryTest.failed("tenant1", runnerUtils);
+        workingDirectoryTest.failed(TENANT_1, runnerUtils);
     }
 
     @Test
@@ -363,9 +365,9 @@ public abstract class AbstractRunnerTest {
     }
 
     @Test
-    @LoadFlows({"flows/valids/for-each-item.yaml"})
+    @LoadFlows(value = {"flows/valids/for-each-item.yaml"}, tenantId = TENANT_1)
     protected void forEachItemEmptyItems() throws Exception {
-        forEachItemCaseTest.forEachItemEmptyItems();
+        forEachItemCaseTest.forEachItemEmptyItems(TENANT_1);
     }
 
     @Disabled
@@ -384,16 +386,16 @@ public abstract class AbstractRunnerTest {
     }
 
     @Test // flaky on CI but always pass locally even with 100 iterations
-    @LoadFlows({"flows/valids/restart-for-each-item.yaml", "flows/valids/restart-child.yaml"})
+    @LoadFlows(value = {"flows/valids/restart-for-each-item.yaml", "flows/valids/restart-child.yaml"}, tenantId = TENANT_1)
     void restartForEachItem() throws Exception {
-        forEachItemCaseTest.restartForEachItem();
+        forEachItemCaseTest.restartForEachItem(TENANT_1);
     }
 
     @Test
-    @LoadFlows({"flows/valids/for-each-item-subflow.yaml",
-        "flows/valids/for-each-item-in-if.yaml"})
+    @LoadFlows(value = {"flows/valids/for-each-item-subflow.yaml",
+        "flows/valids/for-each-item-in-if.yaml"}, tenantId = TENANT_1)
     protected void forEachItemInIf() throws Exception {
-        forEachItemCaseTest.forEachItemInIf();
+        forEachItemCaseTest.forEachItemInIf(TENANT_1);
     }
 
     @Test
@@ -434,9 +436,9 @@ public abstract class AbstractRunnerTest {
     }
 
     @Test
-    @LoadFlows({"flows/valids/flow-concurrency-for-each-item.yaml", "flows/valids/flow-concurrency-queue.yml"})
+    @LoadFlows(value = {"flows/valids/flow-concurrency-for-each-item.yaml", "flows/valids/flow-concurrency-queue.yml"}, tenantId = TENANT_1)
     protected void flowConcurrencyWithForEachItem() throws Exception {
-        flowConcurrencyCaseTest.flowConcurrencyWithForEachItem();
+        flowConcurrencyCaseTest.flowConcurrencyWithForEachItem(TENANT_1);
     }
 
     @Disabled
@@ -453,9 +455,9 @@ public abstract class AbstractRunnerTest {
     }
 
     @Test
-    @LoadFlows({"flows/valids/flow-concurrency-subflow.yml", "flows/valids/flow-concurrency-cancel.yml"})
+    @LoadFlows(value = {"flows/valids/flow-concurrency-subflow.yml", "flows/valids/flow-concurrency-cancel.yml"}, tenantId = TENANT_1)
     void flowConcurrencySubflow() throws Exception {
-        flowConcurrencyCaseTest.flowConcurrencySubflow();
+        flowConcurrencyCaseTest.flowConcurrencySubflow(TENANT_1);
     }
 
     @Test
@@ -510,9 +512,9 @@ public abstract class AbstractRunnerTest {
     }
 
     @Test
-    @LoadFlows({"flows/valids/minimal.yaml"})
+    @LoadFlows(value = {"flows/valids/minimal.yaml"}, tenantId = TENANT_1)
     void shouldScheduleOnDate() throws Exception {
-        scheduleDateCaseTest.shouldScheduleOnDate();
+        scheduleDateCaseTest.shouldScheduleOnDate(TENANT_1);
     }
 
     @Test
@@ -534,15 +536,15 @@ public abstract class AbstractRunnerTest {
     }
 
     @Test
-    @LoadFlows({"flows/valids/sla-execution-condition.yaml"})
+    @LoadFlows(value = {"flows/valids/sla-execution-condition.yaml"}, tenantId = TENANT_1)
     void executionConditionSLAShouldCancel() throws Exception {
-        slaTestCase.executionConditionSLAShouldCancel();
+        slaTestCase.executionConditionSLAShouldCancel(TENANT_1);
     }
 
     @Test
-    @LoadFlows({"flows/valids/sla-execution-condition.yaml"})
+    @LoadFlows(value = {"flows/valids/sla-execution-condition.yaml"}, tenantId = TENANT_2)
     void executionConditionSLAShouldLabel() throws Exception {
-        slaTestCase.executionConditionSLAShouldLabel();
+        slaTestCase.executionConditionSLAShouldLabel(TENANT_2);
     }
 
     @Test
@@ -562,15 +564,15 @@ public abstract class AbstractRunnerTest {
     }
 
     @Test
-    @ExecuteFlow("flows/valids/failed-first.yaml")
+    @ExecuteFlow(value = "flows/valids/failed-first.yaml", tenantId = TENANT_1)
     public void changeStateShouldEndsInSuccess(Execution execution) throws Exception {
         changeStateTestCase.changeStateShouldEndsInSuccess(execution);
     }
 
     @Test
-    @LoadFlows({"flows/valids/failed-first.yaml", "flows/valids/subflow-parent-of-failed.yaml"})
+    @LoadFlows(value = {"flows/valids/failed-first.yaml", "flows/valids/subflow-parent-of-failed.yaml"}, tenantId = TENANT_2)
     public void changeStateInSubflowShouldEndsParentFlowInSuccess() throws Exception {
-        changeStateTestCase.changeStateInSubflowShouldEndsParentFlowInSuccess();
+        changeStateTestCase.changeStateInSubflowShouldEndsParentFlowInSuccess(TENANT_2);
     }
 
     @Test
