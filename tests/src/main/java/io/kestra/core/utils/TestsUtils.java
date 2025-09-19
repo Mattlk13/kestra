@@ -41,7 +41,14 @@ import java.util.stream.Collectors;
 import static io.kestra.core.tenant.TenantService.MAIN_TENANT;
 
 abstract public class TestsUtils {
+    private static final ThreadLocal<List<Runnable>> queueConsumersCancellations = ThreadLocal.withInitial(ArrayList::new);
+
     private static final ObjectMapper mapper = JacksonMapper.ofYaml();
+
+    public static void queueConsumersCleanup() {
+        queueConsumersCancellations.get().forEach(Runnable::run);
+        queueConsumersCancellations.get().clear();
+    }
 
     public static <T> T map(String path, Class<T> cls) throws IOException {
         URL resource = TestsUtils.class.getClassLoader().getResource(path);
@@ -213,6 +220,7 @@ abstract public class TestsUtils {
             }
         };
         Runnable receiveCancellation = queueType == null ? queue.receive(consumerGroup, eitherConsumer, false) : queue.receive(consumerGroup, queueType, eitherConsumer, false);
+        queueConsumersCancellations.get().add(receiveCancellation);
 
         return Flux.<T>create(sink -> {
                 DeserializationException exception = exceptionRef.get();
