@@ -186,13 +186,7 @@ class SetTest {
 
         // When - Then
         //set key a first:
-        Set.builder()
-            .id(Set.class.getSimpleName())
-            .type(Set.class.getName())
-            .key(new Property<>("{{ inputs.key }}"))
-            .value(new Property<>("{{ inputs.value }}"))
-            .overwrite(Property.ofValue(true))
-            .build().run(runContext);
+        runContext.namespaceKv(runContext.flowInfo().namespace()).put("existing_key", new KVValueAndMetadata(new KVMetadata("unused", (Instant)null), value));
         //fail because key is already set
         KVStoreException exception = Assertions.assertThrows(KVStoreException.class, () -> Set.builder()
             .id(Set.class.getSimpleName())
