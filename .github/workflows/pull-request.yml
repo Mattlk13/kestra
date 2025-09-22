@@ -40,7 +40,7 @@ jobs:
     name: Frontend - Tests
     needs: [file-changes]
     if: "needs.file-changes.outputs.ui == 'true'"
-    uses: kestra-io/kestra/.github/workflows/workflow-frontend-test.yml@develop
+    uses: ./.github/workflows/workflow-frontend-test.yml
     secrets:
       GITHUB_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
@@ -49,7 +49,7 @@ jobs:
     name: Backend - Tests
     needs: file-changes
     if: "needs.file-changes.outputs.backend == 'true'"
-    uses: kestra-io/kestra/.github/workflows/workflow-backend-test.yml@develop
+    uses: ./.github/workflows/workflow-backend-test.yml
     secrets:
       GITHUB_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
@@ -60,19 +60,3 @@ jobs:
     name: E2E - Tests
     uses: ./.github/workflows/e2e.yml
 
-  end:
-    name: End
-    runs-on: ubuntu-latest
-    if: always()
-    needs: [frontend, backend]
-    steps:
-      # Slack
-      - name: Slack notification
-        uses: Gamesight/slack-workflow-status@master
-        if: ${{ always() && env.SLACK_WEBHOOK_URL != 0 }}
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
-          name: GitHub Actions
-          icon_emoji: ":github-actions:"
-          channel: "C02DQ1A7JLR"
