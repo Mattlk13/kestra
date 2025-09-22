@@ -4,15 +4,16 @@ import io.kestra.core.context.TestRunContextFactory;
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.kv.KVType;
 import io.kestra.core.models.property.Property;
-import io.kestra.core.models.tasks.VoidOutput;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.storages.kv.KVEntry;
 import io.kestra.core.storages.kv.KVStore;
 import io.kestra.core.storages.kv.KVStoreException;
 import io.kestra.core.storages.kv.KVValue;
+import io.kestra.core.utils.IdUtils;
 import io.kestra.core.utils.TestsUtils;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
@@ -165,9 +166,10 @@ class SetTest {
         assertThat(expirationDate.isAfter(Instant.now().plus(Duration.ofMinutes(4))) && expirationDate.isBefore(Instant.now().plus(Duration.ofMinutes(6)))).isTrue();
     }
 
-    @Test
+    @RepeatedTest(1000)
     void shouldFailGivenExistingKeyAndOverwriteFalse() throws Exception {
         // Given
+        String key = IdUtils.create();
         Set set = Set.builder()
             .id(Set.class.getSimpleName())
             .type(Set.class.getName())
@@ -178,7 +180,7 @@ class SetTest {
 
         var value = Map.of("date", Instant.now().truncatedTo(ChronoUnit.MILLIS), "int", 1, "string", "string");
         final RunContext runContext = TestsUtils.mockRunContext(this.runContextFactory, set, Map.of(
-            "key", "existing_key",
+            "key", key,
             "value", value
         ));
 
@@ -199,7 +201,7 @@ class SetTest {
             .value(new Property<>("{{ inputs.value }}"))
             .overwrite(Property.ofValue(false))
             .build().run(runContext));
-        assertThat(exception.getMessage()).isEqualTo("Cannot set value for key 'existing_key'. Key already exists and `overwrite` is set to `false`.");
+        assertThat(exception.getMessage()).isEqualTo("Cannot set value for key '%s'. Key already exists and `overwrite` is set to `false`.".formatted(key));
     }
 
     @Test
