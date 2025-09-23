@@ -9,6 +9,7 @@ import io.kestra.core.queues.QueueException;
 import io.kestra.core.storages.StorageInterface;
 import jakarta.inject.Inject;
 import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -54,6 +55,7 @@ public class TaskWithAllowWarningTest {
     }
 
     @Test
+    @Disabled("This test does not test failing in subflow foreach as the subflow is not called, needs to be rework before reactivation")
     @LoadFlows({"flows/valids/task-allow-warning-executable-foreachitem.yml"})
     void executableTask_ForEachItem() throws TimeoutException, QueueException, URISyntaxException, IOException {
         URI file = storageUpload();

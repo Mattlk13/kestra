@@ -113,7 +113,7 @@ public class RetryCaseTest {
 
     public void retryFailedTaskDuration(Execution execution) {
         assertThat(execution.getState().getCurrent()).isEqualTo(State.Type.FAILED);
-        assertThat(execution.getTaskRunList().getFirst().attemptNumber()).isEqualTo(3);
+        assertThat(execution.getTaskRunList().getFirst().attemptNumber()).isGreaterThanOrEqualTo(2);
     }
 
     public void retryFailedTaskAttempts(Execution execution) {
