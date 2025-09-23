@@ -1,6 +1,6 @@
 <template>
     <div class="ks-editor edit-flow-editor">
-        <nav v-if="original === undefined && navbar" class="top-nav">
+        <nav v-if="!isDiff && navbar" class="top-nav">
             <slot name="nav">
                 <div class="text-nowrap">
                     <el-button-group>
@@ -43,11 +43,12 @@
             <div ref="editorContainer" class="editor-wrapper position-relative">
                 <MonacoEditor
                     ref="monacoEditor"
+                    :key="isDiff.toString()"
                     :path="path"
                     :theme="themeComputed"
                     :value="modelValue"
                     :options="options"
-                    :diff-editor="original !== undefined"
+                    :diff-editor="isDiff"
                     :original="original"
                     :language="lang"
                     :extension="extension"
@@ -230,8 +231,8 @@
 
         } else {
             options.scrollbar = {
-                vertical: props.original !== undefined ? "hidden" : "auto",
-                verticalScrollbarSize: props.original !== undefined ? 0 : 10,
+                vertical: isDiff.value ? "hidden" : "auto",
+                verticalScrollbarSize: isDiff.value ? 0 : 10,
                 alwaysConsumeMouseWheel: false,
             };
             options.renderSideBySide = props.diffSideBySide;
@@ -282,6 +283,7 @@
     let lastTimeout: number | undefined = undefined
     let decorations: monaco.editor.IEditorDecorationsCollection | undefined = undefined
 
+    const isDiff = computed(() => props.original !== undefined);
 
     function isCodeEditor(editor?: monaco.editor.IStandaloneCodeEditor | monaco.editor.IStandaloneDiffEditor): editor is monaco.editor.IStandaloneCodeEditor{
         return editor?.getEditorType() === monacoEditor.value?.monaco.editor.EditorType.ICodeEditor
@@ -310,7 +312,7 @@
             return
         }
 
-        if (!props.original) {
+        if (!isDiff.value) {
             editor.onDidBlurEditorWidget?.(() => {
                 emit("focusout", isCodeEditor(editor)
                     ? editor.getValue()
@@ -396,7 +398,7 @@
             }
         }
 
-        if (props.original === undefined && props.navbar && props.fullHeight) {
+        if (!isDiff.value && props.navbar && props.fullHeight) {
             editor.addAction({
                 id: "fold-multiline",
                 label: t("fold_all_multi_lines"),
@@ -445,7 +447,7 @@
             });
         }
 
-        if (!props.original) {
+        if (!isDiff.value) {
             editor.onDidContentSizeChange((_) => {
                 highlightPebble();
             });
@@ -650,197 +652,197 @@
 </script>
 
 <style scoped lang="scss">
-@import "../code/styles/code.scss";
+    @import "../code/styles/code.scss";
 </style>
 
 <style lang="scss">
-@import "@kestra-io/ui-libs/src/scss/color-palette.scss";
-@import "../../styles/layout/root-dark.scss";
+    @import "@kestra-io/ui-libs/src/scss/color-palette.scss";
+    @import "../../styles/layout/root-dark.scss";
 
-.highlight-lines{
-    background-color: rgba($base-blue-400, .2);
-}
-
-.editor-content-widget-content{
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    .el-button-group {
-        display: inline-flex;
-    }
-}
-
-:not(.namespace-defaults, .el-drawer__body) > .ks-editor {
-    flex-direction: column;
-    height: 100%;
-}
-
-.el-form .ks-editor {
-    display: flex;
-    width: 100%;
-}
-
-.ks-editor {
-    display: flex;
-
-    .top-nav {
-        background-color: var(--ks-background-card);
-        padding: 0.5rem;
-        border-radius: var(--bs-border-radius-lg);
-        border-bottom-left-radius: 0;
-        border-bottom-right-radius: 0;
-
-        html.dark & {
-            background-color: var(--bs-gray-100);
-        }
+    .highlight-lines{
+        background-color: rgba($base-blue-400, .2);
     }
 
-    .editor-absolute-container {
-        position: absolute;
-        top: 8px;
-        right: 20px;
-        z-index: 10;
-        color: var(--ks-content-secondary);
-        cursor: pointer;
-    }
-
-    .editor-absolute-container > * {
-        pointer-events: auto;
-    }
-
-    .editor-container {
+    .editor-content-widget-content{
         display: flex;
-        flex-grow: 1;
+        align-items: center;
+        justify-content: center;
 
-        &.single-line {
-            min-height: var(--el-component-size);
-            padding: 1px 11px;
-            background-color: var(
-                --el-input-bg-color,
-                var(--el-fill-color-blank)
-            );
-            border-radius: var(
-                --el-input-border-radius,
-                var(--el-border-radius-base)
-            );
-            transition: var(--el-transition-box-shadow);
-            box-shadow: 0 0 0 1px var(--ks-border-primary) inset;
-            padding-top: 7px;
+        .el-button-group {
+            display: inline-flex;
+        }
+    }
 
-            &.custom-dark-vs-theme {
-                background-color: var(--ks-background-input);
-            }
+    :not(.namespace-defaults, .el-drawer__body) > .ks-editor {
+        flex-direction: column;
+        height: 100%;
+    }
 
-            &.theme-light {
-                background-color: $base-white;
+    .el-form .ks-editor {
+        display: flex;
+        width: 100%;
+    }
+
+    .ks-editor {
+        display: flex;
+
+        .top-nav {
+            background-color: var(--ks-background-card);
+            padding: 0.5rem;
+            border-radius: var(--bs-border-radius-lg);
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+
+            html.dark & {
+                background-color: var(--bs-gray-100);
             }
         }
 
-        .placeholder {
+        .editor-absolute-container {
             position: absolute;
-            top: -3px;
-            overflow: hidden;
-            padding-left: inherit;
-            padding-right: inherit;
-            cursor: text;
-            user-select: none;
-            color: var(--ks-content-inactive);
+            top: 8px;
+            right: 20px;
+            z-index: 10;
+            color: var(--ks-content-secondary);
+            cursor: pointer;
         }
 
-        .editor-wrapper {
-            min-width: 75%;
-            width: 100%;
+        .editor-absolute-container > * {
+            pointer-events: auto;
+        }
 
-            .monaco-hover-content {
-                h4 {
-                    font-size: var(--font-size-base);
-                    font-weight: bold;
-                    line-height: var(--bs-body-line-height);
+        .editor-container {
+            display: flex;
+            flex-grow: 1;
+
+            &.single-line {
+                min-height: var(--el-component-size);
+                padding: 1px 11px;
+                background-color: var(
+                        --el-input-bg-color,
+                        var(--el-fill-color-blank)
+                );
+                border-radius: var(
+                        --el-input-border-radius,
+                        var(--el-border-radius-base)
+                );
+                transition: var(--el-transition-box-shadow);
+                box-shadow: 0 0 0 1px var(--ks-border-primary) inset;
+                padding-top: 7px;
+
+                &.custom-dark-vs-theme {
+                    background-color: var(--ks-background-input);
                 }
 
-                p {
-                    margin-bottom: 0.5rem;
+                &.theme-light {
+                    background-color: $base-white;
+                }
+            }
 
-                    &:last-child {
-                        display: none;
+            .placeholder {
+                position: absolute;
+                top: -3px;
+                overflow: hidden;
+                padding-left: inherit;
+                padding-right: inherit;
+                cursor: text;
+                user-select: none;
+                color: var(--ks-content-inactive);
+            }
+
+            .editor-wrapper {
+                min-width: 75%;
+                width: 100%;
+
+                .monaco-hover-content {
+                    h4 {
+                        font-size: var(--font-size-base);
+                        font-weight: bold;
+                        line-height: var(--bs-body-line-height);
+                    }
+
+                    p {
+                        margin-bottom: 0.5rem;
+
+                        &:last-child {
+                            display: none;
+                        }
+                    }
+
+                    *:nth-last-child(2n) {
+                        margin-bottom: 0;
                     }
                 }
+            }
 
-                *:nth-last-child(2n) {
-                    margin-bottom: 0;
+            .bottom-right {
+                bottom: 0px;
+                right: 0px;
+
+                ul {
+                    display: flex;
+                    list-style: none;
+                    padding: 0;
+                    margin: 0;
+                    //gap: .5rem;
                 }
             }
         }
+    }
 
-        .bottom-right {
-            bottom: 0px;
-            right: 0px;
+    .custom-dark-vs-theme {
+        .monaco-editor,
+        .monaco-editor-background {
+            outline: none;
+            background-color: var(--ks-background-input);
+            --vscode-editor-background: var(--ks-background-input);
+            --vscode-breadcrumb-background: var(--ks-background-input);
+            --vscode-editorGutter-background: var(--ks-background-input);
+        }
 
-            ul {
-                display: flex;
-                list-style: none;
-                padding: 0;
-                margin: 0;
-                //gap: .5rem;
+        .monaco-editor .margin {
+            background-color: var(--ks-background-input);
+            --vscode-editorGutter-background: var(--ks-background-input);
+            --vscode-editorLineNumber-activeForeground: var(--ks-content-secondary);
+            --vscode-editorLineNumber-foreground: var(--ks-content-secondary);
+            --vscode-editorLineNumber-rangeHighlightBackground: var(--ks-content-secondary);
+        }
+    }
+
+    .highlight-text {
+        cursor: pointer;
+        font-weight: 700;
+        box-shadow: 0 19px 44px rgba(157, 29, 236, 0.31);
+
+        html.dark & {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+    }
+
+    .highlight-pebble {
+        color: #977100 !important;
+
+        html.dark & {
+            color: #ffca16 !important;
+        }
+    }
+
+    .disable-text {
+        color: var(--ks-content-inactive) !important;
+    }
+
+    div.img {
+        min-height: 130px;
+        height: 100%;
+
+        &.get-started {
+            background: url("../../assets/onboarding/onboarding-doc-light.svg")
+            no-repeat center;
+
+            html.dark & {
+                background: url("../../assets/onboarding/onboarding-doc-dark.svg")
+                no-repeat center;
             }
         }
     }
-}
-
-.custom-dark-vs-theme {
-    .monaco-editor,
-    .monaco-editor-background {
-        outline: none;
-        background-color: var(--ks-background-input);
-        --vscode-editor-background: var(--ks-background-input);
-        --vscode-breadcrumb-background: var(--ks-background-input);
-        --vscode-editorGutter-background: var(--ks-background-input);
-    }
-
-    .monaco-editor .margin {
-        background-color: var(--ks-background-input);
-        --vscode-editorGutter-background: var(--ks-background-input);
-        --vscode-editorLineNumber-activeForeground: var(--ks-content-secondary);
-        --vscode-editorLineNumber-foreground: var(--ks-content-secondary);
-        --vscode-editorLineNumber-rangeHighlightBackground: var(--ks-content-secondary);
-    }
-}
-
-.highlight-text {
-    cursor: pointer;
-    font-weight: 700;
-    box-shadow: 0 19px 44px rgba(157, 29, 236, 0.31);
-
-    html.dark & {
-        background-color: rgba(255, 255, 255, 0.2);
-    }
-}
-
-.highlight-pebble {
-    color: #977100 !important;
-
-    html.dark & {
-        color: #ffca16 !important;
-    }
-}
-
-.disable-text {
-    color: var(--ks-content-inactive) !important;
-}
-
-div.img {
-    min-height: 130px;
-    height: 100%;
-
-    &.get-started {
-        background: url("../../assets/onboarding/onboarding-doc-light.svg")
-            no-repeat center;
-
-        html.dark & {
-            background: url("../../assets/onboarding/onboarding-doc-dark.svg")
-                no-repeat center;
-        }
-    }
-}
 </style>

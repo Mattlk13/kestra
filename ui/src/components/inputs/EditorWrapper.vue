@@ -2,7 +2,7 @@
     <editor
         id="editorWrapper"
         ref="editorRefElement"
-        :model-value="draftSource === undefined ? source : draftSource"
+        :model-value="hasDraft ? draftSource : source"
         :schema-type="isCurrentTabFlow ? 'flow': undefined"
         :lang="extension === undefined ? 'yaml' : undefined"
         :extension="extension"
@@ -17,7 +17,7 @@
         @execute="execute"
         @mouse-move="(e) => highlightHoveredTask(e.target?.position?.lineNumber)"
         @mouse-leave="() => highlightHoveredTask(-1)"
-        :original="draftSource === undefined ? undefined : source"
+        :original="hasDraft ? source : undefined"
         :diff-side-by-side="false"
     >
         <template #absolute>
@@ -43,7 +43,7 @@
         />
     </transition>
     <AcceptDecline
-        v-if="draftSource !== undefined"
+        v-if="hasDraft"
         class="position-absolute actions"
         @accept="acceptDraft"
         @reject="declineDraft"
@@ -162,7 +162,7 @@
             return;
         }
         if (isCurrentTabFlow.value) {
-            if (draftSource.value !== undefined) {
+            if (hasDraft.value) {
                 draftSource.value = newValue;
             } else {
                 store.commit("flow/setFlowYaml", newValue);
@@ -259,6 +259,8 @@
         draftSource.value = undefined;
         aiAgentOpened.value = true;
     }
+
+    const hasDraft = computed(() => draftSource.value !== undefined);
 
     const {
         playgroundStore,
