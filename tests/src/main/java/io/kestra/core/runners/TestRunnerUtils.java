@@ -186,7 +186,7 @@ public class TestRunnerUtils {
             Await.until(() -> {
                 testExecution(predicate, receive, execution);
                 return receive.get() != null;
-            }, Duration.ofMillis(50), duration);
+            }, Duration.ofMillis(10), duration);
 
         } catch (TimeoutException e) {
             Optional<Execution> byId = executionRepository.findById(execution.getTenantId(), execution.getId());
