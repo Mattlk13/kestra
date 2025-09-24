@@ -598,6 +598,8 @@ public class ExecutionController {
                 propagator.get().inject(Context.current(), result, ExecutionTextMapSetter.INSTANCE);
             }
 
+            // TODO this is temporal the time we create a queue indexer for it like in JDBC
+            executionRepository.save(result);
             executionQueue.emit(result);
             eventPublisher.publishEvent(new CrudEvent<>(result, CrudEventType.CREATE));
 
@@ -702,6 +704,9 @@ public class ExecutionController {
                         .map(ContextPropagators::getTextMapPropagator)
                         .ifPresent(propagator -> propagator.inject(Context.current(), executionWithInputs, ExecutionTextMapSetter.INSTANCE));
 
+                    // FIXME we should have the same as for JDBC a "queue indexer" that would index sync executions
+                    // for now we store it via the executionRepository instead
+                    executionRepository.save(executionWithInputs);
                     executionQueue.emit(executionWithInputs);
                     eventPublisher.publishEvent(new CrudEvent<>(executionWithInputs, CrudEventType.CREATE));
 

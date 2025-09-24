@@ -959,6 +959,7 @@ public abstract class AbstractJdbcExecutionRepository extends AbstractJdbcReposi
         return delete;
     }
 
+    @Override
     public Executor lock(String executionId, Function<Pair<Execution, ExecutorState>, Pair<Executor, ExecutorState>> function) {
         return this.jdbcRepository
             .getDslContextWrapper()
