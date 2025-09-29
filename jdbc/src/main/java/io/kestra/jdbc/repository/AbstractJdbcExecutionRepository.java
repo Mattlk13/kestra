@@ -41,6 +41,7 @@ import org.jooq.Record;
 import org.jooq.impl.DSL;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxSink;
+import io.kestra.core.models.executions.TaskRun;
 
 import java.time.Duration;
 import java.time.Instant;
