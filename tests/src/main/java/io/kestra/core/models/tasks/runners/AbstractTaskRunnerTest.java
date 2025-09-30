@@ -173,6 +173,8 @@ public abstract class AbstractTaskRunnerTest {
         var commands = initScriptCommands(runContext);
         Mockito.when(commands.getEnableOutputDirectory()).thenReturn(false);
         Mockito.when(commands.outputDirectoryEnabled()).thenReturn(false);
+        Mockito.when(commands.relativeWorkingDirectoryFilesPaths()).thenCallRealMethod();
+        Mockito.when(commands.relativeWorkingDirectoryFilesPaths(false)).thenCallRealMethod();
 
         Mockito.when(commands.getCommands()).thenReturn(
             Property.ofValue(ScriptService.scriptCommands(List.of("/bin/sh", "-c"), Collections.emptyList(), List.of("echo 'Hello World' > file.txt")))
