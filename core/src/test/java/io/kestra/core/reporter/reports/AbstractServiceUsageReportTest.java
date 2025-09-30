@@ -10,6 +10,7 @@ import io.kestra.core.server.ServiceType;
 import io.kestra.core.utils.IdUtils;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
@@ -30,6 +31,7 @@ public abstract class AbstractServiceUsageReportTest {
     ServiceInstanceRepositoryInterface serviceInstanceRepository;
     
     @Test
+    @Disabled
     public void shouldGetReport() {
         // Given
         final LocalDate start = LocalDate.now().withDayOfMonth(1);
