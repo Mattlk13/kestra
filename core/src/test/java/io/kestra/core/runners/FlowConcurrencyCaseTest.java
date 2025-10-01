@@ -1,6 +1,8 @@
 package io.kestra.core.runners;
 
 import io.kestra.core.models.executions.Execution;
+import io.kestra.core.models.executions.ExecutionKilled;
+import io.kestra.core.models.executions.ExecutionKilledExecution;
 import io.kestra.core.models.flows.Flow;
 import io.kestra.core.models.flows.State;
 import io.kestra.core.models.flows.State.Type;
@@ -57,6 +59,10 @@ public class FlowConcurrencyCaseTest {
 
     @Inject
     private ExecutionService executionService;
+
+    @Inject
+    @Named(QueueFactoryInterface.KILL_NAMED)
+    protected QueueInterface<ExecutionKilled> killQueue;
 
     public void flowConcurrencyCancel() throws TimeoutException, QueueException, InterruptedException {
         Execution execution1 = runnerUtils.runOneUntilRunning(MAIN_TENANT, "io.kestra.tests", "flow-concurrency-cancel", null, null, Duration.ofSeconds(30));
@@ -436,6 +442,26 @@ public class FlowConcurrencyCaseTest {
         // assert we have two successful subflow
         assertTrue(newSuccessLatch.await(1, TimeUnit.MINUTES));
         secondReceive.blockLast();
+    }
+
+    public void flowConcurrencyParallelSubflowKill() throws QueueException {
+        Execution parent = runnerUtils.runOneUntilRunning(MAIN_TENANT, NAMESPACE, "flow-concurrency-parallel-subflow-kill", null, null, Duration.ofSeconds(30));
+        Execution queued = runnerUtils.awaitFlowExecution(e -> e.getState().isQueued(), MAIN_TENANT, NAMESPACE, "flow-concurrency-parallel-subflow-kill-child");
+
+        // Kill the parent
+        killQueue.emit(ExecutionKilledExecution
+            .builder()
+            .state(ExecutionKilled.State.REQUESTED)
+            .executionId(parent.getId())
+            .isOnKillCascade(true)
+            .tenantId(MAIN_TENANT)
+            .build()
+        );
+
+        Execution terminated = runnerUtils.awaitExecution(e -> e.getState().isTerminated(), queued);
+        assertThat(terminated.getState().getCurrent()).isEqualTo(State.Type.KILLED);
+        assertThat(terminated.getState().getHistories().stream().noneMatch(h -> h.getState() == Type.RUNNING)).isTrue();
+        assertThat(terminated.getTaskRunList()).isNull();
     }
 
     private URI storageUpload() throws URISyntaxException, IOException {
