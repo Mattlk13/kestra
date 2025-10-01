@@ -1,8 +1,4 @@
-<<<<<<<< HEAD:core/src/main/java/io/kestra/core/services/SkipExecutionService.java
 package io.kestra.core.services;
-========
-package io.kestra.core.runners;
->>>>>>>> b43fd1462 (feat(system): allow to skip an indexer record):core/src/main/java/io/kestra/core/runners/SkipExecutionService.java
 
 import com.google.common.annotations.VisibleForTesting;
 import io.kestra.core.models.executions.Execution;
