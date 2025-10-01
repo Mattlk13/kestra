@@ -3,6 +3,7 @@ package io.kestra.core.services;
 import com.google.common.annotations.VisibleForTesting;
 import io.kestra.core.models.executions.Execution;
 import io.kestra.core.models.executions.TaskRun;
+import jakarta.annotation.Nullable;
 import jakarta.inject.Singleton;
 
 import java.util.Collections;
