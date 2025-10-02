@@ -1,6 +1,6 @@
 import {markRaw, h} from "vue";
 import CodeTagsIcon from "vue-material-design-icons/CodeTags.vue";
-import DotsSquareIcon from "vue-material-design-icons/DotsSquare.vue";
+// import DotsSquareIcon from "vue-material-design-icons/DotsSquare.vue";
 import FileDocumentIcon from "vue-material-design-icons/FileDocument.vue";
 import ChartBarIcon from "vue-material-design-icons/ChartBar.vue";
 import ViewDashboardIcon from "vue-material-design-icons/ViewDashboard.vue";
@@ -38,14 +38,14 @@ export const DASHBOARD_EDITOR_ELEMENTS = [
         value: "code",
         component: markRaw(DashboardCodeEditor),
     },
-    {
-        button: {
-            icon: markRaw(DotsSquareIcon),
-            label: "No Code"
-        },
-        value: "nocode",
-        component: () => h("div"),
-    },
+    // {
+    //     button: {
+    //         icon: markRaw(DotsSquareIcon),
+    //         label: "No Code"
+    //     },
+    //     value: "nocode",
+    //     component: () => h("div"),
+    // },
     {
         button: {
             icon: markRaw(FileDocumentIcon),
