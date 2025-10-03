@@ -106,6 +106,8 @@ public interface ExecutionRepositoryInterface extends SaveRepositoryInterface<Ex
 
     Integer purge(Execution execution);
 
+    Integer purge(List<Execution> executions);
+
     List<DailyExecutionStatistics> dailyStatisticsForAllTenants(
         @Nullable String query,
         @Nullable String namespace,
