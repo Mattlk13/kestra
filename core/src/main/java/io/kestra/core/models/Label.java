@@ -1,13 +1,15 @@
 package io.kestra.core.models;
 
 import io.kestra.core.utils.MapUtils;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotNull;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-public record Label(@NotNull String key, @NotNull String value) {
+@Schema(description = "A key/value pair that can be attached to a Flow or Execution. Labels are often used to organize and categorize objects.")
+public record Label(@NotEmpty String key, @NotEmpty String value) {
     public static final String SYSTEM_PREFIX = "system.";
 
     // system labels
