@@ -68,9 +68,9 @@
         return removeRefPrefix(item.$ref);
     }) || []);
 
-    const taskModels = computed(() => {
+    const taskModelsSets = computed(() => {
         if (blockType === "pluginDefaults") {
-            const models = new Set<any>();
+            const models = new Set<string>();
             const pluginKeySection = ["tasks", "conditions", "triggers", "taskRunners"] as const;
 
             for (const plugin of pluginsStore.plugins || []) {
@@ -78,16 +78,18 @@
                     const entries = plugin[curSection];
                     if (entries) {
                         for (const {cls} of entries.filter(({deprecated}) => !deprecated)) {
-                            models.add(cls);
+                            if(cls){
+                                models.add(cls);
+                            }
                         }
                     }
                 }
             }
 
-            return Array.from(models);
+            return models;
         }
 
-        return allRefs.value.reduce((acc: string[], item: string) => {
+        return allRefs.value.reduce((acc: Set<string>, item: string) => {
             const def = rootDefinitions.value?.[item]
 
             if (!def || def.$deprecated) {
@@ -99,11 +101,13 @@
                 : def.properties?.type;
 
             if (consolidatedType?.const) {
-                acc.push(consolidatedType?.const);
+                acc.add(consolidatedType?.const);
             }
             return acc
-        }, []).sort();
+        }, new Set<string>());
     })
+
+    const taskModels = computed(() => Array.from(taskModelsSets.value).sort());
 
     const hasIcons = computed(() => {
         return pluginsStore.icons && Object.keys(pluginsStore.icons).filter(plugin => taskModels.value.includes(plugin)).length > 0;
