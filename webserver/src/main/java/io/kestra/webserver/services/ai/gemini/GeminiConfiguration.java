@@ -7,6 +7,8 @@ import io.micronaut.core.bind.annotation.Bindable;
 
 @ConfigurationProperties(value = "kestra.ai.gemini")
 public record GeminiConfiguration (
+    @Nullable
+    String baseUrl,
     String apiKey,
     @Bindable(defaultValue = "gemini-2.5-flash")
     String modelName,
@@ -16,6 +18,8 @@ public record GeminiConfiguration (
     Double topP,
     @Nullable
     Integer topK,
+    @Nullable
+    String pem,
     @Bindable(defaultValue = "8000")
     int maxOutputTokens,
     @Bindable(defaultValue = "false")

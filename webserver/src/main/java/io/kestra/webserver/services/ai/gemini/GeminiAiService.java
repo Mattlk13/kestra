@@ -1,5 +1,7 @@
 package io.kestra.webserver.services.ai.gemini;
 
+import dev.langchain4j.http.client.HttpClientBuilderLoader;
+import dev.langchain4j.http.client.jdk.JdkHttpClientBuilder;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.listener.ChatModelListener;
 import dev.langchain4j.model.googleai.GoogleAiGeminiChatModel;
@@ -9,10 +11,26 @@ import io.kestra.core.services.InstanceService;
 import io.kestra.core.utils.VersionProvider;
 import io.kestra.webserver.services.ai.AiService;
 import io.kestra.webserver.services.posthog.PosthogService;
+import io.kestra.webserver.utils.HttpClientUtils;
 import io.micronaut.context.annotation.Requires;
+import io.micronaut.core.annotation.NonNull;
 import jakarta.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManagerFactory;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.http.HttpClient;
+import java.nio.charset.StandardCharsets;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
 import java.util.List;
 
 @Singleton
@@ -27,7 +45,7 @@ public class GeminiAiService extends AiService<GeminiConfiguration> {
     }
 
     public ChatModel chatModel(List<ChatModelListener> listeners) {
-        return GoogleAiGeminiChatModel.builder()
+        GoogleAiGeminiChatModel.GoogleAiGeminiChatModelBuilder builder = GoogleAiGeminiChatModel.builder()
             .listeners(listeners)
             .modelName(getAiConfiguration().modelName())
             .apiKey(getAiConfiguration().apiKey())
@@ -36,8 +54,21 @@ public class GeminiAiService extends AiService<GeminiConfiguration> {
             .topK(getAiConfiguration().topK())
             .maxOutputTokens(getAiConfiguration().maxOutputTokens())
             .logRequests(getAiConfiguration().logRequests())
-            .logResponses(getAiConfiguration().logResponses())
-            .build();
+            .logResponses(getAiConfiguration().logResponses());
+
+        if (getAiConfiguration().pem() != null) {
+            try {
+                JdkHttpClientBuilder jdkHttpClientBuilder = ((JdkHttpClientBuilder) HttpClientBuilderLoader.loadHttpClientBuilder()).httpClientBuilder(
+                    HttpClientUtils.withPemCertificate(new ByteArrayInputStream(getAiConfiguration().pem().getBytes(StandardCharsets.UTF_8)))
+                );
+
+                builder = builder.httpClientBuilder(jdkHttpClientBuilder);
+            } catch (Exception e) {
+                log.error("Error while setting custom PEM certificate for Gemini. AI Copilot may not work as expected.", e);
+            }
+        }
+
+        return builder.build();
     }
 }
 
