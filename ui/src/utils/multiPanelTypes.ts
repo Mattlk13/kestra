@@ -17,6 +17,7 @@ export interface EditorElement {
     },
     value: string,
     component: any,
+    prepend?: boolean,
     deserialize?: (value: string, allowCreate: boolean) => Tab | undefined
 }
 

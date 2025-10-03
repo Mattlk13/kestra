@@ -1,28 +1,47 @@
 <template>
-    <div v-bind="$attrs" class="main-editor">
+    <div class="main-editor">
         <div class="editor-header">
             <MultiPanelEditorTabs :tabs="editorElements" @update:tabs="setTabValue" :openTabs="openTabs" />
             <slot name="actions" />
         </div>
         <div class="editor-wrapper">
-            <MultiPanelTabs v-model="panels" @remove-tab="onRemoveTab" />
+            <MultiPanelTabs v-if="slots['bottom-panel']" v-model="panels" @remove-tab="onRemoveTab" />
+            <el-splitter v-else class="default-theme editor-panels" layout="vertical">
+                <el-splitter-panel>
+                    <MultiPanelTabs v-model="panels" @remove-tab="onRemoveTab" />
+                </el-splitter-panel>
+                <el-splitter-panel v-if="bottomVisible">
+                    <slot name="bottom-panel" />
+                </el-splitter-panel>
+            </el-splitter>
         </div>
+        <slot name="footer" />
     </div>
 </template>
 
 <script lang="ts" setup>
-    import {computed} from "vue";
+    import {computed, useSlots} from "vue";
     import {useStorage} from "@vueuse/core";
     import MultiPanelEditorTabs from "./MultiPanelEditorTabs.vue";
     import MultiPanelTabs, {Panel} from "./MultiPanelTabs.vue";
     import {DeserializableEditorElement, Tab} from "../utils/multiPanelTypes";
 
-    const props = defineProps<{
+    const props = withDefaults(defineProps<{
         editorElements: DeserializableEditorElement[];
         defaultActiveTabs: string[];
         saveKey: string;
-    }>();
+        bottomVisible?: boolean;
+        preSerializePanels?: (panels: Panel[]) => any;
+    }>(), {
+        bottomVisible: false,
+        preSerializePanels: (ps: Panel[]) => ps.map(p => ({
+            tabs: p.tabs.map(t => t.value),
+            activeTab: p.activeTab.value,
+            size: p.size,
+        }))
+    });
 
+    const slots = useSlots();
 
     const defaultPanelSize = computed(() => panels.value.reduce((acc, panel) => acc + panel.size, 0) / panels.value.length);
 
@@ -33,14 +52,17 @@
         }
     }
 
-    function getPanelFromValue(value: string): Panel | undefined {
+    function getPanelFromValue(value: string): {panel: Panel, prepend: boolean} | undefined {
         for (const element of props.editorElements) {
             const deserializedTab = element.deserialize(value, false);
             if (deserializedTab) {
                 return {
-                    activeTab: element,
-                    tabs: [element],
-                    size: defaultPanelSize.value,
+                    panel: {
+                        activeTab: element,
+                        tabs: [element],
+                        size: defaultPanelSize.value,
+                    },
+                    prepend: element.prepend ?? false
                 };
             }
         }
@@ -57,14 +79,27 @@
         }).filter(t => t !== undefined) as Tab[];
     }
 
+    const emit = defineEmits<{
+        (e: "set-tab-value", tabValue: string): void | false;
+        (e: "remove-tab", tabValue: string): void;
+    }>();
 
     function setTabValue(tabValue: string){
+        if(emit("set-tab-value", tabValue) === false) {
+            return;
+        }
         if(openTabs.value.includes(tabValue)){
             focusTab(tabValue);
             return;
         }
         const panel = getPanelFromValue(tabValue);
-        if(panel) panels.value.push(panel);
+        if(panel){
+            if(panel.prepend){
+                panels.value.unshift(panel.panel);
+            } else {
+                panels.value.push(panel.panel);
+            }
+        }
     }
 
     const panels = useStorage<Panel[]>(
@@ -80,11 +115,7 @@
         {
             serializer: {
                 write(v: Panel[]){
-                    return JSON.stringify(v.map(p => ({
-                        tabs: p.tabs.map(t => t.value),
-                        activeTab: p.activeTab?.value,
-                        size: p.size,
-                    })));
+                    return JSON.stringify(props.preSerializePanels(v));
                 },
                 read(v?: string) {
                     if(!v) return null;
@@ -115,12 +146,14 @@
                 panel.activeTab = panel.tabs[0]
             }
         }
+        emit("remove-tab", tabValue);
     }
 
     defineExpose({
         panels,
         openTabs,
         focusTab,
+        setTabValue,
     });
 </script>
 
@@ -151,6 +184,24 @@
         :deep(.tabs-wrapper) {
             background: none !important;
             border: none !important;
+        }
+    }
+
+    :deep(.editor-panels){
+        position: absolute;
+    }
+
+    .default-theme{
+        :deep(.el-splitter-panel) {
+            background-color: var(--ks-background-panel);
+        }
+
+        :deep(.el-splitter__splitter){
+            border-top-color: var(--ks-border-primary);
+            background-color: var(--ks-background-panel);
+            &:before, &:after{
+                background-color: var(--ks-content-secondary);
+            }
         }
     }
 </style>
