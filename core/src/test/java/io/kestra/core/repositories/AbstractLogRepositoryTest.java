@@ -43,12 +43,16 @@ public abstract class AbstractLogRepositoryTest {
     @Inject
     protected LogRepositoryInterface logRepository;
 
-    protected static LogEntry.LogEntryBuilder logEntry(Level level) {
+    private static LogEntry.LogEntryBuilder logEntry(Level level) {
+        return logEntry(level, "executionId");
+    }
+
+    protected static LogEntry.LogEntryBuilder logEntry(Level level, String executionId) {
         return LogEntry.builder()
             .flowId("flowId")
             .namespace("io.kestra.unittest")
             .taskId("taskId")
-            .executionId("executionId")
+            .executionId(executionId)
             .taskRunId(IdUtils.create())
             .attemptNumber(0)
             .timestamp(Instant.now())
@@ -348,11 +352,10 @@ public abstract class AbstractLogRepositoryTest {
 
     @Test
     void purge() {
-        String tenant = TestsUtils.randomTenant(this.getClass().getSimpleName());
-        logRepository.save(logEntry(tenant, Level.INFO, "execution1").build());
-        logRepository.save(logEntry(tenant, Level.INFO, "execution1").build());
-        logRepository.save(logEntry(tenant, Level.INFO, "execution2").build());
-        logRepository.save(logEntry(tenant, Level.INFO, "execution2").build());
+        logRepository.save(logEntry(Level.INFO, "execution1").build());
+        logRepository.save(logEntry(Level.INFO, "execution1").build());
+        logRepository.save(logEntry(Level.INFO, "execution2").build());
+        logRepository.save(logEntry(Level.INFO, "execution2").build());
 
         var result = logRepository.purge(List.of(Execution.builder().id("execution1").build(), Execution.builder().id("execution2").build()));
         assertThat(result).isEqualTo(4);
