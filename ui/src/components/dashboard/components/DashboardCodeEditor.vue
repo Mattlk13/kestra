@@ -1,7 +1,6 @@
 <template>
     <Editor
-        v-if="dashboardStore.dashboard"
-        v-model="dashboardStore.dashboard.sourceCode"
+        v-model="dashboardStore.sourceCode"
         schemaType="dashboard"
         lang="yaml"
         :navbar="false"

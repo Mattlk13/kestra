@@ -30,12 +30,12 @@ export const useDashboardStore = defineStore("dashboard", () => {
 
         const sourceCode = ref("")
         const parsedSource = computed<{ id?: string, [key:string]: any } | undefined>((previous) => {
-        try {
-            return YAML_UTILS.parse(sourceCode.value);
-        } catch {
-            return previous;
-        }
-    })
+            try {
+                return YAML_UTILS.parse(sourceCode.value);
+            } catch {
+                return previous;
+            }
+        })
 
         const axios = useAxios();
 
@@ -54,6 +54,7 @@ export const useDashboardStore = defineStore("dashboard", () => {
             else dashboardLoaded = {title: "Default", id, charts: [], sourceCode: ""};
 
             dashboard.value = dashboardLoaded;
+            sourceCode.value = dashboardLoaded.sourceCode ?? ""
 
             return dashboardLoaded;
         }

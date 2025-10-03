@@ -31,7 +31,7 @@
 
     function validateAndLoadAllCharts() {
         charts.value = [];
-        const allCharts = dashboardStore.dashboard?.sourceCode ? YAML_UTILS.getAllCharts(dashboardStore.dashboard.sourceCode) : [];
+        const allCharts = YAML_UTILS.getAllCharts(dashboardStore.sourceCode) ?? [];
         allCharts.forEach(async (chart: any) => {
             const loadedChart = await loadChart(chart);
             charts.value.push(loadedChart);

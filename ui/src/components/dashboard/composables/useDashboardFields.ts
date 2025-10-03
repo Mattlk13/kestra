@@ -10,6 +10,14 @@ const FIELD_ORDER = [
     "charts"
 ]
 
+const HIDDEN_FIELDS = [
+    "deleted",
+    "tenantId",
+    "created",
+    "updated",
+    "sourceCode",
+];
+
 export function useDashboardFields() {
     const pluginsStore = usePluginsStore();
     const dashboardStore = useDashboardStore();
@@ -36,6 +44,7 @@ export function useDashboardFields() {
 
     const fieldsFromSchema = computed(() => {
         return Object.keys(dashboardStore.rootProperties ?? {})
+                    .filter((key) => !HIDDEN_FIELDS.includes(key))
                     .map((key) => getFieldFromKey(key))
                     // sort so the fields in field order appear first and the rest after
                     .sort((a, b) => {

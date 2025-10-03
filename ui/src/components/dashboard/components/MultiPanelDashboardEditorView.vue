@@ -25,7 +25,7 @@
     }>();
 
     function onSave(){
-        emit("save", dashboardStore.dashboard?.sourceCode);
+        emit("save", dashboardStore.sourceCode);
     }
 
     import DashboardNoCodeEditor from "./DashboardNoCodeEditor.vue";
@@ -36,6 +36,6 @@
         RawNoCode: markRaw(DashboardNoCodeEditor),
         editorView,
         editorElements: DASHBOARD_EDITOR_ELEMENTS,
-        source: computed(() => dashboardStore.dashboard?.sourceCode ?? ""),
+        source: computed(() => dashboardStore.sourceCode),
     });
 </script>
