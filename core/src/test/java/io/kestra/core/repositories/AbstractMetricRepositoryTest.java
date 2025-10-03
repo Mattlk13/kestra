@@ -119,11 +119,10 @@ public abstract class AbstractMetricRepositoryTest {
 
     @Test
     void purge() {
-        String tenant = TestsUtils.randomTenant(this.getClass().getSimpleName());
-        metricRepository.save(MetricEntry.of(taskRun(tenant, "execution1", "task"), counter("counter1"), null));
-        metricRepository.save(MetricEntry.of(taskRun(tenant, "execution1", "task"), counter("counter2"), null));
-        metricRepository.save(MetricEntry.of(taskRun(tenant, "execution2", "task"), counter("counter1"), null));
-        metricRepository.save(MetricEntry.of(taskRun(tenant, "execution2", "task"), counter("counter2"), null));
+        metricRepository.save(MetricEntry.of(taskRun("execution1", "task"), counter("counter1"), null));
+        metricRepository.save(MetricEntry.of(taskRun("execution1", "task"), counter("counter2"), null));
+        metricRepository.save(MetricEntry.of(taskRun("execution2", "task"), counter("counter1"), null));
+        metricRepository.save(MetricEntry.of(taskRun("execution2", "task"), counter("counter2"), null));
 
         var result = metricRepository.purge(List.of(Execution.builder().id("execution1").build(), Execution.builder().id("execution2").build()));
         assertThat(result).isEqualTo(4);

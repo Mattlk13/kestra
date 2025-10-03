@@ -396,17 +396,16 @@ public abstract class AbstractExecutionRepositoryTest {
 
     @Test
     protected void purgeExecutions() {
-        var tenant = TestsUtils.randomTenant(this.getClass().getSimpleName());
-        var execution1 = ExecutionFixture.EXECUTION_1(tenant);
+        var execution1 = ExecutionFixture.EXECUTION_1;
         executionRepository.save(execution1);
-        var execution2 = ExecutionFixture.EXECUTION_2(tenant);
+        var execution2 = ExecutionFixture.EXECUTION_2;
         executionRepository.save(execution2);
 
         var results = executionRepository.purge(List.of(execution1, execution2));
         assertThat(results).isEqualTo(2);
 
-        assertThat(executionRepository.findById(tenant, execution1.getId())).isEmpty();
-        assertThat(executionRepository.findById(tenant, execution2.getId())).isEmpty();
+        assertThat(executionRepository.findById(null, execution1.getId())).isEmpty();
+        assertThat(executionRepository.findById(null, execution2.getId())).isEmpty();
     }
 
     @Test

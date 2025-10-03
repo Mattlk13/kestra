@@ -353,11 +353,10 @@ public abstract class AbstractLogRepositoryTest {
 
     @Test
     void purge() {
-        String tenant = TestsUtils.randomTenant(this.getClass().getSimpleName());
-        logRepository.save(logEntry(tenant, Level.INFO, "execution1").build());
-        logRepository.save(logEntry(tenant, Level.INFO, "execution1").build());
-        logRepository.save(logEntry(tenant, Level.INFO, "execution2").build());
-        logRepository.save(logEntry(tenant, Level.INFO, "execution2").build());
+        logRepository.save(logEntry(Level.INFO, "execution1").build());
+        logRepository.save(logEntry(Level.INFO, "execution1").build());
+        logRepository.save(logEntry(Level.INFO, "execution2").build());
+        logRepository.save(logEntry(Level.INFO, "execution2").build());
 
         var result = logRepository.purge(List.of(Execution.builder().id("execution1").build(), Execution.builder().id("execution2").build()));
         assertThat(result).isEqualTo(4);
