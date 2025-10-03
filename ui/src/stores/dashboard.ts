@@ -1,4 +1,4 @@
-import {ref} from "vue";
+import {computed, ref} from "vue";
 import {defineStore} from "pinia";
 
 import type {AxiosRequestConfig, AxiosResponse} from "axios";
@@ -19,12 +19,23 @@ import Utils from "../utils/utils";
 
 import type {Dashboard, Chart, Request, Parameters} from "../components/dashboard/composables/useDashboards";
 import {useAxios} from "../utils/axios";
+import {removeRefPrefix, usePluginsStore} from "./plugins";
+import * as YAML_UTILS from "@kestra-io/ui-libs/flow-yaml-utils";
 
 
 export const useDashboardStore = defineStore("dashboard", () => {
         const selectedChart = ref<Chart>();
         const dashboard = ref<Dashboard>();
         const chartErrors = ref<string[]>([]);
+
+        const sourceCode = ref("")
+        const parsedSource = computed<{ id?: string, [key:string]: any } | undefined>((previous) => {
+        try {
+            return YAML_UTILS.parse(sourceCode.value);
+        } catch {
+            return previous;
+        }
+    })
 
         const axios = useAxios();
 
@@ -96,6 +107,37 @@ export const useDashboardStore = defineStore("dashboard", () => {
                 .then((res) => downloadHandler(res, filename));
         }
 
+        const pluginsStore = usePluginsStore();
+
+        const InitialSchema = {}
+
+        const schema = computed<{
+                definitions: any,
+                $ref: string,
+        }>(() =>  {
+            return pluginsStore.schemaType?.dashboard ?? InitialSchema;
+        })
+
+        const definitions = computed<Record<string, any>>(() =>  {
+            return schema.value.definitions ?? {};
+        });
+
+        function recursivelyLoopUpSchemaRef(a: any, definitions: Record<string, any>): any {
+            if (a.$ref) {
+                const ref = removeRefPrefix(a.$ref);
+                return recursivelyLoopUpSchemaRef(definitions[ref], definitions);
+            }
+            return a;
+        }
+
+        const rootSchema = computed<Record<string, any> | undefined>(() => {
+            return recursivelyLoopUpSchemaRef(schema.value, definitions.value);
+        });
+
+        const rootProperties = computed<Record<string, any> | undefined>(() => {
+            return rootSchema.value?.properties;
+        });
+
         return {
             dashboard,
             chartErrors,
@@ -110,5 +152,12 @@ export const useDashboardStore = defineStore("dashboard", () => {
             validateChart,
             chartPreview,
             export: exportDashboard,
+
+            schema,
+            definitions,
+            rootSchema,
+            rootProperties,
+            sourceCode,
+            parsedSource,
         };
 });
