@@ -65,7 +65,7 @@ jobs:
 
           # Create and push release branch
           git checkout -B "$PUSH_RELEASE_BRANCH";
-          git pull origin "$PUSH_RELEASE_BRANCH" || echo "No existing branch to pull";
+          git pull origin "$PUSH_RELEASE_BRANCH" --rebase || echo "No existing branch to pull";
           git push -u origin "$PUSH_RELEASE_BRANCH";
 
           # Run gradle release
