@@ -33,8 +33,6 @@ public interface TriggerRepositoryInterface extends QueryBuilderInterface<Trigge
      */
     List<TriggerState> findAll(String tenantId);
 
-    Optional<Trigger> findByUid(String uid);
-    
     /**
      * Finds all trigger states across all tenants.
      *

@@ -26,6 +26,7 @@ import io.kestra.plugin.core.dashboard.data.Triggers;
 import io.micronaut.data.model.Pageable;
 import lombok.Getter;
 import org.jooq.*;
+import org.jooq.Record;
 import org.jooq.impl.DSL;
 import reactor.core.publisher.Flux;
 
@@ -79,11 +80,6 @@ public abstract class AbstractJdbcTriggerRepository extends AbstractJdbcCrudRepo
     @Override
     public Optional<TriggerState> findById(TriggerId trigger) {
         return findOne(DSL.trueCondition(), KEY_FIELD.eq(trigger.uid()));
-    }
-
-    @Override
-    public Optional<Trigger> findByUid(String uid) {
-        return findOne(DSL.trueCondition(), field("key").eq(uid));
     }
 
     @Override
@@ -144,7 +140,7 @@ public abstract class AbstractJdbcTriggerRepository extends AbstractJdbcCrudRepo
                 return trigger;
             });
     }
-    
+
     @Override
     public void delete(TriggerId trigger) {
         this.jdbcRepository
@@ -162,7 +158,7 @@ public abstract class AbstractJdbcTriggerRepository extends AbstractJdbcCrudRepo
         var condition = filter(filters, NEXT_EVALUATION_DATE_COLUMN, Resource.TRIGGER);
         return findPage(pageable, tenantId, condition);
     }
-    
+
     @Override
     public ArrayListTotal<TriggerState> find(Pageable pageable, String query, String tenantId, String namespace, String flowId, String workerId) {
         var condition = this.fullTextCondition(query).and(this.defaultFilter());
@@ -350,7 +346,7 @@ public abstract class AbstractJdbcTriggerRepository extends AbstractJdbcCrudRepo
 
     @Override
     abstract protected Field<Date> formatDateField(String dateField, DateUtils.GroupType groupType);
-    
+
     @SuppressWarnings("removal")
     @Override
     public List<Trigger> findAllForAllTenantsV1() {
@@ -361,7 +357,7 @@ public abstract class AbstractJdbcTriggerRepository extends AbstractJdbcCrudRepo
                     .using(configuration)
                     .select(VALUE_FIELD)
                     .from(this.jdbcRepository.getTable());
-                
+
                 return select.fetch().map(record -> {
                     String json = record.get("value", String.class);
                     try {

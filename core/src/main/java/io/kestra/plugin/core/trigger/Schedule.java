@@ -199,7 +199,7 @@ public class Schedule extends AbstractTrigger implements Schedulable, TriggerOut
     @Builder.Default
     @PluginProperty
     private Boolean withSeconds = false;
-    
+
     @PluginProperty
     @Builder.Default
     private String timezone = ZoneId.systemDefault().toString();
@@ -209,10 +209,6 @@ public class Schedule extends AbstractTrigger implements Schedulable, TriggerOut
     @Null
     private final Duration interval = null;
 
-    @Schema(
-        title = "The inputs to pass to the scheduled flow"
-    )
-    @PluginProperty(dynamic = true)
     private Map<String, Object> inputs;
 
     @Schema(
@@ -232,7 +228,7 @@ public class Schedule extends AbstractTrigger implements Schedulable, TriggerOut
     @PluginProperty
     @Deprecated
     private Map<String, Object> backfill;
-    
+
     private RecoverMissedSchedules recoverMissedSchedules;
 
     @Override
@@ -481,7 +477,7 @@ public class Schedule extends AbstractTrigger implements Schedulable, TriggerOut
     Optional<ZonedDateTime> truePreviousNextDateWithCondition(ExecutionTime executionTime, ConditionContext conditionContext, ZonedDateTime toTestDate, boolean next) throws InternalException {
         int upperYearBound = SchedulerClock.now().getYear() + 10;
         int lowerYearBound = SchedulerClock.now().getYear() - 10;
-        
+
         while ((next && toTestDate.getYear() < upperYearBound) || (!next && toTestDate.getYear() > lowerYearBound)) {
 
             Optional<ZonedDateTime> currentDate = next ?

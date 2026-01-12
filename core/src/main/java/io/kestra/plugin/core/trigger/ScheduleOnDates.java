@@ -1,6 +1,7 @@
 package io.kestra.plugin.core.trigger;
 
 import io.kestra.core.exceptions.IllegalVariableEvaluationException;
+import io.kestra.core.exceptions.InvalidTriggerConfigurationException;
 import io.kestra.core.models.annotations.Plugin;
 import io.kestra.core.models.annotations.PluginProperty;
 import io.kestra.core.models.conditions.ConditionContext;
@@ -9,7 +10,6 @@ import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.VoidOutput;
 import io.kestra.core.models.triggers.*;
 import io.kestra.core.runners.RunContext;
-import io.kestra.core.validations.TimezoneId;
 import io.kestra.core.scheduler.SchedulerClock;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
@@ -47,9 +47,9 @@ public class ScheduleOnDates extends AbstractTrigger implements Schedulable, Tri
     @Builder.Default
     @Null
     private final Duration interval = null;
-    
+
     private Map<String, Object> inputs;
-    
+
     @PluginProperty(dynamic = true)
     @Builder.Default
     private String timezone = ZoneId.systemDefault().toString();
@@ -84,27 +84,22 @@ public class ScheduleOnDates extends AbstractTrigger implements Schedulable, Tri
     }
 
     @Override
-    public ZonedDateTime nextEvaluationDate(ConditionContext conditionContext, Optional<? extends TriggerContext> last) {
+    public ZonedDateTime nextEvaluationDate(ConditionContext conditionContext, Optional<? extends TriggerContext> triggerContext) {
         ZonedDateTime now = SchedulerClock.now();
-        try {
-            return last
-                .map(throwFunction(context ->
-                    nextDate(conditionContext.getRunContext(), date -> date.isAfter(context.getDate())).orElse(now.plusYears(1))
-                ))
-                .orElse(conditionContext.getRunContext()
-                    .render(dates)
-                    .asList(ZonedDateTime.class)
-                    .stream()
-                    .sorted()
-                    .findFirst()
-                    .orElse(now))
-                .truncatedTo(ChronoUnit.SECONDS);
-        } catch (IllegalVariableEvaluationException e) {
-            log.warn("Failed to evaluate schedule dates for trigger '{}': {}", this.getId(), e.getMessage());
-            return now.plusYears(1);
-        }
+        return triggerContext
+            .map(ctx -> ctx.getBackfill() != null ? ctx.getBackfill().getCurrentDate() : ctx.getDate())
+            .map(this::withTimeZone)
+            .or(() -> Optional.of(now))
+            .flatMap(dt -> {
+                try {
+                    return nextDate(conditionContext.getRunContext(), date -> date.isAfter(dt));
+                } catch (IllegalVariableEvaluationException e) {
+                    log.warn("Failed to evaluate schedule dates for trigger '{}': {}", this.getId(), e.getMessage());
+                    throw new InvalidTriggerConfigurationException("Failed to evaluate schedule 'dates'. Cause: " + e.getMessage());
+                }
+            }).orElseGet(() -> now.plusYears(1));
     }
-    
+
     @Override
     public ZonedDateTime nextEvaluationDate() {
         // TODO this may be the next date from now?
@@ -130,7 +125,7 @@ public class ScheduleOnDates extends AbstractTrigger implements Schedulable, Tri
         }
         return date.withZoneSameInstant(ZoneId.of(this.timezone));
     }
-    
+
     private Optional<ZonedDateTime> nextDate(RunContext runContext, Predicate<ZonedDateTime> predicate) throws IllegalVariableEvaluationException {
         return runContext.render(dates)
             .asList(ZonedDateTime.class).stream().sorted()

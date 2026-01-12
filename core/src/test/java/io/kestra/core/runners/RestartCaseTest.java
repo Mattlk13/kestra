@@ -5,6 +5,8 @@ import io.kestra.core.models.executions.TaskRun;
 import io.kestra.core.models.flows.Flow;
 import io.kestra.core.models.flows.State;
 import io.kestra.core.models.flows.State.Type;
+import io.kestra.core.queues.QueueFactoryInterface;
+import io.kestra.core.queues.QueueInterface;
 import io.kestra.core.repositories.FlowRepositoryInterface;
 import io.kestra.core.services.ExecutionService;
 
@@ -13,6 +15,7 @@ import java.util.List;
 import java.util.Optional;
 
 import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 
 import static io.kestra.core.tenant.TenantService.MAIN_TENANT;
@@ -29,6 +32,10 @@ public class RestartCaseTest {
 
     @Inject
     private ExecutionService executionService;
+
+    @Inject
+    @Named(QueueFactoryInterface.EXECUTION_NAMED)
+    protected QueueInterface<Execution> executionQueue;
 
     public void restartFailedThenSuccess() throws Exception {
         Flow flow = flowRepository.findById(MAIN_TENANT, "io.kestra.tests", "restart_last_failed").orElseThrow();
@@ -140,6 +147,7 @@ public class RestartCaseTest {
 
         // wait
         Execution restartedExec = executionService.replay(firstExecution, flow, firstExecution.findTaskRunByTaskIdAndValue("2_end", List.of()).getId(), null);
+        executionQueue.emit(restartedExec);
 
         assertThat(restartedExec.getState().getCurrent()).isEqualTo(State.Type.RESTARTED);
         assertThat(restartedExec.getState().getHistories()).hasSize(4);
@@ -151,7 +159,6 @@ public class RestartCaseTest {
         Execution finishedRestartedExecution = runnerUtils.awaitChildExecution(
             flow,
             firstExecution,
-            restartedExec,
             Duration.ofSeconds(60)
         );
 

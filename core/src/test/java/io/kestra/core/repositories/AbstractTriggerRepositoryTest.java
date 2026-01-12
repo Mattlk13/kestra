@@ -47,6 +47,9 @@ public abstract class AbstractTriggerRepositoryTest {
     @Inject
     protected TriggerStateStore triggerStateStore;
 
+    @Inject
+    protected TriggerRepositoryInterface triggerRepository;
+
     private static TriggerState.TriggerStateBuilder trigger(String tenantId) {
         return TriggerState.builder()
             .tenantId(tenantId)
@@ -74,7 +77,7 @@ public abstract class AbstractTriggerRepositoryTest {
         String tenant = TestsUtils.randomTenant(this.getClass().getSimpleName());
         triggerStateStore.save(generateDefaultTrigger(tenant));
 
-        ArrayListTotal<TriggerState> entries = triggerStateStore.find(Pageable.UNPAGED, tenant, List.of(filter));
+        ArrayListTotal<TriggerState> entries = triggerRepository.find(Pageable.UNPAGED, tenant, List.of(filter));
 
         assertThat(entries).hasSize(1);
     }
@@ -85,7 +88,7 @@ public abstract class AbstractTriggerRepositoryTest {
         String tenant = TestsUtils.randomTenant(this.getClass().getSimpleName());
         triggerStateStore.save(generateDefaultTrigger(tenant));
 
-        List<TriggerState> entries = triggerStateStore.find(tenant, List.of(filter)).collectList().block();
+        List<TriggerState> entries = triggerRepository.find(tenant, List.of(filter)).collectList().block();
 
         assertThat(entries).withFailMessage(filter.toString()).hasSize(1);
     }
@@ -106,7 +109,7 @@ public abstract class AbstractTriggerRepositoryTest {
     @ParameterizedTest
     @MethodSource("errorFilterCombinations")
     void should_fail_to_find_all(QueryFilter filter){
-        assertThrows(InvalidQueryFiltersException.class, () -> triggerStateStore.find(Pageable.UNPAGED, TestsUtils.randomTenant(this.getClass().getSimpleName()), List.of(filter)));
+        assertThrows(InvalidQueryFiltersException.class, () -> triggerRepository.find(Pageable.UNPAGED, TestsUtils.randomTenant(this.getClass().getSimpleName()), List.of(filter)));
     }
 
     static Stream<QueryFilter> errorFilterCombinations() {
@@ -182,7 +185,7 @@ public abstract class AbstractTriggerRepositoryTest {
         triggerStateStore.save(trigger(tenant3).build());
 
         // WHEN
-        List<TriggerState> all = triggerStateStore.findAllForAllTenants()
+        List<TriggerState> all = triggerRepository.findAllForAllTenants()
             .stream().filter(it -> Set.of(tenant1, tenant2, tenant3).contains(it.getTenantId())).toList();
 
         // THEN
@@ -201,7 +204,7 @@ public abstract class AbstractTriggerRepositoryTest {
         triggerStateStore.save(trigger(tenant3).build());
 
         // WHEN
-        List<TriggerState> all = triggerStateStore.findAll(tenant1)
+        List<TriggerState> all = triggerRepository.findAll(tenant1)
             .stream().filter(it -> Set.of(tenant1, tenant2, tenant3).contains(it.getTenantId())).toList();
 
         // THEN
@@ -219,7 +222,7 @@ public abstract class AbstractTriggerRepositoryTest {
         triggerStateStore.save(trigger(tenant).triggerId("trigger4").build());
 
         // WHEN
-        List<TriggerState> find = triggerStateStore.find(TEST_DEFAULT_PAGED, null, tenant, null, null, null);
+        List<TriggerState> find = triggerRepository.find(TEST_DEFAULT_PAGED, null, tenant, null, null, null);
 
         // THEN
         assertThat(find.size()).isEqualTo(4);
@@ -234,7 +237,7 @@ public abstract class AbstractTriggerRepositoryTest {
         triggerStateStore.save(trigger(tenant).namespace("io.kestra.unittest.2").flowId("my-flow1").triggerId("trigger1").build());
 
         // WHEN
-        List<TriggerState> find = triggerStateStore.find(TEST_DEFAULT_PAGED, null, tenant, null, "my-flow1", null);
+        List<TriggerState> find = triggerRepository.find(TEST_DEFAULT_PAGED, null, tenant, null, "my-flow1", null);
 
         // THEN
         assertThat(find.size()).isEqualTo(2);
@@ -249,7 +252,7 @@ public abstract class AbstractTriggerRepositoryTest {
         triggerStateStore.save(trigger(tenant).namespace("io.kestra.unittest.2").flowId("my-flow1").triggerId("trigger1").build());
 
         // WHEN
-        List<TriggerState> find = triggerStateStore.find(TEST_DEFAULT_PAGED, null, tenant, "io.kestra.unittest.1", null, null);
+        List<TriggerState> find = triggerRepository.find(TEST_DEFAULT_PAGED, null, tenant, "io.kestra.unittest.1", null, null);
 
         // THEN
         assertThat(find.size()).isEqualTo(1);
@@ -266,7 +269,7 @@ public abstract class AbstractTriggerRepositoryTest {
         triggerStateStore.save(trigger(tenant).namespace(ANY_VALUE).flowId(ANY_VALUE).triggerId(ANY_VALUE).build());
 
         // WHEN
-        List<TriggerState> find = triggerStateStore.find(TEST_DEFAULT_PAGED, null, tenant, "io.kestra", null, null);
+        List<TriggerState> find = triggerRepository.find(TEST_DEFAULT_PAGED, null, tenant, "io.kestra", null, null);
 
         // THEN
         assertThat(find.size()).isEqualTo(2);
@@ -284,7 +287,7 @@ public abstract class AbstractTriggerRepositoryTest {
         triggerStateStore.save(trigger(tenant).namespace(ANY_VALUE).flowId(ANY_VALUE).triggerId(ANY_VALUE).build());
 
         // WHEN
-        List<TriggerState> find = triggerStateStore.find(TEST_DEFAULT_PAGED, null, tenant, null, null, "worker1");
+        List<TriggerState> find = triggerRepository.find(TEST_DEFAULT_PAGED, null, tenant, null, null, "worker1");
 
         // THEN
         assertThat(find.size()).isEqualTo(1);
@@ -301,7 +304,7 @@ public abstract class AbstractTriggerRepositoryTest {
         triggerStateStore.save(trigger(tenant).namespace("io.kestra.unittest2").flowId("myflow2").triggerId("mytrigger2").build());
 
         // WHEN
-        List<TriggerState> find = triggerStateStore.find(TEST_DEFAULT_PAGED, query, tenant, null, null, null);
+        List<TriggerState> find = triggerRepository.find(TEST_DEFAULT_PAGED, query, tenant, null, null, null);
 
         // THEN
         assertThat(find.size()).isEqualTo(1);
@@ -320,7 +323,7 @@ public abstract class AbstractTriggerRepositoryTest {
             .build()
         );
         // When
-        long count = triggerStateStore.countAll(tenant);
+        long count = triggerRepository.countAll(tenant);
         // Then
         assertThat(count).isEqualTo(1);
     }
@@ -336,7 +339,7 @@ public abstract class AbstractTriggerRepositoryTest {
         TriggerState savedB = triggerStateStore.save(builderB.build());
 
         try {
-            List<TriggerState> all = triggerStateStore.find(tenant, null).collectList().block();
+            List<TriggerState> all = triggerRepository.find(tenant, null).collectList().block();
             assertThat(all).isNotNull();
             assertThat(all.stream().map(TriggerState::getTriggerId).toList())
                 .containsExactlyInAnyOrder(savedA.getTriggerId(), savedB.getTriggerId());
@@ -347,7 +350,7 @@ public abstract class AbstractTriggerRepositoryTest {
                 .value("flowA")
                 .build());
 
-            List<TriggerState> filtered = triggerStateStore.find(tenant, filters).collectList().block();
+            List<TriggerState> filtered = triggerRepository.find(tenant, filters).collectList().block();
             assertThat(filtered).hasSize(1);
             assertThat(filtered.get(0).getFlowId()).isEqualTo("flowA");
         } finally {

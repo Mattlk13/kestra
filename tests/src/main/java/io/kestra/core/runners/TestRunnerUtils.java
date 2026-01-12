@@ -350,9 +350,35 @@ public class TestRunnerUtils {
         ), execution);
     }
 
-    public Execution awaitChildExecution(Flow flow, Execution parentExecution, Execution execution, Duration duration)
-        throws QueueException {
-        return this.emitAndAwaitExecution(isTerminatedChildExecution(parentExecution, flow), execution, duration);
+    public Execution awaitChildExecution(Flow flow, Execution parentExecution, Duration duration) throws QueueException {
+        try {
+
+            if (duration == null){
+                duration = Duration.ofSeconds(20);
+            }
+            return Await.until(() -> {
+                Optional<Execution> exec = executionRepository.findByFlowId(flow.getTenantId(), flow.getNamespace(), flow.getId(), Pageable.UNPAGED)
+                    .stream()
+                    .filter(e -> parentExecution.getId().equals(e.getParentId()))
+                    .findAny();
+                if (exec.isPresent() && isTerminatedChildExecution(parentExecution, flow).test(exec.get())) {
+                    return exec.get();
+                }
+                return null;
+            }, Duration.ofMillis(10), duration);
+
+        } catch (TimeoutException e) {
+            Optional<Execution> byId = executionRepository.findByFlowId(flow.getTenantId(), flow.getNamespace(), flow.getId(), Pageable.UNPAGED)
+                .stream()
+                .filter(exec -> parentExecution.getId().equals(exec.getParentId()))
+                .findAny();
+            if (byId.isPresent()) {
+                Execution exec = byId.get();
+                throw new RuntimeException("Execution %s is currently at the status %s which is not the awaited one, full execution object:\n%s".formatted(exec.getId(), exec.getState().getCurrent(), stringify(exec)));
+            } else {
+                throw new RuntimeException("No child execution for parent execution %s exist in the database".formatted(parentExecution.getId()));
+            }
+        }
     }
 
     private Predicate<Execution> isTerminatedExecution(Execution execution, Flow flow) {

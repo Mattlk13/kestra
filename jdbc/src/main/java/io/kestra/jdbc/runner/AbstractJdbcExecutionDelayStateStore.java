@@ -31,7 +31,7 @@ public abstract class AbstractJdbcExecutionDelayStateStore extends AbstractJdbcR
                     .using(configuration)
                     .select(VALUE_FIELD)
                     .from(this.jdbcRepository.getTable())
-                    .where(DATE_FIELD.lessOrEqual(now))
+                    .where(DATE_FIELD.lessOrEqual(getNow(now)))
                     .forUpdate()
                     .skipLocked();
 
@@ -43,8 +43,8 @@ public abstract class AbstractJdbcExecutionDelayStateStore extends AbstractJdbcR
             });
     }
 
-    protected Temporal getNow() {
-        return ZonedDateTime.now().toOffsetDateTime();
+    protected Temporal getNow(Instant now) {
+        return now;
     }
 
     @Override

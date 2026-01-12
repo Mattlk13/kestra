@@ -10,8 +10,8 @@ import io.kestra.core.models.executions.Execution;
 import io.kestra.core.models.flows.FlowWithSource;
 import io.kestra.core.scheduler.model.TriggerState;
 import io.kestra.core.queues.QueueException;
-import io.kestra.core.repositories.TriggerRepositoryInterface;
 import io.kestra.core.runners.TestRunnerUtils;
+import io.kestra.core.scheduler.store.TriggerStateStore;
 import io.kestra.core.serializers.YamlParser;
 import io.kestra.core.services.GraphService;
 import io.kestra.core.utils.GraphUtils;
@@ -42,7 +42,7 @@ class FlowGraphTest {
     private GraphService graphService;
 
     @Inject
-    private TriggerRepositoryInterface triggerRepositoryInterface;
+    private TriggerStateStore triggerStateStore;
 
     @Inject
     private TestRunnerUtils runnerUtils;
@@ -203,7 +203,7 @@ class FlowGraphTest {
     @Test
     void trigger() throws IllegalVariableEvaluationException, IOException, FlowProcessingException {
         FlowWithSource flow = this.parse("flows/valids/trigger-flow-listener.yaml");
-        triggerRepositoryInterface.save(TriggerState.of(flow, flow.getTriggers().getFirst(), 0).disabled(Clock.systemDefaultZone(), true));
+        triggerStateStore.save(TriggerState.of(flow, flow.getTriggers().getFirst(), 0).disabled(Clock.systemDefaultZone(), true));
 
         FlowGraph flowGraph = graphService.flowGraph(flow, null);
 

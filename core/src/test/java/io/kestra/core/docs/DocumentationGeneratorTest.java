@@ -12,7 +12,6 @@ import io.kestra.core.plugins.RegisteredPlugin;
 import io.kestra.plugin.core.debug.Return;
 import io.kestra.plugin.core.flow.Dag;
 import io.kestra.plugin.core.flow.Subflow;
-import io.kestra.plugin.core.state.Set;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
 import jakarta.validation.constraints.NotBlank;

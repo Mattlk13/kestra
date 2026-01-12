@@ -182,7 +182,7 @@ public class FlowConcurrencyCaseTest {
         // here the first fail and the second is now running.
         // we restart the first one, it should be queued then fail again.
         Execution failedExecution = runnerUtils.awaitExecution(e -> e.getState().getCurrent().equals(Type.FAILED), execution1);
-        Execution restarted = executionService.restart(failedExecution, null);
+        Execution restarted = executionService.restart(failedExecution, flow, null);
         Execution executionResult1 = runnerUtils.restartExecution(
             e -> e.getState().getHistories().stream().anyMatch(history -> history.getState() == Type.RESTARTED) && e.getState().getCurrent().equals(Type.FAILED),
             restarted

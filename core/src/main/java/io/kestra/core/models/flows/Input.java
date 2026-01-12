@@ -17,7 +17,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-@SuppressWarnings("deprecation")
 @SuperBuilder
 @Getter
 @NoArgsConstructor
@@ -76,13 +75,13 @@ public abstract class Input<T> implements Data {
         title = "The default value to use if no value is specified."
     )
     Property<T> defaults;
-    
+
     @Schema(
         title = "The suggested value for the input.",
         description = "Optional UI hint for pre-filling the input. Cannot be used together with a default value."
     )
     Property<T> prefill;
-    
+
     @Schema(
         title = "The display name of the input."
     )

@@ -6,7 +6,6 @@ import io.kestra.core.exceptions.FlowNotFoundException;
 import io.kestra.core.executor.command.ExecutionCommand;
 import io.kestra.core.metrics.MetricRegistry;
 import io.kestra.core.models.executions.*;
-import io.kestra.core.models.executions.Execution.FailedExecutionWithLog;
 import io.kestra.core.models.flows.*;
 import io.kestra.core.models.flows.sla.ExecutionMonitoringSLA;
 import io.kestra.core.models.flows.sla.SLA;
@@ -51,7 +50,7 @@ import static io.kestra.core.utils.Rethrow.*;
 public class DefaultExecutor extends AbstractService implements Executor {
     private static final String UNABLE_TO_DESERIALIZE_AN_EXECUTION = "Unable to deserialize an execution: {}";
     private static final String SKIPPING_EXECUTION = "Skipping execution {}";
-    
+
     @Inject
     @Named(QueueFactoryInterface.EXECUTION_NAMED)
     private QueueInterface<Execution> executionQueue;
@@ -141,7 +140,7 @@ public class DefaultExecutor extends AbstractService implements Executor {
     private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
     private ScheduledFuture<?> executionDelayFuture;
     private ScheduledFuture<?> monitorSLAFuture;
-    
+
     private final List<Runnable> receiveCancellations = new ArrayList<>();
     private final AtomicBoolean isPaused = new AtomicBoolean(false);
     private final AtomicBoolean shutdown = new AtomicBoolean(false);
@@ -196,18 +195,18 @@ public class DefaultExecutor extends AbstractService implements Executor {
                 // process execution message grouped by executionId to avoid concurrency as the execution level as it would
                 List<CompletableFuture<Void>> perExecutionFutures = executions.stream()
                     .filter(Either::isLeft)
-                    .collect(Collectors.groupingBy(either -> either.getLeft().getId()))
+                    .collect(Collectors.groupingBy(either -> either.getLeft().executionId()))
                     .values()
                     .stream()
                     .map(eithers -> CompletableFuture.runAsync(() -> {
-                        eithers.forEach(this::executionQueue);
+                        eithers.forEach(this::executionEventQueue);
                     }, executionExecutorService))
                     .toList();
 
                 // directly process deserialization issues as most of the time there will be none
                 executions.stream()
                     .filter(Either::isRight)
-                    .forEach(either -> executionQueue(either));
+                    .forEach(either -> executionEventQueue(either));
 
                 CompletableFuture.allOf(perExecutionFutures.toArray(CompletableFuture[]::new)).join();
             }
@@ -225,7 +224,7 @@ public class DefaultExecutor extends AbstractService implements Executor {
         this.receiveCancellations.addFirst(this.subflowExecutionResultQueue.receive(Executor.class, this::subflowExecutionResultQueue));
         this.receiveCancellations.addFirst(this.subflowExecutionEndQueue.receive(Executor.class, this::subflowExecutionEndQueue));
         this.receiveCancellations.addFirst(this.multipleConditionEventQueue.receive(Executor.class, this::multipleConditionEventQueue));
-        
+
         // Register maintenance listener
         this.receiveCancellations.add(this.maintenanceService.listen(new MaintenanceService.MaintenanceListener() {
             @Override
@@ -762,30 +761,6 @@ public class DefaultExecutor extends AbstractService implements Executor {
             .map(f -> new MultipleConditionEvent(f.getFlow(), execution))
             .distinct() // we can have multiple MultipleConditionEvent if a flow contains multiple triggers as it would lead to multiple FlowWithFlowTrigger
             .forEach(throwConsumer(multipleCondition -> multipleConditionEventQueue.emit(multipleCondition)));
-    }
-
-    private FlowWithSource findFlowOrThrow(Execution execution) throws FlowNotFoundException {
-        return findFlow(execution).orElseThrow(() -> new FlowNotFoundException("Unable to find flow %s for execution %s".formatted(execution.getTenantId() + "/" + execution.getNamespace() + "/" + execution.getFlowId(), execution.getId())));
-    }
-    private FlowWithSource findFlow(Execution execution) {
-        FlowInterface flow = flowMetaStore.findByExecution(execution).orElseThrow();
-        return  pluginDefaultService.injectDefaults(flow, execution);
-    }
-
-    private ExecutorContext handleFailedExecutionFromExecutor(ExecutorContext executor, Exception e) {
-        Execution.FailedExecutionWithLog failedExecutionWithLog = executor.getExecution().failedExecutionFromExecutor(e);
-
-        return handleFailedExecutionFromExecutor(executor, failedExecutionWithLog);
-    }
-
-    private Executor handleFailedExecutionFromExecutor(Executor executor, FailedExecutionWithLog failedExecutionWithLog) {
-        try {
-            logQueue.emitAsync(failedExecutionWithLog.getLogs());
-        } catch (QueueException ex) {
-            // fail silently
-        }
-
-        return executor.withExecution(failedExecutionWithLog.getExecution(), "exception");
     }
 
     @Override
