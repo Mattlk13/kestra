@@ -1,9 +1,9 @@
 package io.kestra.webserver.services;
 
+import io.kestra.core.contexts.KestraConfig;
 import io.kestra.core.models.flows.GenericFlow;
 import io.kestra.core.services.FlowService;
 import io.kestra.core.tenant.TenantService;
-import io.kestra.core.utils.NamespaceUtils;
 import io.kestra.core.utils.VersionProvider;
 import io.kestra.webserver.annotation.WebServerEnabled;
 import io.kestra.webserver.controllers.api.BlueprintController.ApiBlueprintItem;
@@ -22,6 +22,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 
 import static io.kestra.core.utils.Rethrow.throwFunction;
 
@@ -34,6 +35,8 @@ import static io.kestra.core.utils.Rethrow.throwFunction;
 public class FlowAutoLoaderService {
     private static final Logger log = LoggerFactory.getLogger(FlowAutoLoaderService.class);
 
+    public static final Pattern NAMESPACE_FROM_FLOW_SOURCE_PATTERN = Pattern.compile("^namespace: \\S*", Pattern.MULTILINE);
+    
     public static final String PURGE_SYSTEM_FLOW_BLUEPRINT_ID = "234";
 
     @Inject
@@ -41,11 +44,11 @@ public class FlowAutoLoaderService {
 
     @Inject
     @Client("api")
-    private HttpClient httpClient;
-
-    @Inject
-    private NamespaceUtils namespaceUtils;
-
+    protected HttpClient httpClient;
+    
+    @Inject 
+    protected KestraConfig kestraConfig;
+    
     @Inject
     private VersionProvider versionProvider;
 
@@ -70,7 +73,7 @@ public class FlowAutoLoaderService {
                     )).mapNotNull(response -> {
                         String body = response.body();
                         if (it.getId().equals(PURGE_SYSTEM_FLOW_BLUEPRINT_ID)) {
-                            return NamespaceUtils.NAMESPACE_FROM_FLOW_SOURCE_PATTERN.matcher(Objects.requireNonNull(body)).replaceFirst("namespace: " + namespaceUtils.getSystemFlowNamespace());
+                            return NAMESPACE_FROM_FLOW_SOURCE_PATTERN.matcher(Objects.requireNonNull(body)).replaceFirst("namespace: " + kestraConfig.getSystemFlowNamespace());
                         }
                         return body;
                     })
