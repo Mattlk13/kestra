@@ -15,6 +15,7 @@ import io.kestra.core.runners.WorkerJobEvent;
 import io.kestra.core.models.executions.TaskRun;
 import io.kestra.core.runners.WorkerTask;
 import io.kestra.core.runners.WorkerTaskResult;
+import io.kestra.core.scheduler.queue.TriggerEventQueue;
 import io.kestra.core.utils.Either;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -54,6 +55,7 @@ class WorkerJobDispatcherTest {
     @SuppressWarnings("unchecked")
     private DispatchQueueInterface<WorkerTaskResult> mockResultQueue = mock(DispatchQueueInterface.class);
     private WorkerJobDispatcher dispatcher;
+    private TriggerEventQueue mockTriggerEventQueue = mock(TriggerEventQueue.class);
 
     // Captures for verifying interactions
     private List<MockQueueSubscriber> createdSubscribers;
@@ -65,6 +67,7 @@ class WorkerJobDispatcherTest {
         mockStateStore = mock(WorkerJobRunningStateStore.class);
         mockKillQueue = mock(BroadcastQueueInterface.class);
         mockResultQueue = mock(DispatchQueueInterface.class);
+        mockTriggerEventQueue = mock(TriggerEventQueue.class);
         createdSubscribers = new ArrayList<>();
 
         // Mock kill queue subscriber
@@ -81,7 +84,7 @@ class WorkerJobDispatcherTest {
             return subscriber;
         });
 
-        dispatcher = new WorkerJobDispatcher(mockQueue, mockStateStore, mockKillQueue, mockResultQueue);
+        dispatcher = new WorkerJobDispatcher(mockQueue, mockStateStore, mockKillQueue, mockResultQueue, mockTriggerEventQueue);
     }
 
     @AfterEach
@@ -292,7 +295,7 @@ class WorkerJobDispatcherTest {
             // Given
             WorkerStreamContext<WorkerJobResponse> context = createWorkerContext("worker-1", WORKER_GROUP_A, 10);
             dispatcher.registerWorker(context);
-            
+
             // Simulate in-flight job
             WorkerJob mockJob = mock(WorkerJob.class);
             when(mockJob.uid()).thenReturn("job-1");
@@ -337,10 +340,10 @@ class WorkerJobDispatcherTest {
 
             // Then - verify dispatch was attempted (state store save is called before send)
             // Note: In unit tests without Kestra context, the actual send fails and triggers
-            // handleDispatchFailure which restores permits and re-queues. We verify the 
+            // handleDispatchFailure which restores permits and re-queues. We verify the
             // dispatch was attempted by checking the state store was called.
             verify(mockStateStore).save(any(), any());
-            
+
             // After dispatch failure, permit is restored and job is re-queued
             // Verify re-queue happened due to send failure
             verify(mockQueue).emit(eq(WORKER_GROUP_A), eq(event));
@@ -373,7 +376,7 @@ class WorkerJobDispatcherTest {
             // Note: In unit tests, the actual send fails and handleDispatchFailure is called,
             // but we can verify the worker selection logic worked by checking save was called.
             verify(mockStateStore).save(any(), any());
-            
+
             // Worker-1 should still have its 2 original in-flight jobs
             assertThat(context1.getInFlightCount()).isEqualTo(2);
         }
@@ -416,7 +419,7 @@ class WorkerJobDispatcherTest {
             // 2. After the (failed) dispatch attempt, subscription should be paused
             //    because we started with only 1 permit
             verify(mockStateStore).save(any(), any());
-            
+
             // The subscription should be paused after consuming the last permit,
             // even though the dispatch ultimately fails and restores the permit.
             // The pause happens in handleIncomingJob BEFORE handleDispatchFailure restores it.
@@ -461,7 +464,7 @@ class WorkerJobDispatcherTest {
             // Then - should create a new subscription
             assertThat(dispatcher.getActiveWorkerCount(WORKER_GROUP_A)).isEqualTo(1);
             assertThat(createdSubscribers).hasSize(2); // New subscriber created
-            
+
             // The new subscriber should not be closed
             MockQueueSubscriber newSubscriber = createdSubscribers.get(1);
             assertThat(newSubscriber.group).isEqualTo(WORKER_GROUP_A);
@@ -522,7 +525,7 @@ class WorkerJobDispatcherTest {
             // When
             for (int i = 0; i < numIterations; i++) {
                 final String workerId = "worker-" + i;
-                
+
                 executor.submit(() -> {
                     try {
                         WorkerStreamContext<WorkerJobResponse> context =

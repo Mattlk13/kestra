@@ -133,7 +133,8 @@ class GrpcChannelManagerTest {
             null,
             null,
             new LoadBalancing(LoadBalancing.Policy.ROUND_ROBIN),
-            new HealthCheck(true)
+            new HealthCheck(true),
+            new WorkerControllersConfiguration.WaitForReady(true, Duration.ofSeconds(1))
         );
         GrpcChannelConfiguration channelConfig = createDefaultChannelConfig();
         channelManager = new GrpcChannelManager(channelConfig, config);
@@ -152,7 +153,8 @@ class GrpcChannelManagerTest {
             null,
             new DnsConfig("", 9096, DnsConfig.DnsRecordType.SRV, Duration.ofSeconds(30)),
             new LoadBalancing(LoadBalancing.Policy.ROUND_ROBIN),
-            new HealthCheck(true)
+            new HealthCheck(true),
+            new WorkerControllersConfiguration.WaitForReady(true, Duration.ofSeconds(1))
         );
         GrpcChannelConfiguration channelConfig = createDefaultChannelConfig();
         channelManager = new GrpcChannelManager(channelConfig, config);
@@ -171,7 +173,8 @@ class GrpcChannelManagerTest {
             null,
             null,
             new LoadBalancing(LoadBalancing.Policy.ROUND_ROBIN),
-            new HealthCheck(true)
+            new HealthCheck(true),
+            new WorkerControllersConfiguration.WaitForReady(true, Duration.ofSeconds(1))
         );
         GrpcChannelConfiguration channelConfig = createDefaultChannelConfig();
         channelManager = new GrpcChannelManager(channelConfig, config);
@@ -437,7 +440,8 @@ class GrpcChannelManagerTest {
             new StaticConfig(endpoints),
             null,
             new LoadBalancing(LoadBalancing.Policy.ROUND_ROBIN),
-            new HealthCheck(true)
+            new HealthCheck(true),
+            new WorkerControllersConfiguration.WaitForReady(true, Duration.ofSeconds(1))
         );
     }
 
@@ -450,7 +454,8 @@ class GrpcChannelManagerTest {
             new StaticConfig(endpoints),
             null,
             new LoadBalancing(policy),
-            new HealthCheck(true)
+            new HealthCheck(true),
+            new WorkerControllersConfiguration.WaitForReady(true, Duration.ofSeconds(1))
         );
     }
 
@@ -463,7 +468,8 @@ class GrpcChannelManagerTest {
             new StaticConfig(endpoints),
             null,
             new LoadBalancing(LoadBalancing.Policy.ROUND_ROBIN),
-            new HealthCheck(healthCheckEnabled)
+            new HealthCheck(healthCheckEnabled),
+            new WorkerControllersConfiguration.WaitForReady(true, Duration.ofSeconds(1))
         );
     }
 
@@ -473,7 +479,8 @@ class GrpcChannelManagerTest {
             null,
             new DnsConfig(hostname, 9096, DnsConfig.DnsRecordType.SRV, Duration.ofSeconds(30)),
             new LoadBalancing(LoadBalancing.Policy.ROUND_ROBIN),
-            new HealthCheck(true)
+            new HealthCheck(true),
+            new WorkerControllersConfiguration.WaitForReady(true, Duration.ofSeconds(1))
         );
     }
 
@@ -483,7 +490,8 @@ class GrpcChannelManagerTest {
             null,
             new DnsConfig(hostname, defaultPort, DnsConfig.DnsRecordType.A, Duration.ofSeconds(30)),
             new LoadBalancing(LoadBalancing.Policy.ROUND_ROBIN),
-            new HealthCheck(true)
+            new HealthCheck(true),
+            new WorkerControllersConfiguration.WaitForReady(true, Duration.ofSeconds(1))
         );
     }
 

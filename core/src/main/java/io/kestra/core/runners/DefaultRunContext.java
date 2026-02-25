@@ -665,6 +665,7 @@ public class DefaultRunContext implements RunContext {
         private String triggerExecutionId;
         private RunContextLogger logger;
         private KVStoreService kvStoreService;
+        private AssetManagerFactory assetManagerFactory;
         private List<String> secretInputs;
         private Task task;
         private AbstractTrigger trigger;
@@ -687,6 +688,7 @@ public class DefaultRunContext implements RunContext {
             context.storage = storage;
             context.triggerExecutionId = triggerExecutionId;
             context.kvStoreService = kvStoreService;
+            context.assetManagerFactory = assetManagerFactory;
             context.secretInputs = secretInputs;
             context.task = task;
             context.trigger = trigger;
