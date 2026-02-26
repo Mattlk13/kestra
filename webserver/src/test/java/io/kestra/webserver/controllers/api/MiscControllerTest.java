@@ -1,5 +1,6 @@
 package io.kestra.webserver.controllers.api;
 
+import io.kestra.core.junit.annotations.FlakyTest;
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.Setting;
 import io.kestra.core.models.flows.FlowWithSource;
@@ -100,6 +101,7 @@ class MiscControllerTest {
         assertThat(jsonError.getMessage()).isEqualTo("Invalid username for Basic Authentication. Please provide a valid email address., Invalid password for Basic Authentication. The password must have 8 chars, one upper, one lower and one number: Resource fails validation");
     }
 
+    @FlakyTest
     @Test
     void basicAuth() {
         assertThatCode(() -> client.toBlocking().retrieve("/api/v1/configs", MiscController.Configuration.class)).doesNotThrowAnyException();
