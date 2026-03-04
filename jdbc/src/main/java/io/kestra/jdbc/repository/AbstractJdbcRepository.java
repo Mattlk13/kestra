@@ -304,6 +304,9 @@ public abstract class AbstractJdbcRepository {
             return getDateCondition(value, operation, dateColumn);
         }
 
+        if (field == QueryFilter.Field.STATUS) {
+            return statusCondition(value, operation);
+        }
         if (field == QueryFilter.Field.GROUP) {
             return groupCondition(value, operation);
         }
@@ -422,6 +425,9 @@ public abstract class AbstractJdbcRepository {
         };
     }
 
+    protected Condition statusCondition(Object value, QueryFilter.Op operation) {
+        return defaultHandlers(QueryFilter.Field.STATUS, value, operation);
+    }
     protected Condition groupCondition(Object value, QueryFilter.Op operation) {
         throw new InvalidQueryFiltersException("Unsupported operation: " + operation);
     }
