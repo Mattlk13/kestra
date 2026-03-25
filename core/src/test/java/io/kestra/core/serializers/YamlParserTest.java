@@ -150,6 +150,29 @@ class YamlParserTest {
     }
 
     @Test
+    void listeners() {
+        ConstraintViolationException exception = assertThrows(
+            ConstraintViolationException.class,
+            () -> modelValidator.validate(this.parse("flows/invalids/listener.yaml"))
+        );
+
+        assertThat(exception.getConstraintViolations().size()).isEqualTo(2);
+        assertThat(new ArrayList<>(exception.getConstraintViolations()).getFirst().getMessage()).contains("must not be empty");
+        assertThat(new ArrayList<>(exception.getConstraintViolations()).get(1).getMessage()).isEqualTo("must not be empty");
+    }
+
+    @Test
+    void ifConditionRequired() {
+        ConstraintViolationException exception = assertThrows(
+            ConstraintViolationException.class,
+            () -> modelValidator.validate(this.parse("flows/invalids/if-without-condition.yaml"))
+        );
+
+        assertThat(exception.getConstraintViolations()).hasSize(1);
+        assertThat(exception.getConstraintViolations().iterator().next().getMessage()).isEqualTo("must not be null");
+    }
+
+    @Test
     void serialization() throws IOException {
         Flow flow = this.parse("flows/valids/minimal.yaml");
 

@@ -197,7 +197,7 @@ public class RunContextInitializer {
                                        final WorkerTaskResult workerTaskResult,
                                        final TaskRun parent) {
         Map<String, Object> variables = new HashMap<>(runContext.getVariables());
-        variables.put("envs", runContextCache.getEnvVars()); // inject local worker env vars
+        variables.put(RunVariables.ENVS, runContextCache.getEnvVars()); // inject local worker env vars
 
         Map<String, Object> outputs = variables.containsKey("outputs") ?
             new HashMap<>((Map<String, Object>) variables.get("outputs")) :

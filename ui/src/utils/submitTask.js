@@ -59,7 +59,8 @@ export const executeTask = (submitor, flow, values, options) => {
                             id: response.data.id,
                             tab: localStorage.getItem("executeDefaultTab") || "gantt",
                             tenant: submitor.$route.params.tenant
-                        }
+                        },
+                        query: options.query,
                     })
                     window.open(resolved.href, "_blank")
                 } else {
@@ -71,7 +72,8 @@ export const executeTask = (submitor, flow, values, options) => {
                             id: response.data.id,
                             tab: localStorage.getItem("executeDefaultTab") || "gantt",
                             tenant: submitor.$route.params.tenant
-                        }
+                        },
+                        query: options.query,
                     })
                 }
             }

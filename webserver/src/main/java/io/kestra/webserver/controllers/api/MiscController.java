@@ -8,6 +8,7 @@ import io.kestra.core.models.collectors.FlowUsage;
 import io.kestra.core.plugins.PluginRegistry;
 import io.kestra.core.reporter.Reportable;
 import io.kestra.core.reporter.reports.FeatureUsageReport;
+import io.kestra.core.runners.pebble.PebbleExpressionService;
 import io.kestra.core.repositories.DashboardRepositoryInterface;
 import io.kestra.core.services.InstanceService;
 import io.kestra.core.utils.EditionProvider;
@@ -102,6 +103,9 @@ public class MiscController {
     @Inject
     protected EditionProvider editionProvider;
 
+    @Inject
+    PebbleExpressionService pebbleExpressionService;
+
 
     @Get("/configs")
     @ExecuteOn(TaskExecutors.IO)
@@ -176,6 +180,20 @@ public class MiscController {
         return basicAuthService
             .orElseThrow(() -> new IllegalStateException("basicAuthService bean is required in OSS"))
             .validationErrors();
+    }
+
+    @Get("/pebble/filters")
+    @ExecuteOn(TaskExecutors.IO)
+    @Operation(tags = {"Misc"}, summary = "Retrieve the list of available Pebble expression filters.")
+    public List<String> getExpressionFilters() {
+        return pebbleExpressionService.filters();
+    }
+
+    @Get("/pebble/functions")
+    @ExecuteOn(TaskExecutors.IO)
+    @Operation(tags = {"Misc"}, summary = "Retrieve the list of available Pebble expression functions.")
+    public List<String> getExpressionFunctions() {
+        return pebbleExpressionService.functions();
     }
 
     @Getter

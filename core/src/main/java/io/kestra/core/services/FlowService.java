@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import io.kestra.core.contexts.KestraContext;
 import io.kestra.core.exceptions.FlowProcessingException;
 import io.kestra.core.exceptions.IllegalVariableEvaluationException;
+import io.kestra.core.models.Plugin;
 import io.kestra.core.models.executions.Execution;
 import io.kestra.core.models.Plugin;
 import io.kestra.core.models.flows.*;
@@ -513,6 +514,7 @@ public class FlowService {
     public record Relocation(String from, String to) {}
 
     public record TaskDeprecation(String taskId, String taskType, @Nullable String replacement) {}
+
 
     public List<TaskDeprecation> findDeprecatedTasks(Flow flow) {
         return flow.allTasksWithChilds().stream()

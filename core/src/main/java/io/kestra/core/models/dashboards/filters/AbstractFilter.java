@@ -28,6 +28,7 @@ import lombok.experimental.SuperBuilder;
     @JsonSubTypes.Type(value = Or.class, name = "OR"),
     @JsonSubTypes.Type(value = Regex.class, name = "REGEX"),
     @JsonSubTypes.Type(value = StartsWith.class, name = "STARTS_WITH"),
+    @JsonSubTypes.Type(value = Prefix.class, name = "PREFIX"),
 })
 @Getter
 @NoArgsConstructor
@@ -70,6 +71,7 @@ public abstract class AbstractFilter<F extends Enum<F>> {
         NOT_IN,
         OR,
         REGEX,
-        STARTS_WITH
+        STARTS_WITH,
+        PREFIX
     }
 }

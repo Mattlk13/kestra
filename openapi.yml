@@ -66,7 +66,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/DashboardGenerationPrompt"
+              $ref: "#/components/schemas/AiController.DashboardGenerationPrompt"
         required: true
       responses:
         "200":
@@ -86,7 +86,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/FlowGenerationPrompt"
+              $ref: "#/components/schemas/AiController.FlowGenerationPrompt"
         required: true
       responses:
         "200":
@@ -110,6 +110,36 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/AiController.AiProviderResponse"
+  /api/v1/pebble/filters:
+    get:
+      tags:
+      - Misc
+      summary: Retrieve the list of available Pebble expression filters.
+      operationId: getExpressionFilters
+      responses:
+        "200":
+          description: getExpressionFilters 200 response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+  /api/v1/pebble/functions:
+    get:
+      tags:
+      - Misc
+      summary: Retrieve the list of available Pebble expression functions.
+      operationId: getExpressionFunctions
+      responses:
+        "200":
+          description: getExpressionFunctions 200 response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
   /api/v1/plugins:
     get:
       tags:
@@ -1218,7 +1248,9 @@ paths:
       parameters:
       - name: filters
         in: query
-        description: Filters
+        description: "Filters. PHP-style nested query is used - examples: `filters[timeRange][EQUALS]=PT168H`,\
+          \ `filters[scope][EQUALS]=USER`, `filters[state][IN]=FAILED,CANCELLED`,\
+          \ `filters[labels][NOT_EQUALS][foo]=bar`, `filters[namespace][CONTAINS]=test`"
         required: true
         explode: false
         schema:
@@ -1418,7 +1450,9 @@ paths:
       parameters:
       - name: filters
         in: query
-        description: Filters
+        description: "Filters. PHP-style nested query is used - examples: `filters[timeRange][EQUALS]=PT168H`,\
+          \ `filters[scope][EQUALS]=USER`, `filters[state][IN]=FAILED,CANCELLED`,\
+          \ `filters[labels][NOT_EQUALS][foo]=bar`, `filters[namespace][CONTAINS]=test`"
         required: true
         explode: false
         schema:
@@ -1558,7 +1592,9 @@ paths:
       parameters:
       - name: filters
         in: query
-        description: A list of filters
+        description: "Filters. PHP-style nested query is used - examples: `filters[timeRange][EQUALS]=PT168H`,\
+          \ `filters[scope][EQUALS]=USER`, `filters[state][IN]=FAILED,CANCELLED`,\
+          \ `filters[labels][NOT_EQUALS][foo]=bar`, `filters[namespace][CONTAINS]=test`"
         required: true
         explode: false
         schema:
@@ -1661,7 +1697,9 @@ paths:
       parameters:
       - name: filters
         in: query
-        description: Filters
+        description: "Filters. PHP-style nested query is used - examples: `filters[timeRange][EQUALS]=PT168H`,\
+          \ `filters[scope][EQUALS]=USER`, `filters[state][IN]=FAILED,CANCELLED`,\
+          \ `filters[labels][NOT_EQUALS][foo]=bar`, `filters[namespace][CONTAINS]=test`"
         required: true
         explode: false
         schema:
@@ -1822,7 +1860,9 @@ paths:
       parameters:
       - name: filters
         in: query
-        description: Filters
+        description: "Filters. PHP-style nested query is used - examples: `filters[timeRange][EQUALS]=PT168H`,\
+          \ `filters[scope][EQUALS]=USER`, `filters[state][IN]=FAILED,CANCELLED`,\
+          \ `filters[labels][NOT_EQUALS][foo]=bar`, `filters[namespace][CONTAINS]=test`"
         required: true
         explode: false
         schema:
@@ -1981,7 +2021,9 @@ paths:
       parameters:
       - name: filters
         in: query
-        description: Filters
+        description: "Filters. PHP-style nested query is used - examples: `filters[timeRange][EQUALS]=PT168H`,\
+          \ `filters[scope][EQUALS]=USER`, `filters[state][IN]=FAILED,CANCELLED`,\
+          \ `filters[labels][NOT_EQUALS][foo]=bar`, `filters[namespace][CONTAINS]=test`"
         required: true
         explode: false
         schema:
@@ -2230,7 +2272,9 @@ paths:
       parameters:
       - name: filters
         in: query
-        description: Filters
+        description: "Filters. PHP-style nested query is used - examples: `filters[timeRange][EQUALS]=PT168H`,\
+          \ `filters[scope][EQUALS]=USER`, `filters[state][IN]=FAILED,CANCELLED`,\
+          \ `filters[labels][NOT_EQUALS][foo]=bar`, `filters[namespace][CONTAINS]=test`"
         required: true
         explode: false
         schema:
@@ -2400,7 +2444,9 @@ paths:
       parameters:
       - name: filters
         in: query
-        description: Filters
+        description: "Filters. PHP-style nested query is used - examples: `filters[timeRange][EQUALS]=PT168H`,\
+          \ `filters[scope][EQUALS]=USER`, `filters[state][IN]=FAILED,CANCELLED`,\
+          \ `filters[labels][NOT_EQUALS][foo]=bar`, `filters[namespace][CONTAINS]=test`"
         required: true
         explode: false
         schema:
@@ -2569,7 +2615,9 @@ paths:
       parameters:
       - name: filters
         in: query
-        description: Filters
+        description: "Filters. PHP-style nested query is used - examples: `filters[timeRange][EQUALS]=PT168H`,\
+          \ `filters[scope][EQUALS]=USER`, `filters[state][IN]=FAILED,CANCELLED`,\
+          \ `filters[labels][NOT_EQUALS][foo]=bar`, `filters[namespace][CONTAINS]=test`"
         required: true
         explode: false
         schema:
@@ -2730,7 +2778,9 @@ paths:
       parameters:
       - name: filters
         in: query
-        description: Filters
+        description: "Filters. PHP-style nested query is used - examples: `filters[timeRange][EQUALS]=PT168H`,\
+          \ `filters[scope][EQUALS]=USER`, `filters[state][IN]=FAILED,CANCELLED`,\
+          \ `filters[labels][NOT_EQUALS][foo]=bar`, `filters[namespace][CONTAINS]=test`"
         required: true
         explode: false
         schema:
@@ -2884,9 +2934,16 @@ paths:
           nullable: true
           items:
             type: string
+        examples:
+          Sort by start date in ascending order:
+            value: state.startDate:asc
+          Sort by namespace in descending order:
+            value: namespace:desc
       - name: filters
         in: query
-        description: Filters
+        description: "Filters. PHP-style nested query is used - examples: `filters[timeRange][EQUALS]=PT168H`,\
+          \ `filters[scope][EQUALS]=USER`, `filters[state][IN]=FAILED,CANCELLED`,\
+          \ `filters[labels][NOT_EQUALS][foo]=bar`, `filters[namespace][CONTAINS]=test`"
         required: true
         explode: false
         schema:
@@ -3125,7 +3182,9 @@ paths:
       parameters:
       - name: filters
         in: query
-        description: Filters
+        description: "Filters. PHP-style nested query is used - examples: `filters[timeRange][EQUALS]=PT168H`,\
+          \ `filters[scope][EQUALS]=USER`, `filters[state][IN]=FAILED,CANCELLED`,\
+          \ `filters[labels][NOT_EQUALS][foo]=bar`, `filters[namespace][CONTAINS]=test`"
         required: true
         explode: false
         schema:
@@ -4574,7 +4633,8 @@ paths:
       parameters:
       - name: filters
         in: query
-        description: Filters
+        description: "Filters. PHP-style nested query is used - examples: `filters[labels][NOT_EQUALS][foo]=bar`,\
+          \ `filters[namespace][CONTAINS]=test`"
         required: true
         explode: false
         schema:
@@ -4628,6 +4688,34 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/BulkResponse"
+  /api/v1/{tenant}/flows/deprecated:
+    get:
+      tags:
+      - Flows
+      summary: List flows containing deprecated tasks
+      operationId: listDeprecated
+      parameters:
+      - name: namespace
+        in: query
+        description: A namespace filter prefix
+        explode: false
+        schema:
+          type: string
+          nullable: true
+      - name: tenant
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: listDeprecated 200 response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FlowController.FlowWithDeprecatedTasks"
   /api/v1/{tenant}/flows/disable/by-ids:
     post:
       tags:
@@ -4665,7 +4753,8 @@ paths:
       parameters:
       - name: filters
         in: query
-        description: Filters
+        description: "Filters. PHP-style nested query is used - examples: `filters[labels][NOT_EQUALS][foo]=bar`,\
+          \ `filters[namespace][CONTAINS]=test`"
         required: true
         explode: false
         schema:
@@ -4784,7 +4873,8 @@ paths:
       parameters:
       - name: filters
         in: query
-        description: Filters
+        description: "Filters. PHP-style nested query is used - examples: `filters[labels][NOT_EQUALS][foo]=bar`,\
+          \ `filters[namespace][CONTAINS]=test`"
         required: true
         explode: false
         schema:
@@ -4876,7 +4966,8 @@ paths:
       parameters:
       - name: filters
         in: query
-        description: Filters
+        description: "Filters. PHP-style nested query is used - examples: `filters[labels][NOT_EQUALS][foo]=bar`,\
+          \ `filters[namespace][CONTAINS]=test`"
         required: true
         explode: false
         schema:
@@ -4940,7 +5031,8 @@ paths:
       parameters:
       - name: filters
         in: query
-        description: A list of filters
+        description: "Filters. PHP-style nested query is used - examples: `filters[labels][NOT_EQUALS][foo]=bar`,\
+          \ `filters[namespace][CONTAINS]=test`"
         required: true
         explode: false
         schema:
@@ -5080,9 +5172,15 @@ paths:
           nullable: true
           items:
             type: string
+        examples:
+          Sort by namespace in ascending order:
+            value: namespace:asc
+          Sort by flow ID in descending order:
+            value: id:desc
       - name: filters
         in: query
-        description: Filters
+        description: "Filters. PHP-style nested query is used - examples: `filters[labels][NOT_EQUALS][foo]=bar`,\
+          \ `filters[namespace][CONTAINS]=test`"
         required: true
         explode: false
         schema:
@@ -5741,9 +5839,14 @@ paths:
           nullable: true
           items:
             type: string
+        examples:
+          Sort by key in ascending order:
+            value: key:asc
+          Sort by description in descending order:
+            value: description:desc
       - name: filters
         in: query
-        description: Filters
+        description: "Filters. PHP-style nested query is used - example: `filters[namespace][IN]=company.team`"
         required: true
         explode: false
         schema:
@@ -5798,9 +5901,13 @@ paths:
           nullable: true
           items:
             type: string
+        examples:
+          Sort by timestamp in ascending order:
+            value: timestamp:asc
       - name: filters
         in: query
-        description: Filters
+        description: "Filters. PHP-style nested query is used - examples: `filters[flowId][EQUALS]=hello-world`,\
+          \ `filters[timeRange][EQUALS]=P7D`, `filters[level][EQUALS]=DEBUG`"
         explode: false
         schema:
           type: array
@@ -7297,7 +7404,8 @@ paths:
       parameters:
       - name: filters
         in: query
-        description: Filters
+        description: "Filters. PHP-style nested query is used - examples: `filters[flowId][EQUALS]=hello-world`,\
+          \ `filters[namespace][CONTAINS]=test`"
         required: true
         explode: false
         schema:
@@ -7389,7 +7497,8 @@ paths:
       parameters:
       - name: filters
         in: query
-        description: Filters
+        description: "Filters. PHP-style nested query is used - examples: `filters[flowId][EQUALS]=hello-world`,\
+          \ `filters[namespace][CONTAINS]=test`"
         required: true
         explode: false
         schema:
@@ -7485,7 +7594,8 @@ paths:
       parameters:
       - name: filters
         in: query
-        description: Filters
+        description: "Filters. PHP-style nested query is used - examples: `filters[flowId][EQUALS]=hello-world`,\
+          \ `filters[namespace][CONTAINS]=test`"
         required: true
         explode: false
         schema:
@@ -7567,7 +7677,8 @@ paths:
               properties:
                 filters:
                   type: array
-                  description: Filters
+                  description: "Filters. PHP-style nested query is used - examples:\
+                    \ `filters[flowId][EQUALS]=hello-world`, `filters[namespace][CONTAINS]=test`"
                   items:
                     $ref: "#/components/schemas/QueryFilter"
         required: true
@@ -7614,7 +7725,8 @@ paths:
       parameters:
       - name: filters
         in: query
-        description: A list of filters
+        description: "Filters. PHP-style nested query is used - examples: `filters[flowId][EQUALS]=hello-world`,\
+          \ `filters[namespace][CONTAINS]=test`"
         required: true
         explode: false
         schema:
@@ -7671,9 +7783,15 @@ paths:
           nullable: true
           items:
             type: string
+        examples:
+          Sort by timestamp in ascending order:
+            value: timestamp:asc
+          Sort by trigger ID in descending order:
+            value: triggerId:desc
       - name: filters
         in: query
-        description: Filters
+        description: "Filters. PHP-style nested query is used - examples: `filters[flowId][EQUALS]=hello-world`,\
+          \ `filters[namespace][CONTAINS]=test`"
         required: true
         explode: false
         schema:
@@ -7754,7 +7872,8 @@ paths:
       parameters:
       - name: filters
         in: query
-        description: Filters
+        description: "Filters. PHP-style nested query is used - examples: `filters[flowId][EQUALS]=hello-world`,\
+          \ `filters[namespace][CONTAINS]=test`"
         required: true
         explode: false
         schema:
@@ -7831,7 +7950,8 @@ paths:
       parameters:
       - name: filters
         in: query
-        description: Filters
+        description: "Filters. PHP-style nested query is used - examples: `filters[flowId][EQUALS]=hello-world`,\
+          \ `filters[namespace][CONTAINS]=test`"
         required: true
         explode: false
         schema:
@@ -7929,6 +8049,11 @@ paths:
           nullable: true
           items:
             type: string
+        examples:
+          Sort by timestamp in ascending order:
+            value: timestamp:asc
+          Sort by trigger ID in descending order:
+            value: triggerId:desc
       - name: q
         in: query
         description: A string filter
@@ -8257,6 +8382,22 @@ components:
           type: string
         isDefault:
           type: boolean
+    AiController.DashboardGenerationPrompt:
+      type: object
+      allOf:
+      - $ref: "#/components/schemas/DashboardGenerationPrompt"
+      - type: object
+        properties:
+          providerId:
+            type: string
+    AiController.FlowGenerationPrompt:
+      type: object
+      allOf:
+      - $ref: "#/components/schemas/FlowGenerationPrompt"
+      - type: object
+        properties:
+          providerId:
+            type: string
     ApiAsyncEvent:
       type: object
       properties:
@@ -8730,8 +8871,6 @@ components:
           type: string
         yaml:
           type: string
-        providerId:
-          type: string
     DashboardSettings:
       type: object
       properties:
@@ -9180,6 +9319,20 @@ components:
               \ is executed.  If no checks are defined, the flow executes normally."
             items:
               $ref: "#/components/schemas/Check"
+    FlowController.FlowWithDeprecatedTasks:
+      type: object
+      properties:
+        namespace:
+          type: string
+        flowId:
+          type: string
+        revision:
+          type: integer
+          format: int32
+        deprecatedTasks:
+          type: array
+          items:
+            $ref: "#/components/schemas/FlowService.TaskDeprecation"
     FlowController.TaskValidationType:
       type: string
       enum:
@@ -9267,8 +9420,6 @@ components:
         userPrompt:
           type: string
         yaml:
-          type: string
-        providerId:
           type: string
         namespace:
           type: string
@@ -9390,6 +9541,16 @@ components:
       enum:
       - USER
       - SYSTEM
+    FlowService.TaskDeprecation:
+      type: object
+      properties:
+        taskId:
+          type: string
+        taskType:
+          type: string
+        replacement:
+          type: string
+          nullable: true
     FlowTopologyGraph:
       type: object
       properties:

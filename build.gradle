@@ -16,12 +16,12 @@ plugins {
     id "java"
     id 'java-library'
     id "idea"
-    id "com.gradleup.shadow" version "9.3.2"
+    id "com.gradleup.shadow" version "9.4.0"
     id "application"
 
     // test
     id "com.adarshr.test-logger" version "4.0.0"
-    id "org.sonarqube" version "7.2.2.6593"
+    id "org.sonarqube" version "7.2.3.7755"
     id 'jacoco-report-aggregation'
 
     // helper
@@ -62,6 +62,18 @@ java {
     }
 }
 
+
+abstract class GenericLocationProvider implements CommandLineArgumentProvider {
+    @InputFile
+    @PathSensitive(PathSensitivity.RELATIVE)
+    abstract RegularFileProperty getDistribution()
+
+    @Override
+    Iterable<String> asArguments() {
+        ["-javaagent:${distribution.get().asFile.absolutePath}"]
+    }
+}
+
 dependencies {
     implementation project(":cli")
     testImplementation project(":cli")
@@ -87,6 +99,7 @@ allprojects {
 
         repositories {
             mavenCentral()
+            mavenLocal()
         }
 
         // micronaut
@@ -208,7 +221,7 @@ subprojects {subProj ->
             testImplementation "org.junit.jupiter:junit-jupiter-params"
             testImplementation "org.junit-pioneer:junit-pioneer"
             testImplementation 'org.mockito:mockito-junit-jupiter'
-            mockitoAgent("org.mockito:mockito-core:5.22.0") {
+            mockitoAgent("org.mockito:mockito-core:5.23.0") {
                 transitive = false // just the core
             }
 
@@ -234,6 +247,7 @@ subprojects {subProj ->
             t.finalizedBy jacocoTestReport
             t.doFirst {
                 logger.lifecycle("[TASK START] ${t.path}")
+                project.develocity.buildScan.value("${t.path}#maxHeapSize", t.maxHeapSize)
             }
             t.doLast {
                 logger.lifecycle("[TASK END]   ${t.path}")
@@ -327,7 +341,7 @@ subprojects {subProj ->
                 junitXml.outputLocation = layout.buildDirectory.dir("test-results/flakyTest")
             }
             commonTestConfig(t)
-            t.dependsOn("test")// explicit depend to insure they are run before
+            t.mustRunAfter(tasks.named('test'))
         }
 
         // test task (default)
@@ -346,14 +360,22 @@ subprojects {subProj ->
                 junitXml.outputLocation = layout.buildDirectory.dir("test-results/test")
             }
             commonTestConfig(t)
-            jvmArgs = [
-                "-javaagent:${configurations.agent.singleFile}",
-                "-javaagent:${configurations.mockitoAgent.singleFile}"
-            ]
+            jvmArgumentProviders.add(
+                objects.newInstance(GenericLocationProvider).tap {
+                    distribution = configurations.mockitoAgent.singleFile
+                }
+            )
+
+            jvmArgumentProviders.add(
+                objects.newInstance(GenericLocationProvider).tap {
+                    distribution = configurations.agent.singleFile
+                }
+            )
         }
 
         tasks.named('check') {
             dependsOn(tasks.named('test'))// default behaviour
+            dependsOn(tasks.named('flakyTest'))
         }
 
         testlogger {
@@ -371,6 +393,7 @@ subprojects {subProj ->
 
 tasks.named('check') {
     dependsOn tasks.named('testCodeCoverageReport', JacocoReport)
+    dependsOn(tasks.named('flakyTest'))
     finalizedBy jacocoTestReport
 }
 
@@ -392,7 +415,6 @@ tasks.register('flakyTest') {
 
 tasks.named('testCodeCoverageReport') {
     dependsOn ':core:copyGradleProperties'
-    dependsOn ':ui:assembleFrontend'
 }
 
 /**********************************************************************************************************************\
