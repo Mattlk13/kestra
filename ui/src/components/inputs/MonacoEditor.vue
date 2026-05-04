@@ -2,7 +2,7 @@
     <div>
         <div data-testid="monaco-editor" class="ks-monaco-editor" ref="editorRef" />
         <div ref="datePickerWrapper" v-show="datePickerShown">
-            <ElDatePicker
+            <KsDatePicker
                 ref="datePicker"
                 type="datetime"
                 v-model="selectedDate"
@@ -124,11 +124,11 @@
 
     import {EDITOR_HIGHLIGHT_INJECTION_KEY, EDITOR_WRAPPER_INJECTION_KEY} from "../no-code/injectionKeys";
 
-    import {STATES, TaskIcon} from "@kestra-io/ui-libs";
+    import {STATES} from "@kestra-io/design-system";
 
     import uniqBy from "lodash/uniqBy";
     import {useI18n} from "vue-i18n";
-    import {ElDatePicker} from "element-plus";
+    import {KsDatePicker, KsTaskIcon} from "@kestra-io/design-system";
     import moment, {Moment} from "moment";
     import PlaceholderContentWidget from "../../composables/monaco/PlaceholderContentWidget";
     import Utils from "../../utils/utils";
@@ -431,11 +431,11 @@
 
             if (completionValue.includes(".") && !completionValue.includes("{")) {
                 if (pluginsStore?.icons?.[completionValue] !== undefined) {
-                    replaceRowIcon(vsCodeIcon, h(TaskIcon, {
+                    replaceRowIcon(vsCodeIcon, h(KsTaskIcon, {
                         cls: completionValue,
                         "only-icon": true,
                         icons: pluginsStore.icons,
-                    }));
+                    } as any));
                 }
             } else if (STATES[completionValue] !== undefined) {
                 replaceRowIcon(vsCodeIcon, h(STATES[completionValue].icon));
@@ -447,7 +447,7 @@
 
     const selectedDate = ref<Date>(nowMoment.toDate());
     const datePickerWrapper = ref<HTMLElement>();
-    const datePicker = ref<typeof ElDatePicker>();
+    const datePicker = ref<typeof KsDatePicker>();
     const datePickerShown = ref(false);
     let datePickerWidget: editor.IContentWidget;
 
@@ -1067,7 +1067,6 @@
 </script>
 
 <style scoped lang="scss">
-    @import "../../styles/layout/root-dark";
     .ks-monaco-editor {
         position: absolute;
         width: 100%;
