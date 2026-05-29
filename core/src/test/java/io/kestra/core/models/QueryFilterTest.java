@@ -343,7 +343,7 @@ public class QueryFilterTest {
             buildQueryFiltersForOperations(
                 Field.USERNAME, Resource.USER,
                 Set.of(
-                    Op.EQUALS
+                    Op.EQUALS, Op.CONTAINS
                 )
             ),
 
@@ -421,6 +421,15 @@ public class QueryFilterTest {
                     Op.STARTS_WITH,
                     Op.ENDS_WITH,
                     Op.REGEX,
+                    Op.IN,
+                    Op.NOT_IN
+                )
+            ),
+
+            buildQueryFiltersForOperations(
+                Field.EXTERNAL_ID, Resource.BINDING,
+                Set.of(
+                    Op.EQUALS,
                     Op.IN,
                     Op.NOT_IN
                 )
@@ -1066,11 +1075,8 @@ public class QueryFilterTest {
                     Op.LESS_THAN,
                     Op.GREATER_THAN_OR_EQUAL_TO,
                     Op.LESS_THAN_OR_EQUAL_TO,
-                    Op.IN,
-                    Op.NOT_IN,
                     Op.STARTS_WITH,
                     Op.ENDS_WITH,
-                    Op.CONTAINS,
                     Op.REGEX,
                     Op.PREFIX,
                     Op.NOT_EQUALS
@@ -1239,6 +1245,22 @@ public class QueryFilterTest {
                     Op.LESS_THAN_OR_EQUAL_TO,
                     Op.GREATER_THAN,
                     Op.GREATER_THAN_OR_EQUAL_TO
+                )
+            ),
+
+            buildQueryFiltersForOperations(
+                Field.EXTERNAL_ID, Resource.BINDING,
+                Set.of(
+                    Op.NOT_EQUALS,
+                    Op.GREATER_THAN,
+                    Op.LESS_THAN,
+                    Op.GREATER_THAN_OR_EQUAL_TO,
+                    Op.LESS_THAN_OR_EQUAL_TO,
+                    Op.STARTS_WITH,
+                    Op.ENDS_WITH,
+                    Op.CONTAINS,
+                    Op.REGEX,
+                    Op.PREFIX
                 )
             ),
 

@@ -374,7 +374,7 @@ public record QueryFilter(
         USERNAME("username") {
             @Override
             public List<Op> supportedOp() {
-                return List.of(Op.EQUALS);
+                return List.of(Op.EQUALS, Op.IN, Op.NOT_IN, Op.CONTAINS);
             }
         },
         NAME("name") {
@@ -387,6 +387,12 @@ public record QueryFilter(
             @Override
             public List<Op> supportedOp() {
                 return List.of(Op.IN, Op.EQUALS);
+            }
+        },
+        EXTERNAL_ID("external_id") {
+            @Override
+            public List<Op> supportedOp() {
+                return List.of(Op.EQUALS, Op.IN, Op.NOT_IN);
             }
         },
         EXPIRED_AT("expired_at") {
@@ -514,7 +520,7 @@ public record QueryFilter(
         BINDING {
             @Override
             public List<Field> supportedField() {
-                return List.of(Field.QUERY, Field.NAMESPACE, Field.TYPE);
+                return List.of(Field.QUERY, Field.NAMESPACE, Field.TYPE, Field.EXTERNAL_ID);
             }
         },
         SECURITY_INTEGRATION {
