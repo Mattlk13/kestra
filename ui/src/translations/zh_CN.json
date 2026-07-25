@@ -836,6 +836,17 @@
       "tooltip": "重新启动trigger"
     },
     "trigger disabled": "在Flow源中触发器已禁用",
+    "trigger enable dialog": {
+      "title": "Enable trigger",
+      "bulk title": "Enable {count} triggers",
+      "description": "This trigger may have missed schedules while it was disabled.",
+      "bulk description": "The selected triggers may have missed schedules while they were disabled.",
+      "strategy": "Select the strategy to use:",
+      "options": {
+        "skip": "Do not recover missed schedules",
+        "follow": "Follow the trigger's {property} configuration"
+      }
+    },
     "flow source not found": "未找到flow源",
     "date format": "日期格式",
     "timezone": "时区",
